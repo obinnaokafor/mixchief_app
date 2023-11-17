@@ -1,0 +1,62 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header"><h3>{{ item.name }} Details</h3></div>
+					<div class="card-body">
+						<table class="table table-striped">
+							<tr>
+								<td scope="row">ID</td>
+								<td>{{ item.id }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Name</td>
+								<td>{{ item.name }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Price</td>
+								<td>{{ item.sellingPrice }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Category</td>
+								<td>{{ item.category.name }}</td>
+							</tr>
+						</table>
+					</div>
+					<a class="btn btn-danger action-icon" href="{{ path('removeitem', {'id': item.id }) }}"><i class="fa fa-trash"></i>Delete Item</a>
+				</div>
+				<br>
+				<hr>
+				<a class="btn btn-primary" href="{{ path('editItem', {'id': item.id})}}">Edit Item/Add Inventory Items</a>
+			</div>
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header"><h3>Item Parts</h3></div>
+					<div class="card-body">
+						<table class="table table-striped">
+							<tr>
+								<th>Name</th>
+								<th>Portions</th>
+								<th>Actions</th>
+							</tr>
+							{% for items in itempart %}
+								<tr>
+									<td>{{ items.name }}</td>
+									<td>{{ items.portions }}</td>
+									<td><a class="btn btn-danger" href="{{ path('removeStockItem', {'id': items.id}) }}">Remove</a></td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<a class="btn btn-danger" href="{{ path('item') }}" style="margin-top: 10px;">
+			<i class="fa fa-arrow-left"></i>
+			Back to Items
+		</a>
+	</div>
+{% endblock %}

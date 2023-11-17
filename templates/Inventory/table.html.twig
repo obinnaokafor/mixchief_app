@@ -1,0 +1,54 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-body">
+						<table class="table table-default">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Section</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in tables %}
+									<tr>
+										<td>{{ item.name }}</td>
+										<td>{{ item.section }}</td>
+										<td>
+											<a class="btn btn-default" href="{{ path('tables', {'id': item.id }) }}">Edit</a>
+											<a class="btn btn-danger" href="{{ path('delete', {'query': 'Tables', 'id': item.id }) }}">Delete</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h3>{% if table %}Edit{% else %}Add{% endif %} Table</h3>
+					</div>
+					<div class="card-body">
+						<form action="{{ path('tables') }}" method="POST" name="edit">
+							{% if table %}<input type="hidden" name="edit" value="{{ table.id }}">{% endif %}
+							<div class="form-group">
+								<input type="text" name="name" class="form-control" placeholder="Name" value="{{ table.name|default('') }}">
+							</div>
+							<div class="form-group">
+								<input type="text" name="section" class="form-control" placeholder="Section" value="{{ table.section|default('') }}">
+							</div>
+							<input type="submit" name="submit" value="Save" class="btn-other">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

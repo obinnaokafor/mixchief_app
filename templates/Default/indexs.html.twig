@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Amply - Sales and Inventory Management Simplified</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+    <!-- Custom Font Icons CSS-->
+    <link rel="stylesheet" href="{{ asset('css/iconfont.css') }}">
+    <!-- Google fonts - Open Sans-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800">
+    <!-- owl carousel-->
+    <link rel="stylesheet" href="{{ asset('css/owl-carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owl-carousel.theme.min.css') }}">
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" href="{{ asset('css/front.css') }}" id="theme-stylesheet">
+    <!-- Favicon-->
+    <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+    <!-- Start of Async Drift Code -->
+    {#<script>
+    // "use strict";
+
+    // !function() {
+    //   var t = window.driftt = window.drift = window.driftt || [];
+    //   if (!t.init) {
+    //     if (t.invoked) return void (window.console && console.error && console.error("Drift snippet included twice."));
+    //     t.invoked = !0, t.methods = [ "identify", "config", "track", "reset", "debug", "show", "ping", "page", "hide", "off", "on" ],
+    //     t.factory = function(e) {
+    //       return function() {
+    //         var n = Array.prototype.slice.call(arguments);
+    //         return n.unshift(e), t.push(n), t;
+    //       };
+    //     }, t.methods.forEach(function(e) {
+    //       t[e] = t.factory(e);
+    //     }), t.load = function(t) {
+    //       var e = 3e5, n = Math.ceil(new Date() / e) * e, o = document.createElement("script");
+    //       o.type = "text/javascript", o.async = !0, o.crossorigin = "anonymous", o.src = "https://js.driftt.com/include/" + n + "/" + t + ".js";
+    //       var i = document.getElementsByTagName("script")[0];
+    //       i.parentNode.insertBefore(o, i);
+    //     };
+    //   }
+    // }();
+    // drift.SNIPPET_VERSION = '0.3.1';
+    // drift.load('hz4cbg7gmp62');
+    </script>#}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139480697-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-139480697-1');
+    </script>
+  </head>
+  <body>
+    <!-- navbar-->
+    <header class="header">
+      <nav class="navbar navbar-expand-lg fixed-top">
+        <a href="index.html" class="navbar-brand">
+          <img src="{{ asset('images/logo.png') }}" class="logo" alt="Amply Logo">
+        </a>
+        <button type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler navbar-toggler-right"><span></span><span></span><span></span></button>
+        <div id="navbarSupportedContent" class="collapse navbar-collapse">
+          <ul class="navbar-nav ml-auto align-items-start align-items-lg-center">
+            <li class="nav-item"><a href="#about-us" class="nav-link link-scroll">About</a></li>
+            <li class="nav-item"><a href="#features" class="nav-link link-scroll">Features</a></li>
+            <li class="nav-item"><a href="#pricing-section" class="nav-link link-scroll">Pricing</a></li>
+          </ul>
+          <div class="navbar-text">
+            <!-- Button trigger modal--><a href="#" data-toggle="modal" data-target="#loginModal" class="btn btn-primary navbar-btn btn-shadow btn-gradient">Login</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <!-- Modal-->
+    <div id="loginModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade">
+      <div role="document" class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="exampleModalLabel" class="modal-title">Login</h5>
+            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">
+            <form id="signupform" action="{{ path('app_login') }}" method="POST">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" name="email" placeholder="Email" id="email">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" placeholder="Password" id="password">
+              </div>
+              <div class="form-group">
+                <button type="submit" class="submit btn btn-primary btn-shadow btn-gradient">Login</button>
+                <span class="pull-right">Don't have an account? <a href="{{ path('register') }}">Register</a></span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section id="hero" class="hero hero-home bg-gray">
+      <div class="container">
+        <div class="row d-flex">
+          <div class="col-lg-6 text order-2 order-lg-1">
+            <h1>Complete control of your inventory</h1>
+            <p class="hero-text">Sales and Inventory management just got simpler.</p>
+            <div class="CTA"><a href="#browser" class="btn btn-primary btn-shadow btn-gradient link-scroll">Discover More</a><a href="{{ path('register') }}" class="btn btn-outline-primary">Sign Up Now</a></div>
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2"><img src="{{ asset('images/banner-image.png') }}" alt="Point of Sale" class="img-fluid"></div>
+        </div>
+      </div>
+    </section>
+    <section id="browser" class="browser">
+      <div class="container">
+        <div class="row d-flex justify-content-center">
+          <div class="col-lg-8 text-center">
+            <h2 class="h3 mb-5">How it works</h2>
+            <div class="browser-mockup">
+              <div id="nav-tabContent" class="tab-content">
+                <div id="nav-first" role="tabpanel" aria-labelledby="nav-first-tab" class="tab-pane fade show active"><img src="{{ asset('images/register.png') }}" alt="..." class="img-fluid"></div>
+                <div id="nav-second" role="tabpanel" aria-labelledby="nav-second-tab" class="tab-pane fade"><img src="{{ asset('images/add-item.png') }}" alt="..." class="img-fluid"></div>
+                <div id="nav-third" role="tabpanel" aria-labelledby="nav-third-tab" class="tab-pane fade"><img src="{{ asset('images/sell.png') }}" alt="..." class="img-fluid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="myTab" role="tablist" class="nav nav-tabs">
+          <div class="row" style="flex-grow: 100;">
+            <div class="col-md-4"><a id="nav-first-tab" data-toggle="tab" href="#nav-first" role="tab" aria-controls="nav-first" aria-expanded="true" class="nav-item nav-link active"> <span class="number">1</span>Sign up in less than 5 minutes.</a></div>
+            <div class="col-md-4"><a id="nav-second-tab" data-toggle="tab" href="#nav-second" role="tab" aria-controls="nav-second" class="nav-item nav-link"> <span class="number">2</span>Add categories and items available for sale</a></div>
+            <div class="col-md-4"><a id="nav-third-tab" data-toggle="tab" href="#nav-third" role="tab" aria-controls="nav-third" class="nav-item nav-link"> <span class="number">3</span>Start selling using the interactive Point of Sale interface.</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="about-us" class="about-us bg-gray">
+      <div class="container">
+        <h2>About Amply</h2>
+        <div class="row">
+          <p class="lead col-lg-10">Amply is an all-in-one cloud-based sales and inventory management system built to ease the process of handling and monitoring sales, managing inventory, analytics etc. It is fast and straightforward and ideal for businesses looking to integrate an easy to use system that is adaptable and allows accurate and efficient real-time handling of tasks.</p>
+        </div><a href="{{ path('register') }}" class="btn btn-primary btn-shadow btn-gradient">Get started</a>
+      </div>
+    </section>
+    <section id="features" class="features">
+      <div class="container">
+        <div class="row d-flex align-items-center">
+          <div class="text col-lg-6 order-2 order-lg-1">
+            <!-- <div class="icon"><img src="{{ asset('images/home_change.gif') }}" alt="..." class="img-fluid"></div> -->
+            <h4>Fully Responsive</h4>
+            <p>Instant access to your store's sales and inventory management anytime, anywhere using any device.</p>
+            {# <a href="#" class="btn btn-primary btn-shadow btn-gradient">View More</a> #}
+          </div>
+          <div class="image col-lg-6 order-1 order-lg-2" style="text-align: center;"><img src="{{ asset('images/mul.gif') }}" alt="..." class="img-fluid" style="width: 350px;"></div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="image col-lg-6"><img src="{{ asset('images/chart.png') }}" alt="..." class="img-fluid"></div>
+          <div class="text col-lg-6">
+            <!-- <div class="icon"><img src="{{ asset('images/chart.png') }}" alt="..." class="img-fluid"></div> -->
+            <h4>Real-time Analytics</h4>
+            <p>Track sales growth by comparing with previous days, weeks, months right from your dashboard to assist in making critical decisions.</p>
+            {# <a href="#" class="btn btn-primary btn-shadow btn-gradient">View More</a> #}
+          </div>
+        </div>
+
+        <div class="row d-flex align-items-center">
+          <div class="text col-lg-6 order-2 order-lg-1">
+            <!-- <div class="icon"><img src="{{ asset('images/sales-month.png') }}" alt="..." class="img-fluid"></div> -->
+            <h4>24/7 access</h4>
+            <p>The web based dashboard gives you real time access to your business information allowing you to make important decisions anytime. </p>
+          </div>
+          <div class="image col-lg-6 order-1 order-lg-2"><img src="{{ asset('images/sale.png') }}" alt="..." class="img-fluid"></div>
+        </div>
+      </div>
+    </section>
+    <section id="extra-features" class="extra-features bg-primary">
+      <div class="container text-center">
+        <header>
+          <h2>More great features</h2>
+          <div class="row">
+            {# <p class="lead col-lg-8 mx-auto">There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.</p> #}
+          </div>
+        </header>
+        <div class="grid row">
+          <div class="item col-lg-4 col-md-6">
+            <div class="icon"> <i class="fa fa-envelope"></i></div>
+            <h3 class="h5">e-Receipt</h3>
+            <p>Send electronic receipts to your customers.</p>
+          </div>
+          <div class="item col-lg-4 col-md-6">
+            <div class="icon"> <i class="fa fa-truck"></i></div>
+            <h3 class="h5">Manage Supplies</h3>
+            <p>Track and manage your supply orders. </p>
+          </div>
+          <div class="item col-lg-4 col-md-6">
+            <div class="icon"> <i class="fa fa-sitemap"></i></div>
+            <h3 class="h5">Group Items</h3>
+            <p>Organize items in categories for quicker access during sale.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    {# <section class="pricing" id="pricing">
+      <div class="skewy"></div>
+    </section> #}
+    <section class="price" id="pricing-section">
+      <div class="containers">
+        <header class="text-center no-margin-bottom">
+          <h2>Pricing</h2>
+        </header>
+        <div class="containers">
+          <!-- <h2 class="text-center">Pricing</h2> -->
+          <div class="row">
+            <div class="col-md-6 pricing-cards all-in-one">
+              <div class="card text-center">
+                <div class="card-header">
+                  All-in-one
+                </div>
+                <div class="card-body">
+                  <h6>Access a complete platform for sales and inventory management</h6>
+                  <h2><strong>&#x20A6;2999</strong></h2>
+                  <p>per month</p>
+                  {# <h6>N50,000/year</h6> #}
+                  <ul>
+                    <li>Everything you need to handle sales</li>
+                    <li>No hidden charges</li>
+                  </ul>
+                </div>
+                <div class="card-footer text-muted">
+                  <a href="{{ path('register') }}">Get Started now <i class="fa fa-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 pricing-cards custom flexing">
+              <div class="card text-center contact-sales mx-auto">
+                <div class="card-header">
+                  Custom
+                </div>
+                <div class="card-body">
+                  <p>Design a custom system to suit your specific business needs.</p>
+                  <ul>
+                    <li></li>
+                  </ul>
+                </div>
+                <div class="card-footer text-muted">
+                  <a href="#" data-toggle="modal" data-target="#contactSales">Contact Sales <i class="fa fa-arrow-right"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="contactSales" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade">
+      <div role="document" class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="exampleModalLabel" class="modal-title">Contact Us</h5>
+            <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+          </div>
+          <div class="modal-body">
+            <form id="contactform" action="#" method="POST">
+              {# <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"> #}
+              <div class="form-group">
+                <label for="company">Company Name</label>
+                <input type="text" name="company" placeholder="Compamy" id="company" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" name="email" placeholder="Email" id="email" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="email">Telephone</label>
+                <input type="text" name="telephone" placeholder="Email" id="email" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="interest">What are you intersted in?</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="pos">
+                  <label class="form-check-label" for="pos">
+                    Point of Sale
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" name="inventory" type="checkbox" value="" id="invman">
+                  <label class="form-check-label" for="invman">
+                    Inventory Management
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" name="updates" type="checkbox" value="" id="updates">
+                  <label class="form-check-label" for="updates">
+                    Real-time Updates
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" name="users" type="checkbox" value="" id="multiple">
+                  <label class="form-check-label" for="multiple">
+                    Multiple Users
+                  </label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="message">Any special requests?</label>
+                <textarea name="message" id="message" class="form-control"></textarea>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="submit btn btn-primary btn-shadow btn-gradient">Send</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {# <section id="newsletter" class="newsletter bg-gray">
+      <div class="container text-center">
+        <h2>Subscribe to Newsletter</h2>
+        <p class="lead">There are many variation passages of lorem ipsum, but the majority have</p>
+        <div class="form-holder">
+          <form id="newsletterForm" action="#">
+            <div class="form-group">
+              <input type="email" name="email" id="email" placeholder="Enter Your Email Address">
+              <button type="submit" class="btn btn-primary btn-gradient submit">Subscribe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section> #}
+    <div id="scrollTop">
+      <div class="d-flex align-items-center justify-content-end"><i class="fa fa-long-arrow-up"></i>To Top</div>
+    </div>
+    <footer class="main-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-3 col-md-6"><a href="#" class="brand">Amply</a>
+            <ul class="contact-info list-unstyled">
+              <li><a href="mailto:hello@fivenines.com.ng">hello@fivenines.com.ng</a></li>
+              <li><a href="tel:+2348180871672">+2348180871672</a></li>
+            </ul>
+            <ul class="social-icons list-inline">
+              <li class="list-inline-item"><a href="https://www.facebook.com/amplyng" target="_blank" title="Facebook"><i class="fa fa-facebook"></i></a></li>
+              <li class="list-inline-item"><a href="https://www.twitter.com/amplyng" target="_blank" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+              <li class="list-inline-item"><a href="https://www.instagram.com/amplyng" target="_blank" title="Instagram"><i class="fa fa-instagram"></i></a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <h5>Useful Links</h5>
+            <ul class="links list-unstyled">
+              <li> <a href="#">About</a></li>
+              <li> <a href="#">How to use</a></li>
+              <li> <a href="#">Terms of Use</a></li>
+              <li> <a href="#">Privacy Policy</a></li>
+            </ul>
+          </div>
+          {# <div class="col-lg-3 col-md-6">
+            <h5>Selected Cases</h5>
+            <ul class="links list-unstyled">
+              <li> <a href="#">Guess Conntect</a></li>
+              <li> <a href="#">Postly</a></li>
+              <li> <a href="#">Iris Vor Arnim</a></li>
+              <li> <a href="#">Yapital</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <h5>Selected Cases</h5>
+            <ul class="links list-unstyled">
+              <li> <a href="#">Guess Conntect</a></li>
+              <li> <a href="#">Postly</a></li>
+              <li> <a href="#">Iris Vor Arnim</a></li>
+              <li> <a href="#">Yapital</a></li>
+            </ul>
+          </div> #}
+        </div>
+      </div>
+      <div class="copyrights">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-7">
+              <p>&copy; 2019 Five Nines Technology Limited. All rights reserved. </p>
+            </div>
+            {#  #}
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- Javascript files-->
+    <script src="{{ asset('js/jquery.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.cookie.js') }}"></script>
+    <script src="{{ asset('js/owl-carousel.min.js') }}"></script>
+    <script src="{{ asset('js/front.js') }}"></script>
+  </body>
+</html>

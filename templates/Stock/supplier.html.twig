@@ -1,0 +1,91 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="pull-left">Suppliers</h3>
+						<a href="{{ path('ajax', {'page': 'supplier'}) }}" rel="modal:open" class="btn btn-primary pull-right">New</a>
+					</div>
+					<div class="card-body">
+						<table class="table table-default">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th class="col-sm-hidden">Address</th>
+									<th>Telephone</th>
+									<th class="col-sm-hidden">Email</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for supplier in suppliers %}
+									<tr class="clickable-row" data-href="{{ path('suppliesbysupplier', {'id': supplier.id }) }}" style="cursor: pointer;">
+										<td>{{ supplier.name }}</td>
+										<td class="col-sm-hidden">{{ supplier.address }}</td>
+										<td>{{ supplier.telephone }}</td>
+										<td class="col-sm-hidden">{{ supplier.email }}</td>
+										<td class="flex-big" style="align-items: center; gap: 5px; font-size: 20px;">
+											<a href="{{ path('suppliesbysupplier', {'id': supplier.id }) }}" style="text-decoration: underline;">Supplies</a>
+											<a data-name="{{ supplier.name }}" class="action-icon delete-row link-danger" href="{{ path('deletesupplier', {'id': supplier.id }) }}">Delete</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	{# <div class="row">
+		<div class="col-sm-12 col-md-7">
+			<div class="card">
+				<div class="card-header">
+					<h3>
+						{% if supplier %}
+							{{ supplier.name }} 
+							<a class="btn btn-primary" href="{{ path('suppliesbysupplier', {'id': supplier.id}) }}">Supplies</a>
+							<a href="{{ path('deletesupplier', {'id': supplier.id}) }}" class="btn btn-danger">Delete</a>
+							 
+						{% else %}New Supplier{% endif %} </h3>
+				</div>
+				<div class="card-body">
+					<form action="{{ path('supplier') }}" method="POST" name="supplier" id="supplier">
+						{% if supplier %}<input type="hidden" name="edit" value="{{ supplier.id }}">{% endif %}
+						<div class="form-group">
+							<input type="text" name="name" class="form-control" placeholder="Name" value="{{ supplier.name|default('') }}" required>
+						</div>
+						<div class="form-group">
+							<textarea name="address" class="form-control" placeholder="Address" required>{{ supplier.address|default('') }}</textarea>
+						</div>
+						<div class="form-group">
+							<input type="text" name="telephone" class="form-control" placeholder="Telephone" value="{{ supplier.telephone|default('') }}">
+						</div>
+						<div class="form-group">
+							<input type="text" name="email" class="form-control" placeholder="Email" value="{{ supplier.email|default('') }}">
+						</div>
+						<input type="submit" value="{{ supplier ? 'Update' : 'Save'}}" class="btn btn-success">
+						{% if supplier %}
+							<a href="{{ path('supplier') }}" class="btn btn-primary pull-right" style="margin-right: 20px;">
+								New Supplier
+							</a>
+						{% endif %}
+					</form>
+				</div>
+			</div>
+		</div>
+	</div> #}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/admin.js') }}"></script>
+	<script>
+		$('#confirmdelete').on('click', confirmDelete);
+	</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header"><h3>Sale Details</h3></div>
+					<div class="card-body">
+						<table class="table table-striped">
+							<tr>
+								<td scope="row">Sale ID</td>
+								<td>000{{ order.id }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Date</td>
+								<td>{{ order.date|date('d/m/Y h:i:s A') }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Last Modified</td>
+								<td>{{ order.modified ? order.modified|date('d/m/Y h:i:s A') : '' }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Amount</td>
+								<td>{{ order.amount }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Status</td>
+								<td>{{ order.status }}</td>
+							</tr>
+							<tr>
+								<td scope="row">Payment</td>
+								<td>{{ order.payment }}</td>
+							</tr>
+						</table>
+						<a style="width: 100%" class="btn btn-danger" href="{{ path('deleteorder', {'id': order.id }) }}">Delete Sale</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h3>Sale Items</h3>
+					</div>
+					<div class="card-body">
+						<table class="table table-striped">
+							<tr>
+								<th>Name</th>
+								<th>Quantity</th>
+								<th>Price</th>
+								<th class="col-sm-hidden">Discount</th>
+							</tr>
+							{% for item in orderitems %}
+								<tr>
+									<td>{{ item.name }}</td>
+									<td>{{ item.quantity }}</td>
+									<td>{{ item.price }}</td>
+									<td class="col-sm-hidden">{{ item.discount }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<a class="btn btn-warning" href="{{ path('orders') }}">
+			<i class="fa fa-arrow-left"></i>
+			Back to Sales
+		</a>
+	</div>
+{% endblock %}

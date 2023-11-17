@@ -1,0 +1,53 @@
+{% extends 'empty.html.twig' %}
+
+{% block styles %}
+	{{ parent() }}
+	<style>
+		.logo {
+			width: 150px;
+		}
+
+		
+		.form-signin input[type="email"] {
+		  margin-bottom: -1px;
+		  border-bottom-right-radius: 0;
+		  border-bottom-left-radius: 0;
+		}
+		.form-signin input[type="password"] {
+		  margin-bottom: 10px;
+		  border-top-left-radius: 0;
+		  border-top-right-radius: 0;
+		}
+
+		.form-control:focus {
+		    color: #495057;
+		    background-color: #fff;
+		    border-color: #495057;
+		    outline: 0;
+		    box-shadow: none;
+		}
+
+		.form-control {
+
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<form class="form-signin" action="{{ path('app_login') }}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+      	{# <img class="mb-4 logo" src="{{ asset('images/logo_trans_white.png') }}" alt=""> #}
+      	<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+      	<label for="inputEmail" class="sr-only">Email address</label>
+      	<input type="email" name="email" placeholder="Email Address" class="form-control login" value="{{ last_username|default('') }}" required>
+      	<label for="inputPassword" class="sr-only">Password</label>
+      	<input type="password" name="password" placeholder="Password" class="form-control" required>
+      	<div class="checkbox mb-3">
+	        <label>
+	          	<input type="checkbox" name="_remember_me"> Remember me
+	        </label>
+      	</div>
+      	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      	{# <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p> #}
+    </form>
+{% endblock %}

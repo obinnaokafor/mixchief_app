@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Point of Sale</title>
+	{# <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" /> #}
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="{{ asset('css/bootstrap3.css') }}" />
+	<link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+	{# <link rel="stylesheet" href="{{ asset('fonts/icomoon/icomoon.css') }}" /> #}
+	{# <link rel="stylesheet" href="{{https://cdn.jsdelivr.net/sweetalert2/6.1.0/sweetalert2.min.css}}" /> #}
+	<link rel="stylesheet" href="{{ asset('css/featherlight.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/main2.css') }}" />
+	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" />
+	
+	
+		<!-- Stepper CSS -->
+	<link href="{{ asset('css/jquery.fs.stepper.css') }}" rel="stylesheet">
+
+		<!-- Main CSS -->
+	<link href="{{ asset('css/style32.css')}}" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+
+	<script>
+		const items_url = "{{ path('positems') }}";
+		const order_url = "{{ path('order') }}";
+		const saved_orders = "{{ path('savedorders') }}";
+		const saved_order = "{{ path('savedorder') }}";
+		const delete_saved_order = "{{ path('deleteSavedOrder') }}";
+		const delete_saved_order_items = "{{ path('deletesavedorderitems') }}";
+	</script>
+
+	<style>
+		.flash-message {
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			z-index: 9999999;
+			padding: 12px;
+			background: #28a745;
+			color: #fff;
+			max-width: 500px;
+			display: none;
+			font-size: 18px;
+		}
+
+		.flash-message span.closes {
+			position: absolute;
+			top: 5px;
+			right: 10px;
+			color: #222;
+			cursor: pointer;
+		}
+
+		@media (min-width: 1170px){
+			.flash-message {
+				visibility: hidden;
+			}
+		}
+
+		#invoice-POS{
+		  box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
+		  padding:5mm;
+		  margin: 0 auto;
+		  width: 100%;
+		  background: #FFF;
+		  padding-top: 15px;
+		}
+
+		@media screen and (min-width: 997px){
+			#invoice-POS {
+				width: 125mm;
+			}
+		}
+		#invoice-POS::selection {background: #f31544; color: #FFF;}
+		#invoice-POS::moz-selection {background: #f31544; color: #FFF;}
+		#invoice-POS h1{
+		  font-size: 1.5em;
+		  color: #222;
+		}
+		#invoice-POS h2{font-size: .9em;}
+		#invoice-POS h3{
+		  font-size: 1.2em;
+		  font-weight: 300;
+		  line-height: 2em;
+		}
+		#invoice-POS p{
+		  font-size: .7em;
+		  color: #666;
+		  line-height: 1.2em;
+		}
+		 
+		#invoice-POS #top, #invoice-POS #mid,#invoice-POS #bot{
+		  border-bottom: 1px solid #EEE;
+		}
+
+		#invoice-POS #top{min-height: 50px;}
+
+		#invoice-POS #bot{ min-height: 50px;}
+
+		#invoice-POS .info{
+		  display: block;
+		  /*//float:left;*/
+		  margin-left: 0;
+		}
+		#invoice-POS .title{
+		  float: right;
+		}
+		#invoice-POS .title p{text-align: right;} 
+		table{
+		  width: 100%;
+		  border-collapse: collapse;
+		}
+		#invoice-POS td{
+		  /*//padding: 5px 0 5px 15px;*/
+		  /*//border: 1px solid #EEE*/
+		}
+		#invoice-POS .tabletitle{
+		  /*//padding: 5px;*/
+		  font-size: .8em;
+		  background: #EEE;
+		}
+		#invoice-POS .service{border-bottom: 1px solid #EEE;}
+		#invoice-POS .item{width: 24mm;}
+		#invoice-POS .itemtext{font-size: .8em;}
+
+		#invoice-POS #legalcopy{
+		  margin-top: 5mm;
+		}
+	</style>
+</head>
+<body>
+	
+<!-- <div class="app-wrap"> -->
+<div class="flash-message">
+	
+	<span class="closes">X</span>
+</div>
+	<nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>	
+          </button>
+          <a class="navbar-brand" href="{{path('homepage') }}"><img src="{{ asset('images/logo_trans_white.png') }}" class="logo" alt="Amply Logo" style="width: 150px; height: 45px;"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="load-orders-button"><a href="#">Load Orders</a></li>
+            <li><a href="{{ path('admin') }}">Dashboard</a></li>
+            <li><a href="{{ path('app_logout') }}">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+<!-- </div> -->
+<div class="wrapper">
+	<div class="container-fluid">
+		<div class="row pos-body">
+			<div class="col-sm-6 cover">
+				<div id="sale">
+					<div class="ui-32">
+							<div class="ui-view-cart">
+								<div class="table-responsive">
+									<table class="table" id="saleList">
+										<thead>
+											<tr>
+												<th colspan="2">Item</th>
+												<th class="col-sm-hidden">Price</th>
+												<th>Quantity</th>
+												<th>Total</th>
+												<th class="text-center">Remove</th>
+											</tr>
+										</thead>
+										<tbody>
+													
+										</tbody>
+									</table>
+								</div>
+							</div>
+					</div>
+				</div>
+				{# <div class="total">
+					<div class="row">
+						<div class="col-sm-6">
+							<table class="table">
+								<tr>
+									<td>Discount:</td>
+									<td id="disc">0</td>
+								</tr>
+							</table>
+						</div>
+						<div class="col-sm-6 col-sm-offset-6">
+							<table class="table order-total">
+								<tr>
+									<td>Total:</td>
+									<td id="total">0</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div> #}
+				{# <div class="row place-order">
+					<div class="col-sm-6">
+						<button style="display: none;" class="btn btn-default order-place order-button mobile-button" data-pay="place">Place Order</button>
+					</div>
+					<div class="col-sm-6">
+						<button style="display: none;" class="btn btn-default reset order-button mobile-button" data-pay="clear">Clear</button>
+					</div>
+				</div> #}
+			<div class="col-sm-12 footer-section">
+				<div class="place-order">
+					<button class="btn btn-default order-place order-button" data-pay="place">Pay</button>
+					<button class="btn btn-default reset order-button" data-pay="clear">Clear</button>
+				</div>
+				<table class="table order-total" style="width: 50%">
+					<tr>
+						<td>Total:</td>
+						<td id="total">0</td>
+					</tr>
+				</table>
+			</div>
+			</div>
+			<div class="col-sm-6 buttons">
+				<p>Category</p>
+				<div class="mainmenu">
+				</div>
+				<hr>
+				<p class="items-buttons">Items</p>
+				<div class="itemlist">
+
+				</div>
+
+			</div>
+			
+		</div>
+	</div>
+</div>
+<script src="{{ asset('js/jquery.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/featherlight.js')}}"></script>
+<script src="{{ asset('js/moment.js')}}"></script>
+{# <script src="{{ asset('js/sweetalert.js') }}"></script> #}
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+{# <script src="{{ asset('js/sweetalert2.js') }}"></script> #}
+<script src="{{ asset('js/json-groupBy.js') }}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
+<script src="{{ asset('js/placeholder.js') }}"></script>
+<script src="{{ asset('js/slimscroll.min.js') }}"></script>
+<script src="{{ asset('js/custom-scrollbar.js') }}"></script>
+<!-- Respond JS for IE8 -->
+<script src="{{ asset('js/respond.min.js') }}"></script>
+<!-- HTML5 Support for IE -->
+<script src="{{ asset('js/html5shiv.js') }}"></script>
+
+<script src="{{ asset('js/jquery.fs.stepper.min.js') }}"></script>
+<script>
+	$('.closes').on('click', function(e){
+		$(e.currentTarget).closest('.flash-message').fadeOut(400, function(){
+			$(this).remove()
+		});
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends 'base2.html.twig' %}
+
+{% block content %}
+  <div class="register-form">
+      <div class="card">
+          <h3 class="text-center">Register to start using Amply Now</h3>
+          <div class="card-body">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+              {{ form_widget(form) }}
+              <button class="btn btn-primary">Register</button>
+            {{ form_end(form)}}
+          </div>
+      </div>
+  </div>
+{% endblock %}

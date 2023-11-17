@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap');
+
+h1, h2, h3, h4, h5, p > strong {
+    font-family: 'Roboto', Helvetica, sans-serif;
+    font-weight: 400;
+}
+
+body {
+    font-family: 'Roboto', Helvetica, sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #fff;
+}

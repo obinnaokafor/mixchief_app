@@ -1,0 +1,140 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixChief Order Confirmation</title>
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
+	<link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+    <style>
+        body {
+            /* font-family: Arial, sans-serif; */
+            /* background-color: #f4f4f4; */
+            margin: 0;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .container {
+            /* background-color: #fff; */
+            padding: 20px;
+            /* border-radius: 5px; */
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .next {
+            padding: 18px;
+            background-color: #e5e5e5;
+            color: #6d6e70;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .next h3 {
+            line-height: 30px;
+        }
+
+        .next a.insta {
+            color: #d62976;
+        }
+
+        .next a.twitter {
+            color: #1da1f2;
+        }
+
+
+
+        body nav .nav-content {
+            justify-content: center;
+        }
+
+        .container .confirmation-header {
+            /* text-align: center; */
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        hr {
+            margin: 10px 0;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container .total {
+            text-align: right;
+        }
+
+        .order-details {
+            margin-top: 20px;
+        }
+
+        .order-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .shipping-details {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .shipping-details > * {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="/"><img src="{{ asset('images/mixchief-logo.png') }}" alt="MixChief Logo"></a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="next">
+            <h3>What's next?</h3>
+            <p>Sit back and wait for your order to get delivered to you. If you have any questions please call/whatsapp <a href="tel:+2348133277306">08133277306</a>. This is also a good time for you to follow us on <a href="https://instagram.com/themixchief" class="insta">MixChief's Instagram</a> and <a href="https://twitter.com/themixchief" class="twitter">MixChief's Twitter</a></p>
+        </div>
+        <h2 class="confirmation-header">Thank you for your purchase!</h2>
+        <hr />
+        <p>Your order with items listed below has been placed successfully.</p>
+        <div class="order-details">
+            <ul class="order-items">
+                {% for item in orderItems %}
+                    <li class="order-item">
+                        <span>{{ item.name }}</span>
+                        <span>&#8358;{{ item.price }} x {{ item.quantity }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <h3 class="total">Total: &#8358;{{ order.amount }} </h3> 
+        </div>
+        <div class="shipping-details">
+            <h3>Delivery Information</h3>
+            <p><strong>Name:</strong> {{ delivery.fullname }}</p>
+            <p><strong>Address:</strong> {{ delivery.address }}</p>
+            <p><strong>Phone:</strong> {{ delivery.phone }}</p>
+        </div>
+        <!-- <p>Thank you for your order! Call <a href="tel:+23408133277306">08133277306</a> if you have any questions or issues.</p> -->
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            localStorage.removeItem('items');
+        });
+    </script>
+</body>
+</html>

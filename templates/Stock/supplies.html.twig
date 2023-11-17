@@ -1,0 +1,44 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-body">
+				{% if supplier is defined %}
+					<h3>{{ supplier.name }} Supplies <a href="{{ path('supply', {"supplierId": supplier.id}) }}" class="btn btn-primary" style="margin-left: 20px;">New Supply</a></h3>
+				{% else %}
+					<h3>Supplies <a href="{{ path('supply') }}" class="btn btn-primary" style="margin-left: 20px;">New Supply</a></h3>
+				{% endif %}
+				
+				<table class="table table-striped" id="rowSelection">
+					<thead>
+						<tr>
+							{# <th>Name</th> #}
+							<th>Supplier</th>
+							<th>Total</th>
+							<th>Date</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in supplies %}
+							<tr class="clickable-row" data-href="{{ path('supplyitems', {'id': item.id }) }}" style="cursor: pointer;">
+								{# <td>{{ item.name }}</td> #}
+								<td>{{ item.supplier.name }}</td>
+								<td>{{ item.total }}</td>
+								<td>{{ item.date|date('d/m/Y H:i:s') }}</td>
+								<td class="flex-big" style="gap: 5px;">
+									<a class="action-icon edit-row link-warning" href="{{ path('editsupply', {'id': item.id }) }}"><i class="fa fa-edit"></i></a>
+									<a class="action-icon delete-row link-danger" href="{{ path('deletesupply', {'id': item.id }) }}"><i class="fa fa-times"></i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% if supplier is defined %}
+					<a class="btn btn-danger" href="{{ path('deletesupplier', {'id': supplier.id }) }}" id="confirmdelete">Delete Supplier</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}

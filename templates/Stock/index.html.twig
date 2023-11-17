@@ -1,0 +1,158 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h3>Inventory</h3>
+					</div>
+					<div class="card-body">
+						<table class="table table-striped" id="rowSelection">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Quantity</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in stock %}
+									<tr class="clickable-row" data-href="{{ path('stock', {'id': item.id }) }}">
+										<td>{{ item.name }}</td>
+										<td>{{ item.quantity }} {{ item.unit }}</td>
+										<td>
+											<a class="btn btn-primary" href="{{ path('stocksupplyitems', {'id': item.id }) }}">Supplies</a>
+											<a class="btn btn-danger" href="{{ path('removeinventoryitem', {'id': item.id }) }}"><i class="fa fa-times"></i></a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-header">
+						<h3>{% if stockitem %}<a href="{{ path('stock') }}" class="btn btn-primary" style="margin-right: 20px;">New Inventory</a> Edit {{ stockitem.name }}{% else %}Add Inventory Item{% endif %} </h3>
+					</div>
+					<div class="card-body">
+						<form action="{{ path('stock') }}" method="POST" name="edit">
+							{% if stockitem %}<input type="hidden" name="edit" value="{{ stockitem.id }}">{% endif %}
+							<div id="stockform">
+								<div class="row">
+									<div class="col-sm-5">
+										<input type="text" name="name[]" class="form-control" placeholder="Name" value="{{ stockitem.name|default('') }}" required>
+									</div>
+									<div class="col-sm-3">
+										<input type="text" name="quantity[]" class="form-control" placeholder="Quantity" value="{{ stockitem.quantity|default('') }}" required>
+									</div>
+									<div class="col-sm-3">
+										<select name="unit[]" id="unit" style="padding: 3px;" class="form-control" required>
+											<option value="">Select Unit</option>
+											<option value="pieces">pieces</option>
+											<option value="packets">packets</option>
+											<option value="bags">bags</option>
+											<option value="cups">cups</option>
+											<option value="ml">ml</option>
+											<option value="cl">cl</option>
+											<option value="l">l</option>
+											<option value="g">g</option>
+											<option value="kg">kg</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<input type="submit" name="submit" value="Save" class="btn btn-primary">
+						</form>
+						{% if stockitem %}
+						
+						{% else %}
+							<button type="button" id="add-more-button" class="btn btn-primary pull-right">Add More</button>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script>
+		var units = {
+		  pieces: 'pieces',
+		  bags: 'bags',
+		  packets: 'packets',
+		  cups: 'cups',
+		  sachet: 'sachet',
+		  g: 'g',
+		  kg: ['kg', 'g'],
+		  ml: 'ml',
+		  cl: ['cl', 'ml'],
+		  l: ['cl', 'ml'],
+		}
+
+		const options = () => {
+			return Object.keys(units).map(unit => `<option value="${unit}">${unit}</option>`).join("");
+		}
+
+		var unit = "{{ stockitem.unit|default('') }}";
+		if(unit) {
+			document.forms.edit.unit.value = unit;
+		}
+
+		// $('#unit').append(options())
+
+		const addTemplate = () => `
+			<hr>
+			<div class="row">
+				<div class="col-sm-5">
+					<input type="text" name="name[]" class="form-control" placeholder="Name" required>
+				</div>
+				<div class="col-sm-3">
+					<input type="text" name="quantity[]" class="form-control" placeholder="Quantity" required>
+				</div>
+				<div class="col-sm-2">
+					<select name="unit[]" id="unit" class="form-control" style="padding: 3px;" required>
+						<option value="">Unit</option>
+						${options()}
+					</select>
+				</div>
+				<div class="col-sm-1 cancel-button" style="display: flex;">
+					<button style="margin:auto;" type="button" class="btn btn-danger"><i class="fa fa-times"></i></button>
+				</div>
+			</div>
+		`;
+
+		var addMore = document.getElementById('add-more-button');
+
+		if (addMore) {
+			addMore.addEventListener('click', addItem);
+
+			function addItem(){
+				$('.cancel-button').hide();
+				$('#stockform').append(addTemplate());
+			}
+
+			$('#stockform').on('click', '.cancel-button', function(e){
+				e.preventDefault();
+				const $target = $(e.currentTarget)
+				const parent = $target.closest('.row').remove()
+				$('#stockform .row').last().find('.cancel-button').show()
+			});
+		}
+
+		// function removeItem(){
+		// 	var parent = document.getElementById('stockform');
+		// 	parent.removeChild(parent.lastChild);
+		// 	$(parent.lastChild).append(cancelTemplate())
+		// }
+
+
+	</script>
+{% endblock %}

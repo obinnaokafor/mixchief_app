@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EPOS</title>
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+	<script src="{{ asset('js/jquery.js') }}"></script>
+	<script src="{{ asset('js/bootstrap.js') }}"></script>
+	<script src="{{ asset('js/login-register.js') }}"></script>
+	<script type="text/javascript">
+		var total;
+		// var discount;
+
+		function calculateTotal(){
+			total = 0;
+			var inputs = document.querySelectorAll('#saleList input');
+			for (var i = 0; i < inputs.length; i++) {
+				total += parseFloat(inputs[i].getAttribute('data-price'));
+			}
+			document.getElementById('total').innerHTML = total;
+		}
+
+		function calculateDiscount(){
+			var discount = 0;
+			var inputs = document.querySelectorAll('#saleList input');
+			for (var i = 0; i < inputs.length; i++) {
+				discount += parseFloat(inputs[i].getAttribute('data-discount'));
+			}
+			document.getElementById('confirmDiscount').innerHTML = discount;
+		}
+
+		//clear the order list
+		function clearList(){
+			document.getElementById('saleList').innerHTML = "";
+			calculateTotal();
+			$('#pay').hide();
+			$('#saveOrder').hide();
+			$('#deleteButton').hide();
+			$('#discountButton').hide();
+			$('#clearButton').hide();
+		}
+
+
+		function deleteItems(){
+			//select all checked checkboxes
+			//then loop through all of them getting all their siblings
+			//then removing them from list
+			var checked = document.querySelectorAll('input:checked');
+			for(var key in checked){
+				var nexts = checked[key].nextSibling;
+				if (nexts) {
+					saleList.removeChild(checked[key]);
+					saleList.removeChild(nexts);
+					calculateTotal();
+					$('#deleteButton').hide();
+					$('#discountButton').hide();
+					if (document.querySelectorAll('input').length == 0) {
+						$('#pay').hide();
+						$('#saveOrder').hide();
+					}
+				}
+			}
+
+		}
+
+		// var totalDiscount = 0;
+		function discount(){
+			var percent = prompt('Discount %: ');
+			var checked = document.querySelectorAll('input:checked');
+			for(var key in checked){
+				var nexts = checked[key].nextSibling;
+				if (nexts) {
+					var price = parseFloat(checked[key].getAttribute('data-price'));
+					var discountPrice = (parseFloat(checked[key].getAttribute('data-price')) * percent)/100;
+					var newPrice = price - discountPrice;
+					// totalDiscount += discountPrice;
+					checked[key].setAttribute('data-price', newPrice);
+					checked[key].setAttribute('data-discount', discountPrice);
+					nexts.getElementsByTagName('span')[0].innerHTML = newPrice;
+				}
+				checked[key].checked = false;
+				calculateTotal();
+			}
+			$('#discountButton').hide();
+			$('#deleteButton').hide();
+		}
+
+		var all;
+
+		function pay(){
+			var all = document.querySelectorAll('ul>input');
+			var output = "<ul id='payList'>";
+			for (var i = 0; i < all.length; i++) {
+				// console.log(inside);
+				output += "<li>" + all[i].getAttribute('data-name') + "<span class='pull-right'>" + all[i].getAttribute('data-price') + "</li>";
+				// console.log(inside);
+			}
+			output += "</ul>";
+			$('.loginBox').html(output);
+			document.getElementById('confirmTotal').innerHTML = total;
+			// document.getElementById('confirmDiscount').innerHTML = discount;
+			calculateDiscount();
+			openLoginModal();
+		}
+
+		$( document ).ajaxStart(function() {
+			$('#loginModal').modal('hide');
+		});
+		// $( document ).ajaxComplete(function() {
+		//   	clearList();
+		// });
+
+		function orderItems(status = 'completed'){
+			var info = {};
+			var data = [];
+			var list = document.querySelectorAll('input');
+
+			// iterate through all the elements in the order list
+			// save the item name, price and id as values in an object 
+			// with name, price and id as keys respectively
+			// then push the object into the 'data' array
+			for (var i = 0; i < list.length; i++) {
+				var item = {};
+				item['name'] = list[i].getAttribute('data-name');
+				item['price'] = list[i].getAttribute('data-price');
+				item['id'] = list[i].value;
+				data.push(item);
+			}
+			info['orders'] = data;
+			info['status'] = status;
+			info['savedOrderId'] = savedOrderId;
+			info['total'] = parseFloat(document.getElementById('total').innerHTML);
+			placeOrder(info);
+			// console.log(data);
+		}
+
+		var modal = document.getElementById('myModal');
+		window.onclick = function(event) {
+		    if (event.target == modal) {
+		        modal.style.display = "none";
+		    }
+		} 
+
+		function placeOrder(data){
+			var orderUrl = "{{ path('order') }}";
+			$.post( orderUrl, data, function( newData ) {
+				console.log(newData);
+			    if(newData){
+			        $('#notify').show();
+			        setTimeout(function(){
+			        	$('#notify').hide()
+			        }, 1000);
+			        clearList();      
+			    } else {
+			        console.log("No go");
+			    }
+			});
+			savedOrderId = 0;
+			// totalDiscount = 0;
+		}
+
+		function saveOrder(){
+			var save = confirm('Save this order and print receipt?');
+			if (save) {
+				orderItems('pending');
+			}
+		}
+
+		// populate the order list with items in selected saved order
+		var savedOrderId = 0;
+		function listSavedOrders(key){
+			console.log(savedOrders[key]);
+			clearList();
+			for (var i = 0; i < savedOrders[key].length; i++) {
+				sales = "<input type='checkbox' value='" + savedOrders[key][i].item_id + "' class='pull-left' data-price='" + savedOrders[key][i].item_price + "' data-name='" + savedOrders[key][i].item_name + "' data-discount='0'>";
+				sales += "<li>" + savedOrders[key][i].item_name + "<span class='pull-right listPrice'>" + savedOrders[key][i].item_price + "</span></li>";
+				$('#saleList').prepend(sales);
+			}
+			// console.log(sales);
+			
+			calculateTotal();
+			$('#pay').show();
+			$('#saveOrder').show();
+			$('#clearButton').show();
+			$('#savedModal').modal('hide');
+			savedOrderId = key;
+		}
+
+		// retrieve placed orders with status = 'pending' and list in modal
+		var savedOrders;
+		function retrieveSavedOrders(){
+			var savedOrderUrl = "{{ path('retrievesavedorder') }}";
+			$.get(savedOrderUrl, function(data){
+				console.log("Yes");
+				if (data) {
+					var saved = JSON.parse(data);
+					savedOrders = {};
+					for(var key in saved){
+						if (savedOrders[saved[key].order_id]) {
+							savedOrders[saved[key].order_id].push(saved[key]);
+						}else{
+							savedOrders[saved[key].order_id] = [saved[key]];
+						}
+					}
+					// savedOrder = savedOrders;
+					var output = "<table class='table'>";
+					output += "<tr><th>Order ID</th><th>Amount</th><th>Date</th><th>Action</th></tr>"
+					for (var key in savedOrders) {
+						console.log(savedOrders[key]);
+						// console.log(inside);
+						output += "<tr>";
+						output += "<td>" + savedOrders[key][0].order_id + "</td>";
+						output += "<td>" + savedOrders[key][0].amount + "</td>";
+						output += "<td>" + savedOrders[key][0].order_date + "</td>";
+						output += "<td><button class='btn btn-default other' onclick='listSavedOrders(" + key + ");'>Select</button></td>";
+						output += "</tr>";
+						// console.log(inside);
+					}
+					output += "</table>";
+				}
+				$('.saved-orders').html(output);
+				openSavedOrders();
+
+				console.log(output);
+			});
+		}
+	</script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">EPOS</a>
+		</div>
+		<ul class="nav navbar-nav">
+			<li><a href="javascript: retrieveSavedOrders();">Saved Orders</a></li>
+			
+		</ul>
+	</div>
+</nav> 
+<div class="wrapper">
+	<div class="container-fluid">
+		<div class="alert alert-success alert-dismissable text-center" id="notify">
+		  	<p>Order Placed Successfully</p>
+		</div>	
+		<div class="row">
+			<div class="col-sm-3">
+				<div id="sale">
+					<ul id="saleList" class="list-group">
+					</ul>
+					
+
+					
+				</div>
+				<div class="total">
+					<p>Total: <span id="total"></span></p>
+				</div>
+				<button id="pay" style="display: none;" class="btn btn-default" onclick="pay();">Pay</button>
+				<button id="saveOrder" style="display: none;" class="btn btn-default" onclick="saveOrder();">Save Order</button>
+				<button id="deleteButton" style="display: none;" class="btn btn-default" onclick="deleteItems();">Delete Item(s)</button>
+				<button id="discountButton" style="display: none;" class="btn btn-default" onclick="discount();">Apply Discount</button>
+				<button id="clearButton" style="display: none;" class="btn btn-default" onclick="clearList();">Clear List</button>
+
+			</div>
+			<div class="col-sm-7">
+				<div class="row" id="submenu">
+
+				</div>
+				<div class="row" id="mains">
+					
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div id="mainmenu">
+					
+				</div>
+			</div>
+		</div>
+		<div class="modal fade login" id="loginModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirm Order</h4>
+                    </div>
+                    <div class="modal-body">  
+                        <div class="box">
+                             <div class="content">
+                                <div class="error"></div>
+                                <div class="form loginBox">
+
+                                </div>
+                                <p class="confirmTotal pull-right">Total: <span id="confirmTotal"></span></p>
+                                <p class="confirmTotal pull-right">Discount: -<span id="confirmDiscount">0.0</span></p>
+                                
+                                
+                             </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" onclick="orderItems();">Submit</button>
+                    </div>        
+    		      </div>
+		      </div>
+		</div>
+		<div class="modal fade login" id="savedModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="saved-modal-title">Select Order</h4>
+                    </div>
+                    <div class="modal-body">  
+                        <div class="box">
+                             <div class="content">
+                                <div class="error"></div>
+                                <div class="form saved-orders">
+
+                                </div>
+                                
+                                
+                             </div>
+                        </div>
+                    </div>       
+    		      </div>
+		      </div>
+		</div>
+
+		<div id="myModal" class="modal">
+
+		  <!-- Modal content -->
+		  <div class="modal-contents">
+		    
+		  </div>
+
+		</div>
+	</div>
+</div>
+<script>
+
+	var url = "{{ path('homepage') }}";
+	$.get(url, function(data){
+		if (data) {
+			console.log(data);
+			var rel = JSON.parse(data);
+			category(rel);
+		}
+
+		// console.log(rel);
+	});
+	// var data = "{{ product }}";
+	// console.log(data);
+	// data = JSON.parse(data);
+	// category(data);
+		var cat = {};
+		var group = {};
+		var group_cat = {};
+
+		function createSub(element, cat){
+			var output = "";
+			for(var key in element){
+				output += '<div class="col-sm-3 text-center pull-left">';
+				output += "<button class='btn sub' data-price='" +  element[key].item_price + "' data-category='" + cat + "' data-id='" + element[key].item_id + "'>" + element[key].item_name + "</button>";
+				output += "</div>";
+			}
+			return output;
+		}
+
+		function category(data){
+			var arr = [];
+
+			//Sort by categories
+			for(var key in data){
+				if(data[key].cat_name in cat){
+					cat[data[key].cat_name].push(data[key]);
+				}else {
+					cat[data[key].cat_name] = [data[key]];
+				}
+				
+			}
+
+			var sets = new Set();
+
+			for(var key in cat){
+				sets.add(cat[key][0].group_name);
+			}
+			sets.forEach(function(element){
+				group_cat[element] = {};
+			})
+
+			for(var key in cat){
+				for(let item of sets){
+					if (cat[key][0].group_name == item) {
+						group_cat[item][key] = cat[key];
+						break;
+					}
+				}
+			}
+			
+
+			// console.log(cat);
+			// console.log(group_cat);
+			// createButtonElement(cat);
+			createMainElements(group_cat);
+			// var cat = new 
+		}
+
+		//this function receives an object and creates and returns a button
+		//as a string for the main menu
+		function createButtonElement(elements){
+			var main = "";
+			for(var key in elements){
+				main += "<div class='col-sm-3 text-center pull-left'>";
+				main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button></div>";
+			}
+			mains.innerHTML = main;
+			// return main;
+		}
+
+		function createMainElements(element){
+			var main = "";
+			for(var key in element){
+				main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button>";
+			}
+			mainmenu.innerHTML = main;
+		}
+
+		$('#mains').on('click', 'button', function(){
+			var sub = createSub(cat[$(this).data('name')], $(this).data('name'));
+			submenu.innerHTML = sub;
+		});
+
+		$('#mainmenu').on('click', 'button', function(){
+			createButtonElement(group_cat[$(this).data('name')]);
+			// submenu.innerHTML = sub;
+		});
+
+
+
+		// When an item is selected, list the item in the order section
+		// calculate total by adding the prices of each item
+		// Show the pay button and save order button
+		var sales = "";
+		var count = 1;
+		$('#submenu').on('click', 'button', function(){
+			sales = "<input class='pull-left' type='checkbox' value='" + $(this).data('id') + "' data-price='" + $(this).data('price') + "' data-name='" + $(this).html() + "' data-discount='0'>";
+			sales += "<li class='list-group-item'><span class='list-item'>" + $(this).html() + "</span><span class='pull-right listPrice'>" + $(this).data('price') + "</span></li>";
+			// console.log(sales);
+			$('#saleList').prepend(sales);
+			count++;
+			calculateTotal();
+			$('#pay').show();
+			$('#saveOrder').show();
+			$('#clearButton').show();
+		});
+
+		$('#saleList').on('click', 'li', function(){
+			$(this).toggleClass('active');
+
+			console.log(document.querySelectorAll('li.active'));
+			// alert('here');
+		});
+
+		function newOrder(){
+
+		}
+
+		function showPayButton(){
+			if(document.querySelectorAll('input').length > 0) {
+			    $('#pay').show();
+				$('#saveOrder').show();
+				$('#clearButton').show();
+			}else {
+				$('#pay').hide();
+				$('#saveOrder').hide();
+				$('#clearButton').hide();
+			}
+		}
+
+
+		//Event for when an item in sales list is checked
+		//Show the delete button and the apply discount button
+		$("#saleList").on('change', 'input', function() {
+			if(this.checked) {
+			    $('#deleteButton').show();
+			    $('#discountButton').show();
+			}
+		});
+
+		$("#saleList").on('change', 'input', function() {
+			if(document.querySelectorAll('input:checked').length == 0) {
+			    $('#deleteButton').hide();
+			    $('#discountButton').hide();
+			}
+
+			calculateTotal();
+		});
+
+		// var order = new Order();
+</script>
+</body>
+</html>

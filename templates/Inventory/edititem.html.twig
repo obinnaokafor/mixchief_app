@@ -1,0 +1,152 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-body">
+				<form action="{{ path('editItem') }}" method="POST" name="edit" enctype="multipart/form-data">
+					<input type="hidden" name="id" value="{{ id }}">
+					<div class="row">
+						<div class="col-sm-7">
+							<div class="form-group">
+								<input type="text" name="name" class="form-control" placeholder="Item Name" value="{{ item.name |default('') }}">
+							</div>
+							<div class="form-group">
+								<input type="text" name="selling" class="form-control" placeholder="Price" value="{{ item.sellingPrice |default('') }}">
+							</div>
+							<div class="form-group">
+								<input type="text" name="description" class="form-control" placeholder="Description" value="{{ item.description |default('') }}">
+							</div>
+
+							<div class="form-group">
+								<select class="form-control ajaxSelect" name="category">
+									<option value="-1">Select Category</option>
+									{% for item in category %}
+										<option value="{{ item.id }}">{{ item.name|upper }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<!-- image input -->
+							<div class="form-group">
+								<input type="file" name="image" class="form-control">
+							</div>
+
+						</div>
+						
+						<div class="col-sm-5">
+							<h3>Item Parts</h3>
+							<table class="table">
+								<tr>
+									<th>Name</th>
+									<th>Portions</th>
+									<th>Delete</th>
+								</tr>
+								{% for item in itempart %}
+									<tr>
+										<td>{{ item.name }}</td>
+										<td>{{ item.portions }}</td>
+										<td><a href="{{ path('removeStockItem', {'id': item.id}) }}" class="btn btn-danger"><i class="fa fa-times"></i></a></td>
+									</tr>						
+								{% endfor %}
+							</table>
+						</div>
+					</div>
+					
+					<div class="col-sm-7">
+						<h4>Add Item Parts <small>(Optional)</small></h4>
+						<div id="stockitems">
+							<div class="row">
+								<div class="col-sm-5">
+									<div class="form-group">
+										<select class="form-control select-list ajaxSelect" name="stock[]">
+											<option value="">Select Inventory Item</option>
+											{% for item in stock %}
+												<option value="{{ item.id }}|{{ item.unit }}">{{ item.name|upper }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-sm-5">
+									<div class="input-group">
+										<input type="text" name="portion[]" placeholder="Portion" class="form-control">
+										<div class="input-group-append">
+											<span class="input-group-text">unit</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-warning pull-right" id="add-item">+</button>
+					</div>
+					<input type="submit" name="submit" value="Save" class="btn btn-primary">
+
+				</form>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/itemselect.js') }}"></script>
+
+	<script>
+		// var units = {
+		//   kg: ['kg', 'g'],
+		//   g: 'g',
+		//   l: ['cl', 'ml'],
+		//   cl: ['cl', 'ml'],
+		//   ml: 'ml',
+		//   cups: 'cups',
+		//   bags: 'bags',
+		//   packets: 'packets',
+		//   dozen: ['dozen', 'piece'],
+		//   sachet: 'sachet'
+		// }
+
+		var cat = "{{ item.cId|default('') }}";
+		if(cat) {
+			document.forms.edit.category.value = cat;
+		}
+
+		$('#stockitems').on('change', '.select-list', function(e){
+
+			var $target = $(e.currentTarget)
+			console.log($target.val())
+			var split = $target.val().split("|")
+			var unit = split[1];
+			$target.closest('.row').find('.input-group-text').html(unit);
+		})
+
+		var itemRow = (items) => `
+			<div class="row">
+				<div class="col-sm-5">
+					<div class="form-group">
+						${selectTemplate(items)}
+					</div>
+				</div>
+				<div class="col-sm-5">
+					<div class="input-group">
+						<input type="text" name="portion[]" placeholder="Portion" class="form-control" required>
+						<div class="input-group-append">
+							<span class="input-group-text">unit</span>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-1 cancel-button" style="display: flex;">
+					<button style="margin:auto;" type="button" class="btn btn-danger"><i class="fa fa-times"></i></button>
+				</div>
+			</div>
+		`;
+
+
+
+		$('#stockitems').on('click', '.cancel-button', function(e){
+			e.preventDefault();
+			const $target = $(e.currentTarget)
+			const parent = $target.closest('.row').remove()
+			$('#stockitems .row').last().find('.cancel-button').show()
+		});
+	</script>
+{% endblock %}

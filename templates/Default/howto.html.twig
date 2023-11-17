@@ -1,0 +1,363 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    {# FontAwesome JS #}
+    <script defer src="https://use.fontawesome.com/releases/v5.1.1/js/all.js" integrity="sha384-BtvRZcyfv4r0x/phJt9Y9HhnN5ur1Z+kZbKVgzVBAlQZX4jvAuImlIz+bG7TS00a" crossorigin="anonymous"></script>  
+    {# Plugins CSS #}    
+    <link rel="stylesheet" href="{{ asset('css/prism.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/elegant_style.css') }}">  
+      
+    {# Theme CSS #}
+    <link id="theme-style" rel="stylesheet" href="{{ asset('css/styles.css') }}">
+
+{% endblock %}
+
+{% block content %}
+            <div class="doc-wrapper">
+                <div class="container-fluid">
+                    {# <div id="doc-header" class="doc-header text-center">
+                        <h1 class="doc-title"><i class="icon fa fa-paper-plane"></i> Quick Start</h1>
+                        <div class="meta"><i class="far fa-clock"></i> Last updated: July 18th, 2018</div>
+                    </div> #}
+                    <div class="doc-body row">
+                        <div class="doc-content col-md-9 col-12 order-1">
+                            <div class="content-inner">
+                                <section id="home-section" class="doc-section">
+                                    <h2 class="section-title">Sign Up</h2>
+                                    <div class="section-block">
+                                        <p>Register with your business details such as name, email, telephone etc. After registration, you will be required to verify your email address by clicking a link sent to the email address provided.
+                                        </p>
+                                        <p>You will be logged in immediately after registration where you can immediately start using the app to manage your inventory, store items and sales.</p>
+                                        <a href="{{ path('register') }}" class="btn btn-green" target="_blank"><i class="fas fa-user-plus"></i> Sign up</a>
+                                    </div>
+                                </section>
+                                <section id="categories-section" class="doc-section">
+                                    <h2 class="section-title">Categories</h2>
+                                    <div class="section-block">
+                                        <p>This is where you add categories of items for sale e.g. Drinks, Food. <span class="highlight">Every item must belong to a category</span>. Categories can also be edited as well as deleted. To edit a category, click on the name of the category to make it appear in the form, then make the necessary edit. 
+                                        </p>
+
+                                        <div class="callout-block callout-danger">
+                                            <div class="icon-holder">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </div>{#//icon-holder#}
+                                            <div class="content">
+                                                <h4 class="callout-title">Deleting Categories</h4>
+                                                <p>Note: Be careful when deleting a category as it deletes all the items belonging to it as well. When changing a category name, e.g  from "smoothies" to "healthy drinks", while keeping the items that belongs to the category you should edit the category rather than delete to add a new one. </p>
+                                            </div>
+                                        </div>
+                                        {# <a href="https://themes.3rdwavemedia.com" class="btn btn-green" target="_blank"><i class="fas fa-download"></i> Download PrettyDocs</a> #}
+                                    </div>
+                                </section>
+                                <section id="items-section" class="doc-section">
+                                    <h2 class="section-title">Items</h2>
+                                    <div id="item-add"  class="section-block">
+                                        <h3 class="block-title">New Item</h3>
+                                        <p>Enter item details as you want them to appear in the point of sale section of the app. Each item should have at least a Name, Price and Category.
+                                        </p>
+                                        <p>Multiple items can also be added at a time by clicking on the 'Add More' button thereby making the process a lot quicker.</p>
+                                        {# <div class="code-block">
+                                            <h6>Default code example:</h6>
+                                            <p><code>bower install &lt;package&gt;</code></p>
+                                            <p><code>npm install &lt;package&gt;</code></p>
+                                        </div> #}
+                                    </div>
+                                    <div id="item-edit"  class="section-block">
+                                        <h3 class="block-title">Edit Item</h3>
+                                        <p>Items can be edited by selecting an item
+                                        </p>
+                                        {# <div class="row">
+                                            <div class="col-md-6 col-12">
+                                                <h6>Un-ordered list example</h6>
+                                                <ul class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6 col-12">
+                                                <h6>Ordered list example</h6>
+                                                <ol class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ol>
+                                            </div>
+                                        </div> #}
+                                    </div>
+                                    <div id="item-inventory"  class="section-block">
+                                        <h3 class="block-title">Item Parts</h3>
+                                        <p>Some sale items are comprised of one or more parts. If such parts are present in the inventory, then they can be added as parts of the item. This helps you keep track of inventory quantities as you make sales.
+                                        </p>
+                                        {# <div class="row">
+                                            <div class="col-md-6 col-12">
+                                                <h6>Un-ordered list example</h6>
+                                                <ul class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ul>
+                                            </div>
+                                        </div> #}
+                                    </div>
+                                </section>
+                                
+                                {# <section id="orders-section" class="doc-section">
+                                    <h2 class="section-title">Code</h2>
+                                    <div class="section-block">
+                                        <p>
+                                            <a href="https://prismjs.com/" target="_blank">PrismJS</a> is used as the syntax highlighter here. You can <a href="https://prismjs.com/download.html" target="_blank">build your own version</a> via their website should you need to.
+                                        </p>
+                                        
+                                    </div>
+                                </section> #}
+                                <section id="inventory-section" class="doc-section">
+                                    <h2 class="section-title">Inventory</h2>
+                                    <div class="section-block">
+                                        <p>This is the section where inventory is managed. These items are what make up each item that is for sale i.e. each sale item contains one or more inventory items.
+                                        </p>
+                                        <p>Example: A </p>
+                                    </div>
+
+                                    <div class="section-block">
+                                        <div class="callout-block callout-info">
+                                            <div class="icon-holder">
+                                                <i class="fas fa-info-circle"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="callout-title">Aenean imperdiet</h4>
+                                                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium <code>&lt;code&gt;</code> , Nemo enim ipsam voluptatem quia voluptas <a href="#">link example</a> sit aspernatur aut odit aut fugit.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="callout-block callout-warning">
+                                            <div class="icon-holder">
+                                                <i class="fas fa-bug"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="callout-title">Morbi posuere</h4>
+                                                <p>Nunc hendrerit odio quis dignissim efficitur. Proin ut finibus libero. Morbi posuere fringilla felis eget sagittis. Fusce sem orci, cursus in tortor <a href="#">link example</a> tellus vel diam viverra elementum.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="callout-block callout-success">
+                                            <div class="icon-holder">
+                                                <i class="fas fa-thumbs-up"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="callout-title">Lorem ipsum dolor sit amet</h4>
+                                                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. <a href="#">Link example</a> aenean commodo ligula eget dolor.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                    </div>
+                                </section>
+                                <section id="supply-section" class="doc-section">
+                                    <h2 class="section-title">Supply</h2>
+                                    <div id="supply-add"  class="section-block">
+                                        <h3 class="block-title">Suppliers</h3>
+                                        <p>You can save supplier details such as name, address, email etc. This helps keep a record of suppliers and items they supply making the information available when needed to request a supply.
+                                        </p>
+                                        {# <div class="row">
+                                            <div class="col-md-6 col-12">
+                                                <h6>Un-ordered list example</h6>
+                                                <ul class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ul>
+                                            </div>
+                                        </div> #}
+                                    </div>
+                                    <div id="supply-new"  class="section-block">
+                                        <h3 class="block-title">New Supply</h3>
+                                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+                                        </p>
+                                        <p>When adding supply items, if there is an item in the supply that isn't currently in the inventory, you can select "New inventory item" in the dropdown list. This shows an </p>
+                                        <div class="row">
+                                            <div class="col-md-6 col-12">
+                                                <h6>Un-ordered list example</h6>
+                                                <ul class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="supplies"  class="section-block">
+                                        <h3 class="block-title">Supplies</h3>
+                                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+                                        </p>
+                                        <div class="row">
+                                            <div class="col-md-6 col-12">
+                                                <h6>Un-ordered list example</h6>
+                                                <ul class="list">
+                                                    <li>Lorem ipsum dolor sit amet.</li>
+                                                    <li>Aliquam tincidunt mauris.</li>
+                                                    <li>Ultricies eget vel aliquam libero.
+                                                        <ul>
+                                                            <li>Turpis pulvinar</li>
+                                                            <li>Feugiat scelerisque</li>
+                                                            <li>Ut tincidunt</li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>Pellentesque habitant morbi.</li>
+                                                    <li>Praesent dapibus, neque id.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section id="pos-section" class="doc-section">
+                                    <h2 class="section-title">Point of Sale</h2>
+                                    <div class="section-block">
+                                        <p>Perform sales tasks easily
+                                        </p>
+                                        <div class="section-block" id="pos-add-item">
+                                            <h3 class="block-title">Add Sale Item</h3>
+                                            <p>Add items to sale list by first selecting the category the item belongs to and then picking the item for the list of items that appears beneath.</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque magnam labore dolor temporibus! Nisi recusandae consequuntur molestias amet consequatur. Consectetur asperiores optio voluptate hic eum praesentium nostrum, omnis magni repellat, suscipit, a doloremque blanditiis aspernatur sequi perferendis pariatur repudiandae facere?</p>
+                                        </div>
+                                        <div class="section-block" id="pos-remove-item">
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic unde quis, eius. Illo quis ad deleniti voluptatem iure eveniet ab nisi eum repellat aut vel, quasi quidem ut saepe! Vero delectus magni, aspernatur nulla sequi harum laudantium minus quam adipisci.</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque magnam labore dolor temporibus! Nisi recusandae consequuntur molestias amet consequatur. Consectetur asperiores optio voluptate hic eum praesentium nostrum, omnis magni repellat, suscipit, a doloremque blanditiis aspernatur sequi perferendis pariatur repudiandae facere?</p>
+                                        </div>
+
+                                        <div class="section-block" id="pos-change-quantity">
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic unde quis, eius. Illo quis ad deleniti voluptatem iure eveniet ab nisi eum repellat aut vel, quasi quidem ut saepe! Vero delectus magni, aspernatur nulla sequi harum laudantium minus quam adipisci.</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque magnam labore dolor temporibus! Nisi recusandae consequuntur molestias amet consequatur. Consectetur asperiores optio voluptate hic eum praesentium nostrum, omnis magni repellat, suscipit, a doloremque blanditiis aspernatur sequi perferendis pariatur repudiandae facere?</p>
+                                        </div>
+                                        <div class="section-block doc-section" id="pos-sale">
+                                            <h2 class="section-title">Sale</h2>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic unde quis, eius. Illo quis ad deleniti voluptatem iure eveniet ab nisi eum repellat aut vel, quasi quidem ut saepe! Vero delectus magni, aspernatur nulla sequi harum laudantium minus quam adipisci.</p>
+                                            <div class="section-block" id="pos-sale-save">
+                                                <h2 class="section-title">Save</h2>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                            </div>
+                                            <div class="section-block" id="pos-sale-place">
+                                                <h2 class="section-title">Place/Submit</h2>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                            </div>
+                                            <div class="section-block" id="pos-sale-clear">
+                                                <h2 class="section-title">Clear</h2>
+                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto quasi deserunt placeat id totam. Ex voluptatibus hic laudantium, magni eveniet molestias alias exercitationem, iste asperiores molestiae dolores similique mollitia facilis.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                                
+                            </div>
+                        </div>
+                        <div class="doc-sidebar col-md-3 col-12 order-0 d-none d-md-flex app-side">
+                            <div id="doc-nav" class="doc-nav">
+                                
+                                    <nav id="doc-menu" class="nav doc-menu flex-column sticky">
+                                        <a class="nav-link scrollto" href="#home-section">Home</a>
+                                        <a class="nav-link scrollto" href="#categories-section">Categories</a>
+                                        <a class="nav-link scrollto" href="#items-section">Items</a>
+                                        <nav class="doc-sub-menu nav flex-column">
+                                            <a class="nav-link scrollto" href="#item-add">New Item</a>
+                                            <a class="nav-link scrollto" href="#item-edit">Edit Item</a>
+                                            <a class="nav-link scrollto" href="#item-inventory">Item Parts</a>
+                                        </nav>
+                                        <a class="nav-link scrollto" href="#orders-section">Orders</a>
+                                        <a class="nav-link scrollto" href="#inventory-section">Inventory</a>
+                                        <a class="nav-link scrollto" href="#supply-section">Supply</a>
+                                        <nav class="doc-sub-menu nav flex-column">
+                                            <a class="nav-link scrollto" href="#supply-add">Suppliers/Add Supplier</a>
+                                            <a class="nav-link scrollto" href="#supply-new">New Supply</a>
+                                            <a class="nav-link scrollto" href="#supplies">Supplies</a>
+                                        </nav>
+                                        <a class="nav-link scrollto" href="#pos-section">Point of Sale</a>
+                                        <nav class="doc-sub-menu nav flex-column">
+                                            <a class="nav-link scrollto" href="#pos-add-item">Add Item</a>
+                                            <a class="nav-link scrollto" href="#pos-remove-item">Remove Item</a>
+                                            <a class="nav-link scrollto" href="#pos-change-quantity">Change Quantity</a>
+                                            <a class="nav-link scrollto" href="#pos-sale">Order</a>
+                                            <nav class="doc-sub-sub-menu nav flex-column">
+                                                <a class="nav-link scrollto" href="#pos-sale-save">Save Order</a>
+                                                <a class="nav-link scrollto" href="#pos-sale-place">Place Order</a>
+                                                <a class="nav-link scrollto" href="#pos-sale-clear">Clear Order</a>
+                                            </nav>
+                                            
+                                        </nav>
+                                    </nav>
+                                
+                            </div>
+                        </div>
+                    </div>            
+                </div>
+            </div>
+        </div>
+        
+        
+{% endblock %}
+
+{% block footer %}
+    <footer id="footer" class="footer text-center">
+        <div class="container">
+            <small class="copyright">&copy; <a href="#">Five Nines Technology</a></small>
+            
+        </div>
+    </footer>
+{% endblock %}
+        
+
+{% block javascripts %}
+        {{ parent() }}
+        <script type="text/javascript" src="{{ asset('js/prism.js') }}"></script>    
+        <script type="text/javascript" src="{{ asset('js/jquery.scrollTo.min.js') }}"></script>      
+        <script type="text/javascript" src="{{ asset('js/stickyfill.min.js') }}"></script>                                                             
+        <script src="{{ asset('js/main.js') }}"></script>
+        
+        
+{% endblock %}
+

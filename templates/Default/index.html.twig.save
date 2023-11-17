@@ -1,0 +1,258 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+	<main role="main">
+
+	  <div class="jumbotron">
+	    <div class="containers banner-cover">
+	      <div class="row ml-auto banner-text-cover">
+	      	<div class="col-sm-11 flexing">
+	      		<div class="banner-text mx-auto">
+	      			<h1 class="display-4">Complete control of your sales.</h1>
+	      			<p>Start tracking inventory and supplies today in a few simple steps.</p>
+	      			<p><a class="btn btn-warning btn-lg" href="{{ path('register') }}" role="button">Get Started Now &raquo;</a></p>
+	      		</div>
+	      	</div>
+	      	<div class="col-sm-5">
+	      		{# <img src="{{ asset('images/home-banner.jpg') }}" alt="" style="width: 100%;"> #}
+	      	</div>
+	      </div>
+	    </div>
+	  </div>
+
+	  <section id="about">
+	    <div class="row">
+	      <div class="col-md-6 about-img">
+	        <img src="{{ asset('images/home_change.gif') }}" alt="Mobile View">
+	      </div>
+	      <div class="col-md-6 flexing">
+	        <div class="auto-container mx-auto">
+	        	<p>EPOS  </p>
+	        	<p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+	        </div>
+	      </div>
+	    </div>
+
+	    
+
+	  </section> <!-- /container -->
+	  <section class="containers" id="features">
+	  	<h2 class="text-center">Features</h2>
+	  	<div class="d-md-flex w-100">
+	      {# <div class="bg-white mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+	        <div class="my-3 py-3">
+	          <h2 class="display-5">Handle Sales</h2>
+	          <p class="lead">And an even wittier subheading.</p>
+	        </div>
+	        <div class="mx-auto" style="width: 80%; height: 300px;">
+	        	<img style="width: 100%;" src="{{ asset('images/pos6.png') }}" alt="">
+	        </div>
+	      </div>
+	      <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+	        <div class="my-3 p-3">
+	          <h2 class="display-5">Monitor Inventory</h2>
+	          <p class="lead">And an even wittier subheading.</p>
+	        </div>
+	        <div class="mx-auto" style="width: 80%; height: 300px;">
+	        	<img style="width: 100%;" src="{{ asset('images/pos7.png') }}" alt="">
+	        </div>
+	      </div> #}
+	      <div class="main-1">
+	      	<div class="feature">
+	      		<div class="card">
+	      			<div class="card-header">
+	      				<h4>Handle Sales</h4>
+	      			</div>
+	      			<div class="card-body">
+	      				Perform sales tasks easily with the Pont of Sale interface.
+	      			</div>
+	      		</div>
+	      	</div>
+	      	<div class="feature">
+	      		<div class="card">
+	      			<div class="card-header">
+	      				<h4>Manage Inventory</h4>
+	      			</div>
+	      			<div class="card-body">
+	      				Add/Update unlimited items in inventory.
+	      			</div>
+	      		</div>
+	      	</div>
+	      	<div class="feature">
+	      		<div class="card">
+	      			<div class="card-header">
+	      				<h4>Dashboard</h4>
+	      			</div>
+	      			<div class="card-body">
+	      				Stay up to date with sales and other activities right from the dashboard.
+	      			</div>
+	      		</div>
+	      	</div>
+	      	<div class="feature">
+	      		<div class="card">
+	      			<div class="card-header">
+	      				<h4>Access from anywhere</h4>
+	      			</div>
+	      			<div class="card-body">
+	      				Instant access to your sales and inventory anytime, anywhere and using any device.
+	      			</div>
+	      		</div>
+	      	</div>
+	      	<div class="feature">
+	      		<div class="card">
+	      			<div class="card-header">
+	      				<h4>Analytics</h4>
+	      			</div>
+	      			<div class="card-body">
+	      				Track sales growth by comparing with previous days, weeks, months.
+	      			</div>
+	      		</div>
+	      	</div>
+	      </div>
+	      <div class="main-2">
+	      	<div class="image-1">
+	      		<img src="{{ asset('images/inventory1.png') }}" alt="">
+	      	</div>
+	      	{# <div class="image-1" style="margin-bottom: 5px;">
+	      		<img src="{{ asset('images/sale.png') }}" alt="">
+	      	</div> #}
+	      	<div class="image-1">
+	      		<img src="{{ asset('images/pos2.png') }}" alt="">
+	      	</div>
+	      	<div class="image-1">
+	      		<img src="{{ asset('images/sales.png') }}" alt="">
+	      	</div>
+	      </div>
+    	</div>
+    	{# <div class="d-md-flex w-100">
+	      <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+	        <div class="my-3 py-3">
+	          <h2 class="display-5">Access from anywhere</h2>
+	          <p class="lead">And an even wittier subheading.</p>
+	        </div>
+	        <div class="mx-auto" style="width: 80%; height: 300px;">
+	        	<img style="width: 100%;" src="{{ asset('images/pos14.png') }}" alt="">
+	        </div>
+	      </div>
+	      <div class="bg-white mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+	        <div class="my-3 p-3">
+	          <h2 class="display-5">Another headline</h2>
+	          <p class="lead">And an even wittier subheading.</p>
+	        </div>
+	        <div class="mx-auto" style="width: 80%; height: 300px;">
+	        	<img style="width: 100%;" src="{{ asset('images/pos4.png') }}" alt="">
+	        </div>
+	      </div>
+    	</div> #}
+	  </section>
+	  <section class="pricing" id="pricing">
+	  	<div class="skewy"></div>
+	  	{# <p class="text-center">There are 2 versions of the system: </p> #}
+	    
+
+	    
+
+	  </section>
+	  <section class="price">
+	  	<div class="containers">
+	  		<h2 class="text-center">Pricing</h2>
+	  		<div class="row">
+	  		  <div class="col-md-6 pricing-cards all-in-one">
+	  		    <div class="card text-center">
+	  		      <div class="card-header">
+	  		        All-in-one
+	  		      </div>
+	  		      <div class="card-body">
+	  		        <h6>Access a complete platform for sales and inventory management</h6>
+	  		        <h2><strong>&#x20A6;5000</strong></h2>
+	  		        <p>per month</p>
+	  		        {# <h6>N50,000/year</h6> #}
+	  		        <ul>
+	  		        	<li>Everything you need to handle sales</li>
+	  		        	<li>No hidden charges</li>
+	  		        </ul>
+	  		      </div>
+	  		      <div class="card-footer text-muted">
+	  		        <a href="{{ path('register') }}">Get Started now <i class="fa fa-arrow-right"></i></a>
+	  		      </div>
+	  		    </div>
+	  		  </div>
+	  		  <div class="col-md-6 pricing-cards flexing">
+	  		    <div class="card text-center contact-sales mx-auto">
+	  		      <div class="card-header">
+	  		        Custom
+	  		      </div>
+	  		      <div class="card-body">
+	  		        <p>Design a custom system to suit specific business needs.</p>
+	  		      </div>
+	  		      <div class="card-footer text-muted">
+	  		        <a href="#">Contact Sales <i class="fa fa-arrow-right"></i></a>
+	  		      </div>
+	  		    </div>
+	  		  </div>
+	  		</div>
+	  	</div>
+	  </section>
+	  <section>
+	  	<div class="cta">
+	  		<div class="cta-text flexing">
+	  			<div class="cta-text">
+	  				<h4>Try Amply Today</h4>
+	  				<h1>Start managing your inventory immediately</h1>
+	  			</div>
+
+	  		</div>
+	  		<div class="cta-button flexing">
+	  			<a href="{{ path('register') }}" class="btn btn-success">Start a free trial</a>
+	  		</div>
+	  	</div>
+	  </section>
+	<footer class="container py-5">
+      <div class="row">
+        <div class="col-12 col-md">
+          <img src="{{ asset('images/amply.png') }}" alt="Logo" class="logo footer-logo">
+          <small class="d-block mb-3 text-muted">&copy; 2018-2019</small>
+        </div>
+        <div class="col-6 col-md">
+          <h5>Features</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="text-muted" href="#">Cool stuff</a></li>
+            <li><a class="text-muted" href="#">Random feature</a></li>
+            <li><a class="text-muted" href="#">Team feature</a></li>
+            <li><a class="text-muted" href="#">Stuff for developers</a></li>
+            <li><a class="text-muted" href="#">Another one</a></li>
+            <li><a class="text-muted" href="#">Last time</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md">
+          <h5>Resources</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="text-muted" href="#">Resource</a></li>
+            <li><a class="text-muted" href="#">Resource name</a></li>
+            <li><a class="text-muted" href="#">Another resource</a></li>
+            <li><a class="text-muted" href="#">Final resource</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md">
+          <h5>Resources</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="text-muted" href="#">Business</a></li>
+            <li><a class="text-muted" href="#">Education</a></li>
+            <li><a class="text-muted" href="#">Government</a></li>
+            <li><a class="text-muted" href="#">Gaming</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md">
+          <h5>About</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="text-muted" href="#">Team</a></li>
+            <li><a class="text-muted" href="#">Locations</a></li>
+            <li><a class="text-muted" href="#">Privacy</a></li>
+            <li><a class="text-muted" href="#">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+	</main>
+{% endblock %}

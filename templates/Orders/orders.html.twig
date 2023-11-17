@@ -1,0 +1,41 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-header">
+				<h3>Sales</h3>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped" id="rowSelection">
+					<thead>
+						<tr>
+							<th>Amount</th>
+							<th>Status</th>
+							<th>Date</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in orders %}
+							<tr class="clickable-row" data-href="{{ path('vieworder', {'id': item.id }) }}">
+								<td>
+									<a href="{{ path('vieworder', {'id': item.id }) }}">{{ item.amount }}</a></td>
+								<td>{{ item.status }}</td>
+								<td>{{ item.date|date('d/m/Y h:i:s A') }}</td>
+								
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+
+	<script>
+		
+	</script>
+{% endblock %}

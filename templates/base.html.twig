@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="description" content="Amply Sales and Inventory Management Application" />
+    <meta name="keywords" content="Inventory, sales, access, management, app, store, bar, supermarket, pos, point of sale, dashboard, real-time, analytics, restaurant, track, monitor, e-receipt" />
+    <meta name="author" content="Five Nines Technology" />
+    <link rel="shortcut icon" href="/img/favicon.ico" />
+    <title>Amply - Sales and Inventory Management at your fingertips</title>
+
+    <!-- Bootstrap core CSS -->
+    {% block stylesheets %}
+		<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+		<link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+
+		<!-- Custom styles -->
+		<link href="{{ asset('css/home.css') }}" rel="stylesheet">
+    {% endblock %}
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark home-nav">
+      <a class="navbar-brand" href="{{ path('homepage') }}">
+      	<img src="{{ asset('images/logo_trans_white.png') }}" class="logo" alt="Five Nines Logo">
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#features">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#pricing">Pricing</a>
+          </li>
+          {# <li class="nav-item">
+            <a class="nav-link" href="{{ path('howto') }}">How To</a>
+          </li> #}
+          {# <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li> #}
+        </ul>
+        {# <form class="form-inline my-2 my-lg-0"> #}
+          
+          <a href="{{ path('app_login') }}" class="btn btn-outline-success my-2 my-sm-0">Login</a>
+        {# </form> #}
+      </div>
+    </nav>
+
+    {% block content %}
+		
+	
+    {% endblock %}
+
+    {% block footer %}
+		<footer class="container">
+			<hr>
+		  <p>&copy; Five Nines Technology 2019</p>
+		</footer>
+    {% endblock %}
+	{% block javascripts %}
+		<script src="{{ asset('js/jquery.js') }}"></script>
+		<script src="{{ asset('js/popper.min.js') }}"></script>
+		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script>
+      $(".nav-link").on('click', function(event) {
+          if (this.hash !== "") {
+            event.preventDefault();
+
+            var hash = this.hash;
+
+            $('html, body').animate({
+              scrollTop: $(hash).offset().top
+            }, 800, function(){
+         
+              window.location.hash = hash;
+            });
+          }
+        });
+    </script>
+	{% endblock %}
+    
+  </body>
+</html>

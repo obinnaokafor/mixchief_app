@@ -1,0 +1,354 @@
+/* Move down content because we have a fixed navbar that is 3.5rem tall */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+body {
+  padding-top: 3.5rem;
+  font-family: "Open Sans", sans-serif;
+}
+
+
+.bg-dark {
+	background: #000 !important;
+}
+
+.navbar-brand {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.logo {
+	width: 150px;
+	height: 45px;
+	margin-left: 50px;
+}
+
+@media screen and (max-width: 980px) {
+	body {
+	  padding-top: 0;
+	}
+
+	.logo {
+		margin-left: 0;
+	}
+
+	.fixed-top {
+		position: relative;
+	}
+}
+
+.nav-item {
+	margin-right: 25px;
+}
+
+.flexing {
+	display: flex;
+}
+
+.mx-auto {
+	margin: auto;
+}
+
+.containers {
+	width: 90%;
+	margin: 0 auto;
+}
+
+.auto-container {
+	padding: 0 20px;
+}
+
+main {
+	overflow-x: hidden;
+}
+
+main > .jumbotron {
+	background: url('../images/home-banner3.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: right;
+	height: 100vh;
+	padding: 0;
+	margin-bottom: 0;
+}
+
+.jumbotron .banner-cover {
+	background: rgba(2,2,2,0.6);
+	width: 100%;
+	height: 100%;
+	display: flex;
+}
+
+.banner-text-cover {
+	width: 60%;
+	margin: auto;
+}
+
+.banner-text {
+	color: #fff;
+}
+
+@media screen and (max-width: 980px) {
+	.banner-text-cover {
+		width: 90%;
+		text-align: center;
+	}
+
+	h1.display-4 {
+		font-size: 2.5rem;
+	}
+}
+
+#about {
+	background-color: ;
+}
+
+.about-img {
+	display: flex;
+}
+
+.about-img img {
+	width: 80%;
+	margin: auto;
+}
+
+@media screen and (max-width: 980px) {
+	.about-img img {
+		width: 100%;
+		height: 100%;
+		margin: 10px auto;
+	}
+}
+
+.row {
+	padding-right: 0;
+}
+
+section {
+	width: 100%;
+	padding: 100px 0;
+}
+
+@media screen and (max-width: 980px) {
+	section {
+		padding: 30px 0;
+	}
+}
+
+section > h2 {
+	margin-bottom: 30px;
+}
+
+#features {
+	margin-bottom: 100px;
+}
+
+#features .main-1 {
+	display: flex; 
+	flex-wrap: wrap; 
+	flex: 0 0 45%; 
+	margin: 0 auto;
+}
+
+.main-1 .card, .main-1 .card-header, .main-1 .card-body {
+	border: none;
+}
+
+.main-2 {
+	flex: 0 0 45%;
+	margin: 0 auto;
+}
+
+.main-2 .image-1 {
+	margin-bottom: 5px;
+	padding: 20px;
+}
+
+.image-1 img {
+	width: 100%;
+}
+
+.features .card {
+	/*padding: 60px 80px;*/
+}
+
+.skewy {
+    position: relative;
+    /*margin: 100px 0;*/
+}
+
+.price {
+	padding: 50px 0;
+}
+
+.pricing {
+	width: 100%;
+	height: 400px;
+	overflow: hidden;
+	-webkit-transform: skewY(-5deg);
+	transform: skewY(-5deg);
+	-webkit-transform-origin: 0;
+	transform-origin: 0;
+	background: linear-gradient(150deg,#F8BA00,#fff);
+	position: absolute;
+	padding-top: 50px;
+}
+
+.price .card-header, .price .card-footer {
+	background: #f4f4ed;
+	color: #242331;
+	padding: 30px 0;
+}
+
+.price .card-body {
+	background: #f4f4ed;
+	color: #4f4e5a;
+	padding: 30px 80px;
+}
+
+.price .card-body > h6 {
+	padding-bottom: 10px;
+}
+
+.pricing-cards.all-in-one .card {
+	margin-left: auto;
+}
+
+.pricing-cards ul {
+	list-style-type: none; 
+	text-align: left; 
+	padding-left: 0
+}
+
+.price .contact-sales {
+	border: none;
+}
+
+.price .contact-sales .card-header, .price .contact-sales .card-footer {
+	background: #083d77;
+	color: #fff;
+}
+
+.price .contact-sales .card-body {
+	background: #52779f;
+	color: #f4f4ed;
+}
+
+.pricing-cards {
+	display: flex;
+}
+
+.pricing-cards .card {
+	width: 70%;
+}
+
+@media screen and (max-width: 980px) {
+
+	.pricing-cards .card {
+		width: 94%;
+		margin: 20px auto;
+	}
+
+	.price .card-body {
+		padding: 30px;
+	}
+
+	.pricing {
+		height: 800px;
+	}
+}
+
+.feature {
+	flex: 0 0 50%;
+}
+
+.price .card-body ul {
+	text-align: left !important;
+
+}
+
+@media screen and (max-width: 600px) {
+	.feature {
+		width: 100%;
+		flex: 0 0 100%;
+		text-align: center;
+	}
+
+	.feature .card-body {
+		padding-top: 0;
+		padding-bottom: 40px;
+	}
+
+	.feature .card-body ul {
+		text-align: left;
+	}
+}
+
+.card-footer a {
+	color: #4f4e5a;
+	text-decoration: none;
+}
+
+.contact-sales .card-footer a {
+	color: #e5dada;
+}
+
+.cta {
+	width: 80%;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin: 0 auto;
+}
+
+.cta-text {
+	width: 70%;
+}
+
+.cta-text h4 {
+	padding-bottom: 20px;
+}
+
+.cta-text h1 {
+	font-weight: 600;
+}
+
+.cta-button a {
+	padding: 15px 30px;
+	font-size: 20px;
+	margin: auto;
+}
+
+.btn-group-lg > .btn, .btn-lg {
+  padding: .7rem 1.4rem;
+  background: #F8BA00;
+  border-color: #F8BA00;
+}
+
+.d-md-flex > div {
+	flex: 0 0 50%;
+}
+
+.main-1 .feature .card {
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+@media screen and (max-width: 800px) {
+	.cta-text {
+	    width: 100%;
+	    text-align: center;
+	    margin-bottom: 20px;
+	}
+
+	.cta-button {
+		margin: 0 auto;
+	}
+}
+
+.footer-logo {
+	margin-left: 0;
+}
+
+.footer small {
+	padding-left: 10px;
+}

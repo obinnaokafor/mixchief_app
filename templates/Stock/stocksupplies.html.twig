@@ -1,0 +1,48 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-body">
+				<h3>{{ stock.name }} Supply Items </h3> 
+				{% if supplies %}
+					<a style="margin-bottom: 15px;" href="{{ path('supply', {'supplierId': supplies[0].supplier_id}) }}" class="btn btn-primary">New Supply</a>
+				{% else %}
+					<a style="margin-bottom: 15px;" href="{{ path('supply') }}" class="btn btn-primary">New Supply</a>
+				{% endif %}
+
+				<table class="table table-striped" id="rowSelection">
+					<thead>
+						<tr>
+							<th>Date</th>
+							{# <th>Supply</th> #}
+							<th>Supplier</th>
+							<th>Quantity</th>
+							<th>Amount</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in supplies %}
+							<tr>
+								<td>{{ item.date|date('d/m/Y') }}</td>
+								{# <td>{{ item.supply_name }}</td> #}
+								<td>{{ item.supplier }}</td>
+								<td>{{ item.quantity }}</td>
+								<td>{{ item.amount }}</td>
+								<td>
+									<a class="btn btn-primary" href="{{ path('supplyitems', {'id': item.supply_id}) }}">
+										Supply Details
+									</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				<a class="btn btn-danger" href="{{ path('stock') }}">
+					<i class="fa fa-arrow-left"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

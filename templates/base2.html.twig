@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<meta name="description" content="Amply Sales and Inventory Management Application" />
+		<meta name="keywords" content="Inventory, sales, access, management, app, store, bar, supermarket, pos, point of sale, dashboard, real-time, analytics, restaurant, track, monitor, e-receipt" />
+		<meta name="author" content="Five Nines Technology" />
+		<link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+		<title>Amply - Sales and Inventory Management at your fingertips</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+		
+		<!-- Common CSS -->
+		{% block stylesheets %}
+			<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+			<link rel="stylesheet" href="{{ asset('fonts/icomoon/icomoon.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/featherlight.css') }}">
+			<link rel="stylesheet" href="{{ asset('css/jquery.modal.min.css') }}">
+			<link rel="stylesheet" href="{{ asset('css/main2.css') }}" />
+		{% endblock %}
+	</head>
+	<body>
+
+		<!-- BEGIN .app-wrap -->
+		<div class="app-wrap">
+			<!-- BEGIN .app-heading -->
+			<header class="app-header">
+				<div class="container-fluid">
+					<div class="row ">
+						<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+							<a class="navbar-brand" href="{{ path('homepage') }}">
+								<img src="{{ asset('images/logo_trans_white.png') }}" class="logo" alt="Five Nines Logo">
+							</a>
+						</div>
+						<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+							<ul class="header-actions">
+								{% if app.user %}
+									<li class="dropdown">
+										<a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
+											<img class="avatar" src="{{ asset('images/user.png') }}" alt="User Thumb">
+										</a>
+										<div class="dropdown-menu lg dropdown-menu-right" aria-labelledby="userSettings">
+											<div class="logout-btn">
+											<a href="#" class="btn btn-primary">Logout</a>
+											</div>
+										</div>
+									</li>
+								{% else %}
+									<li>
+										<a href="{{ path('app_login') }}" class="btn btn-primary">Login</a>
+									</li>
+								{% endif %}
+								
+							</ul>
+						</div>
+					</div>
+				</div>
+			</header>
+			{% for label, messages in app.flashes %}
+				{% for message in messages %}
+					<div class="alert alert-{{ label }} text-center fixed-top">
+					    {{ message }}
+					</div>
+				{% endfor %}
+			{% endfor %}
+			<!-- END: .app-heading -->
+			<!-- BEGIN .app-container -->
+			<div class="app-container">
+				{% block content %}
+				{% endblock %}
+
+			</div>
+			<!-- END: .app-container -->
+			<!-- BEGIN .main-footer -->
+			<footer class="main-footer fixed-btm">
+				&copy; Five Nines Technology Limited 2019.
+			</footer>
+			<!-- END: .main-footer -->
+		</div>
+		<!-- END: .app-wrap -->
+
+		<!-- jQuery first, then Tether, then other JS. -->
+		{% block javascripts %}
+			<script src="{{ asset('js/jquery.js') }}"></script>
+			<script src="{{ asset('js/jquery.modal.min.js') }}"></script>
+			<script src="{{ asset('js/tether.min.js') }}"></script>
+			
+			<script src="{{ asset('js/moment.js') }}"></script>
+			<script src="{{ asset('js/featherlight.js') }}"></script>
+			
+			<!-- Common JS -->
+			<script src="{{ asset('js/sweetalert.js') }}"></script>
+		{% endblock %}
+	</body>
+</html>

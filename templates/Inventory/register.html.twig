@@ -1,0 +1,63 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-body">
+				<form action="{{ path('registerItem') }}" method="POST">
+					<input type="hidden" name="item">
+					<div class="form-group">
+						<input type="text" name="name" class="form-control" placeholder="Item Name">
+					</div>
+					<div class="form-group">
+						<input type="text" name="selling" class="form-control" placeholder="Price">
+					</div>
+					<div class="form-group">
+						<select class="form-control" name="category" required>
+							<option value="">Select Category</option>
+							{% for item in category %}
+								<option value="{{ item.id }}">{{ item.name|upper }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<h3>Add Stock Items</h3>
+					<div id="items">
+						<div class="row" id="initial">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<select class="form-control" name="stock[]">
+										<option value="-1">Select Inventory Item</option>
+										{% for item in stock %}
+											<option value="{{ item.id }}">{{ item.name|upper }}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<input type="text" name="portion[]" placeholder="Portion" class="form-control">
+								</div>
+							</div>
+						</div>
+					</div>
+					<input type="submit" name="submit" value="Save" class="btn btn-other">
+				</form>
+				<br>
+				<button class="btn-other pull-right" id="adds">Add Item</button>
+			</div>
+		</div>
+	</div>
+	<script>
+		var block = document.getElementById('initial');
+		const adds = document.getElementById('adds');
+
+		adds.addEventListener('click', addItem);
+
+		function addItem(){
+			var element = document.createElement('DIV');
+			element.className = "row";
+			element.innerHTML = block.innerHTML;
+			document.getElementById('items').appendChild(element);
+		}
+	</script>
+{% endblock %}

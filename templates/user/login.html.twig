@@ -1,0 +1,45 @@
+{% extends 'base2.html.twig' %}
+
+{% block content %}
+        <div class="login-form">
+            <div class="card">
+                <div class="card-header">Login</div>
+                <div class="card-body">
+                    {% if error %}
+                        <div id="error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+                    <form action="{{ path('app_login') }}" method="post" role="form">
+                    	<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <div class="input-group">
+                        	<span class="input-group-addon" id="username"><i class="icon-account_circle"></i></span>
+                            <input type="email" name="email" placeholder="Email Address" class="form-control login" value="{{ last_username|default('') }}">
+                        </div>
+                        <div class="input-group">
+                        	<span class="input-group-addon" id="password"><i class="icon-verified_user"></i></span>
+                            <input type="password" name="password" placeholder="Password" class="form-control">
+                        </div>
+                        <div class="checkbox mb-3" style="display: flex;">
+                        	<input type="checkbox" name="_remember_me">
+                            <label style="margin: auto 5px">Remember me</label>
+                        </div>
+                        <input type="submit" name="submit" value="Login" class="btn btn-primary">
+                        <a href="{{ path('register') }}">Create account</a>
+                        <a href="{{ path('password_email') }}" class="pull-right-push">Forgot password?</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function(){
+            $('input.login').focus();
+        })
+    </script>
+{% endblock %}

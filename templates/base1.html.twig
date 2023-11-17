@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<meta name="description" content="Amply Sales and Inventory Management Application" />
+		<meta name="keywords" content="Inventory, sales, access, management, app, store, bar, supermarket, pos, point of sale, dashboard, real-time, analytics, restaurant, track, monitor, e-receipt" />
+		<meta name="author" content="Five Nines Technology" />
+		<link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+		<title>Amply - Sales and Inventory Management at your fingertips</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+		
+		<!-- Common CSS -->
+		{% block stylesheets %}
+			<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+			<link rel="stylesheet" href="{{ asset('fonts/icomoon/icomoon.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/featherlight.css') }}">
+			<link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
+			<link rel="stylesheet" href="{{ asset('css/main2.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/dataTables.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/datatables-custom.css') }}" />
+			<link rel="stylesheet" href="{{ asset('css/jquery.modal.min.css') }}" />
+	
+		{% endblock %}
+
+		{% block chartcss %}
+			<link href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css" rel="stylesheet" />
+		{% endblock %}
+	</head>
+	<body>
+		{% if app.user.enabled %}
+		
+		{% else %}
+			<div class="alert alert-warning text-center" style="margin: 0">
+				A verification link has been sent to your email address. <a href="#" class="resend-email">Resend Email</a>
+			</div>
+		{% endif %}
+
+		<!-- BEGIN .app-wrap -->
+		<div class="app-wrap">
+			<!-- BEGIN .app-heading -->
+			
+			<!-- END: .app-heading -->
+			<!-- BEGIN .app-container -->
+			<div class="app-container">
+				
+				<!-- BEGIN .app-side -->
+				<aside class="app-side" id="app-side">
+					<!-- BEGIN .side-content -->
+					<div class="side-content ">
+						<!-- BEGIN .side-nav -->
+						<nav class="side-nav">
+							<a class="navbar-brand" href="{{ path('homepage') }}">
+								<img src="{{ asset('images/logo_trans_white.png') }}" class="logo" alt="Five Nines Logo">
+							</a>
+							<!-- BEGIN: side-nav-content -->
+							<ul class="unifyMenu" id="unifyMenu">
+								<li>
+									<a href="{{ path('admin') }}" class="{{ title == 'Dashboard' ? 'active'}} main-dash">
+										<span class="has-icon">
+											<i class="icon-laptop_windows"></i>
+										</span>
+										<span class="nav-title">Dashboard</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ path('group') }}" class="{{ title == 'Categories' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-tree"></i>
+										</span>
+										<span class="nav-title">Categories</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ path('item') }}" class="{{ title == 'Items' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-list2"></i>
+										</span>
+										<span class="nav-title">Items</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ path('orders') }}" class="{{ title == 'Order' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-cart"></i>
+										</span>
+										<span class="nav-title">Sales</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ path('stock') }}" class="{{ title == 'Stock' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-database"></i>
+										</span>
+										<span class="nav-title">Inventory</span>
+									</a>
+								</li>
+								<li>
+									<a href="{{ path('spillage') }}" class="{{ title == 'Spillage' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-database"></i>
+										</span>
+										<span class="nav-title">Spillage</span>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="" aria-expanded="false" class="{{ title == 'Enter Supply' | title == 'Suppliers' | title == 'Supplies' ? 'active'}}">
+										<span class="has-icon">
+											<i class="icon-truck"></i>
+										</span>
+										<span class="nav-title">Supply</span>
+									</a>
+									<ul aria-expanded="true">
+										<li>
+											<a href="{{ path('supply') }}" class="{{ title == 'Enter Supply' ? 'active'}}">New Supply</a>
+										</li>
+										<li>
+											<a href="{{ path('supplier') }}" class="{{ title == 'Suppliers' ? 'active'}}">Suppliers</a>
+										</li>
+										<li>
+											<a href="{{ path('supplies') }}" class="{{ title == 'Supplies' ? 'active'}}">Supplies</a>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<a href="{{ path('pos') }}">
+										<span class="has-icon">
+											<i class="icon-flash-outline"></i>
+										</span>
+										<span class="nav-title">Point of Sale</span>
+									</a>
+								</li>
+								<!-- <li>
+									<a href="{{ path('register') }}">
+										<span class="has-icon">
+											<i class="icon-flash-outline"></i>
+										</span>
+										<span class="nav-title">Register User</span>
+									</a>
+								</li> -->
+								
+							</ul>
+							<!-- END: side-nav-content -->
+						</nav>
+						<!-- END: .side-nav -->
+					</div>
+					<!-- END: .side-content -->
+				</aside>
+				<!-- END: .app-side -->
+
+				<!-- BEGIN .app-main -->
+				<div class="app-main">
+					<header class="app-header">
+						<div class="container-fluid">
+							<div class="row ">
+
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+									
+								</div>
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6">
+									<ul class="header-actions">
+										
+										<li class="dropdown" style="display: flex;">
+											<a href="#" id="open-menu" class="user-settings open-menu" style="display: inline-block;">
+												<img class="avatar" src="{{ asset('images/menu-white.png') }}" alt="Menu Thumb">
+											</a>
+											<a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true" style="display: inline-block;">
+												<img class="avatar" src="{{ asset('images/user.png') }}" alt="User Thumb">
+											</a>
+											<div class="dropdown-menu lg dropdown-menu-right" aria-labelledby="userSettings">
+												<ul class="user-settings-list">
+													<li>
+														<a href="{{ path('account') }}">
+															<div class="icon">
+																<i class="icon-account_circle"></i>
+															</div>
+															<p>Profile</p>
+														</a>
+													</li>
+												</ul>
+												<div class="logout-btn">
+													<a href="{{ path('app_logout') }}" class="btn btn-primary">Logout</a>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</header>
+					<div class="main-content">
+						{% for label, messages in app.flashes %}
+							{% for message in messages %}
+								<div class="no-margin alert alert-{{ label }} text-center fixed-top">
+								    {{ message }}
+								</div>
+							{% endfor %}
+						{% endfor %}
+						{% block content %}
+						{% endblock %}
+						
+					</div>
+					<!-- END: .main-content -->
+				</div>
+				<!-- END: .app-main -->
+
+			</div>
+			<!-- END: .app-container -->
+			<!-- BEGIN .main-footer -->
+			<footer class="main-footer fixed-btm">
+				&copy; Five Nines Technology Limited 2019.
+			</footer>
+			<!-- END: .main-footer -->
+		</div>
+		<!-- END: .app-wrap -->
+
+		<!-- jQuery first, then Tether, then other JS. -->
+		{% block javascripts %}
+			<script src="{{ asset('js/jquery.js') }}"></script>
+			<script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+			<script src="{{ asset('js/tether.min.js') }}"></script>
+			<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+			<script src="{{ asset('js/jquery.modal.min.js') }}"></script>
+			<script src="{{ asset('js/unifyMenu.js') }}"></script>
+			<script src="{{ asset('js/moment.js') }}"></script>
+			<script src="{{ asset('js/featherlight.js') }}"></script>
+			<script src="{{ asset('js/popper.min.js') }}"></script>
+			<script src="{{ asset('js/dataTables.js') }}"></script>
+			<script src="{{ asset('js/dataTables.bootstrap.min.js') }}"></script>
+			<script src="{{ asset('js/custom-datatables.js') }}"></script>
+			<script src="{{ asset('js/fixedHeader.js') }}"></script>
+
+			<script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+			<!-- Common JS -->
+			
+			<script src="{{ asset('js/common.js') }}"></script>
+			<script src="{{ asset('js/sweetalert.js') }}"></script>
+			<script src="{{ asset('js/select2.min.js') }}"></script>
+			<script src="{{ asset('js/slimscroll.min.js') }}"></script>
+			<script src="{{ asset('js/custom-scrollbar.js') }}"></script>
+			<script>
+				$(function () {
+				  window.onclick = function(event) {
+				    if ($('.app-side').hasClass('is-open')) {
+				    	if (event.target != document.getElementById('app-side')) {
+				    		$('#app-side').removeClass('is-open');
+				    	}
+				    }
+				  }
+
+				  $('[data-toggle="tooltip"]').tooltip()
+				  if ($('.ajaxSelect').length) {
+				  	$('.ajaxSelect').select2();
+				  }
+
+				  $('.open-menu').on('click', function(e){
+				  	e.preventDefault();
+
+				  	if ($('.app-side').hasClass('is-open')) {
+				  		$('.app-side').removeClass('is-open');
+				  		return;
+				  	}
+
+				  	setTimeout(function(){
+				  		$('.app-side').toggleClass('is-open');
+				  	}, 0)
+				  })
+
+				  $(".card-body").on('click', '.clickable-row', function() {
+				      window.location = $(this).data("href");
+				  });
+
+				  const resend_email = "{{ path('resendveremail') }}";
+
+				  $('.resend-email').on('click', function(e) {
+				  	e.preventDefault();
+				  	var that = $(this)
+				  	$(this).text('Sending...');
+				  	
+				  	fetch(resend_email, {
+				  		credentials: 'same-origin'
+				  	}).then(response => response.json())
+				  	.then(json => {
+				  		if (json.status === 'success') {
+				  			swal('Email Sent').then(function(){
+				  				that.text('Resend Email');
+				  			})
+				  		}
+				  	})
+				  })
+				});
+
+				const inventory_url = "{{ path('allinventory') }}";
+			</script>
+		{% endblock %}
+	</body>
+</html>

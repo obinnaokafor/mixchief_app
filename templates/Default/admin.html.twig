@@ -1,0 +1,186 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<!-- Row start -->
+	<div class="content">
+		<div class="row gutters">
+			<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 sales-update">
+				<div class="card">
+					<div class="card-body">
+						<div class="stats-graph-widget">
+							<div class="row gutters">
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 center-small">
+									<h6>Sales Today</h6>
+								</div>
+								<div class="col-xl-6 col-md-6 col-sm-6 col-xs-6 center-small">
+									<h4 class="center-small">&#x20A6;{{ today }}</h4>
+									<p class="growth">
+										{{ increase }}%<i class="icon-call_made {{ increase < 0 ? 'down' : 'up'}}"></i>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card col-md-12 col-sm-12 col-xl-8 col-lg-8 subscription">
+				{# <div class="card-header">
+					<h3>Subscription Details</h3>
+					<p>{{ today }}</p>
+				</div> #}
+				<div class="card-body" style="padding: 0;">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Subscription</th>
+								<th>End Date</th>
+								<th class="col-sm-hidden">Auto-Renew</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<form action="{{ path('pay') }}" method="POST">
+								<tr>
+									{% if subscription and subscription.status %}
+										<td>All-in-One</td>
+										<td>{{ subscription.expiry|date('d-m-Y') }}</td>
+										<td class="col-sm-hidden">{{ subscription.renew ? 'On' : 'Off' }}</td>
+										<td>Active</td>
+									{% else %}
+										<td>Free Trial</td>
+										<td>{{ stat }}</td>
+										<td class="col-sm-hidden">Off</td>
+										<td>{{ diff ? 'Expired' : 'Active' }} <a href="{{ path('pay') }}" class="btn btn-primary">Upgrade</a></td>
+									{% endif %}
+								</tr>
+							</form>
+						</tbody>
+					</table>
+				</div>
+		</div>
+		<div class="row gutters">
+			
+			</div>
+			{# <div class="card col-xl-4 col-lg-4 col-md-4 col-sm-6">
+					<div class="card-body">
+						<div class="stats-graph-widget">
+							<div class="row gutters">
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+									<h6>Sessions</h6>
+									<div class="stats-graph">
+									</div>
+								</div>
+								<div class="col-xl-6 col-md-6 col-sm-6 col-xs-6">
+									<h4>34,897</h4>
+									<p class="growth">
+										21.5%<i class="icon-call_made up"></i>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+			</div>
+			<div class="card col-xl-4 col-lg-4 col-md-4 col-sm-6">
+					<div class="card-body">
+						<div class="stats-graph-widget">
+							<div class="row gutters">
+								<div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+									<h6>Sessions</h6>
+									<div class="stats-graph">
+									</div>
+								</div>
+								<div class="col-xl-6 col-md-6 col-sm-6 col-xs-6">
+									<h4>34,897</h4>
+									<p class="growth">
+										21.5%<i class="icon-call_made up"></i>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+			</div> #}
+		</div>
+		<div class="row gutters">
+			
+			<div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 recent">
+				<div class="card">
+					<div class="card-header">Recent Activity</div>
+					<div class="customScroll">
+						<div class="card-body pt-0 pb-0">
+							<ul class="project-activity">
+								{% for activity in activities %}
+									<li class="activity-list">
+										<div class="detail-info">
+											<span class="lbl secondary">{{ activity.entityId }}</span>
+											<p class="desc-info"><a href="{{ path('vieworder', {'id': activity.entityId}) }}">{{ activity.action }}</a></p>
+											{# <a href="{{ path(activity) }}" class="activity-status"><i class="icon-done_all"></i>Read</a> #}
+										</div>
+									</li>
+								{% endfor %}
+								{# <li class="activity-list">
+									<div class="detail-info">
+										<span class="lbl">M</span>
+										<p class="desc-info"><span class="text-primary">Moneyas Olina</span> strategic partnership plan</p>
+										<a href="#" class="activity-status">Mark as read</a>
+									</div>
+								</li> #}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 sales-chart">
+				<div class="card">
+					<div class="card-header">Sales This Month</div>
+					<div class="card-body">
+						<div class="">
+							<div class="myChart"></div>
+						</div>
+						<div class="row gutter">
+							<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+								<div class="info-stats2">
+									<h5 class="text-secondary">&#x20A6;{{ today }} <span>Today</span></h5>
+									<p>Prev. &#x20A6;{{ yesterday }}</p>
+								</div>
+							</div>
+							<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+								<div class="info-stats2">
+									<h5 class="text-primary">&#x20A6;{{ thisweek }} <span>Week</span></h5>
+									<p>Prev. &#x20A6;{{ lastweek }}</p>
+								</div>
+							</div>
+							<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+								<div class="info-stats2">
+									<h5 class="text-primary">&#x20A6;{{ thismonth }} <span>Month</span></h5>
+									<p>Prev. &#x20A6;{{ lastmonth }}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+
+	<script>
+		var regex = /&quot;/gi;
+		var sales = JSON.parse("{{ salesmonth }}".replace(regex, '"'));
+		var data = {
+		  // A labels array that can contain any sort of values
+		  labels: sales.map(sale => sale.dates.split("-").slice(1).reverse().join("-")),
+		  // Our series array that contains series objects or in this case series data arrays
+		  series: [
+		    sales.map(sale => sale.amount)
+		  ]
+		};
+
+		// Create a new line chart object where as first parameter we pass in a selector
+		// that is resolving to our chart container element. The Second parameter
+		// is the actual data object.
+		new Chartist.Line('.myChart', data);
+	</script>
+{% endblock %}

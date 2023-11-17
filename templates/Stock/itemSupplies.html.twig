@@ -1,0 +1,83 @@
+{% extends 'base1.html.twig' %}
+
+{% block content %}
+	<div class="content">
+		<div class="card">
+			<div class="card-body">
+				{# <h3>{{ supply.name }} Supply Items </h3> #}
+
+				<div class="rows">
+					<div class="cols pull-right">
+						<a class="btn btn-danger action-icon" href="{{ path('deletesupply', {'id': supply.id }) }}"><i class="fa fa-trash"></i>Delete Supply</a>
+						<a class="btn btn-primary pull-right-push" href="{{ path('editsupply', {'id': supply.id }) }}">Edit Supply</a>
+					</div>
+				</div>
+				<div class="row" style="padding: 50px 50px 0;">
+					<div class="col-md-6">
+						<h1>{{ supply.supplier.name }}</h1>
+					</div>
+					<div class="col-md-6 text-right">
+						<h4>{{ supply.date|date('D, d M Y') }}</h4>
+					</div>
+					{# <div class="col-sm-12 col-md-6">
+						<table class="table table-striped">
+							<tr>
+								<td>Supplier: </td>
+								<td>{{ supply.supplier.name }}</td>
+							</tr>
+							<tr>
+								<td>Supply Total: </td>
+								<td>{{ supply.total }}</td>
+							</tr>
+							<tr>
+								<td>Supply Date: </td>
+								<td>{{ supply.date|date('d/m/Y') }}</td>
+							</tr>
+						</table>
+						
+					</div> #}
+
+				</div>
+				<br>
+				
+				<br><br>
+				<table class="table table-striped" id="rowSelection">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Quantity</th>
+							<th>Amount</th>
+							{# <th>Remove</th> #}
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in supplies %}
+							<tr>
+								<td>{{ item.item_name }}</td>
+								<td>{{ item.quantity }} {{ item.unit }}</td>
+								<td>{{ item.amount|number_format }}</td>
+								{# <td>
+									<a class="btn btn-danger delete-item" href="{{ path('deleteSupplyItem', {'id': item.id}) }}" data-id="{{ item.id }}">
+										<i class="fa fa-times"></i>
+									</a>
+								</td> #}
+							</tr>
+						{% endfor %}
+						<tr>
+							<td></td><td><strong>Total</strong></td><td><strong>{{ supply.total|number_format }}</strong></td>
+						</tr>
+					</tbody>
+				</table>
+				<a class="btn btn-danger" href="{{ path('supplies') }}">
+					<i class="fa fa-arrow-left"></i>
+					Supplies
+				</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('js/admin.js') }}"></script>
+{% endblock %}

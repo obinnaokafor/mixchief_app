@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Point of Sale</title>
+	<!-- <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" /> -->
+	<link rel="stylesheet" href="{{ asset('css/bootstrap3.css') }}" />
+	<link rel="stylesheet" href="{{ asset('css/font-awesome.css') }}">
+	<link rel="stylesheet" href="{{ asset('fonts/icomoon/icomoon.css') }}" />
+	<link rel="stylesheet" href="{{ asset('css/featherlight.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/main2.css') }}" />
+	<link href="{{ asset('css/select2.css') }}" rel="stylesheet" />
+	
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+
+		<!-- CSS for this page -->
+		<!-- Stepper CSS -->
+	<link href="{{ asset('css/jquery.fs.stepper.css') }}" rel="stylesheet">
+
+		<!-- Main CSS -->
+	<link href="{{ asset('css/style32.css')}}" rel="stylesheet">
+	<script src="{{ asset('js/jquery.js') }}"></script>
+	<script src="{{ asset('js/featherlight.js')}}"></script>
+	<script type="text/javascript">
+		const changeorder = "{{ path('changeorder') }}";
+		const orderUrl = "{{ path('order') }}";
+		const savedOrderUrl = "{{ path('retrievesavedorder') }}";
+		const reportUrl = "{{ path('printDailyReport') }}";
+	</script>
+	<script src="{{ asset('js/select2.js') }}"></script>
+	<script src="{{ asset('js/script.js') }}"></script>
+	<script src="{{ asset('js/json-groupBy.js') }}"></script>
+</head>
+<body>
+<!-- <div class="app-wrap"> -->
+	<header class="app-header">
+		<div class="container-fluid">
+			<div class="row ">
+				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-8 col-8">
+					<a href="index-2.html" class="logo">
+						<img src="{{ asset('images/nine.png') }}" style="width: 150px; height: 27px; margin-top: 10px;" alt="Five Nines Admin Dashboard">
+					</a><a class="mini-nav-btn" href="#" id="app-side-mini-toggler">
+						<i class="icon-sort"></i>
+					</a>
+					<a href="#app-side" data-toggle="onoffcanvas" class="onoffcanvas-toggler" aria-expanded="true">
+						<i class="icon-chevron-thin-left"></i>
+					</a>
+				</div>
+				<div class="col-xl-6 col-lg-6 col-md-6 col-sm-4 col-4">
+					<ul class="header-actions">
+						{% if app.user %}
+							<li class="dropdown">
+								<a href="#" id="userSettings" class="user-settings" data-toggle="dropdown" aria-haspopup="true">
+									<img class="avatar" src="{{ asset('images/user.png') }}" alt="User Thumb">
+									<i class="icon-chevron-small-down"></i>
+								</a>
+								<div class="dropdown-menu lg dropdown-menu-right" aria-labelledby="userSettings">
+									<ul class="user-settings-list">
+										<li>
+											<a href="profile.html">
+												<div class="icon">
+													<i class="icon-account_circle"></i>
+												</div>
+												<p>Profile</p>
+											</a>
+										</li>
+										<li>
+											<a href="profile.html">
+												<div class="icon red">
+													<i class="icon-cog3"></i>
+												</div>
+												<p>Settings</p>
+											</a>
+										</li>
+										<li>
+											<a href="filters.html">
+												<div class="icon yellow">
+													<i class="icon-schedule"></i>
+												</div>
+												<p>Activity</p>
+											</a>
+										</li>
+									</ul>
+									<div class="logout-btn">
+									<a href="#" class="btn btn-primary">Logout</a>
+									</div>
+								</div>
+							</li>
+						{% else %}
+							<li>
+								<a href="{{ path('login') }}" class="btn btn-primary">Login</a>
+							</li>
+						{% endif %}
+						
+					</ul>
+				</div>
+			</div>
+		</div>
+	</header>
+<!-- </div> -->
+<div class="wrapper">
+	<div class="container-fluid">
+		<div class="alert alert-success alert-dismissable text-center" id="notify">
+		  	<p>Order Placed Successfully</p>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 cover">
+				{% if waiter and table %}
+					<div class="row">
+						<div class="col-sm-6">
+							<select class="form-control waiter-table" name="waiter" id="waiter">
+								<option value="-1">Select Waiter</option>
+								{% for item in waiter %}
+									<option value="{{ item.id }}">{{ item.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="col-sm-6">
+							<select class="form-control waiter-table" name="table" id="table">
+								<option value="-1">Select Table</option>
+								{% for item in table %}
+									<option value="{{ item.name }}">{{ item.name }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				{% endif %}
+				<div id="sale">
+					<div class="ui-32">
+							<div class="ui-view-cart">
+								<div class="table-responsive">
+									<table class="table" id="saleList">
+										<tr>
+											<th>Item</th>
+											<th>Unit</th>
+											<th>Quantity</th>
+											<th>Total</th>
+											<th class="text-center">Action</th>
+										</tr>
+									</table>
+								</div>
+							</div>
+					</div>
+
+
+
+				</div>
+				<div class="total">
+					<div class="row">
+						{# <div class="col-sm-6">
+							<table class="table">
+								<tr>
+									<td>Discount:</td>
+									<td id="disc">0</td>
+								</tr>
+							</table>
+						</div> #}
+						<div class="col-sm-6 col-sm-offset-6">
+							<table class="table">
+								<tr>
+									<td>Total:</td>
+									<td id="total">0</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="row payItems">
+					<div class="col-sm-3">
+						<button id="saveOrder" style="display: none;" class="btn btn-default payButton" onclick="saveOrder();">Save Order</button>
+					</div>
+					<div class="col-sm-3">
+						<button id="card" style="display: none;" class="btn btn-default payButton" onclick="pay();">Card</button>
+					</div>
+					<div class="col-sm-3">
+						<button id="cash" style="display: none;" class="btn btn-default payButton" onclick="payCash();">Cash</button>
+					</div>
+				</div>
+
+			</div>
+			<div class="col-sm-6 buttons">
+				<!-- <p>Category</p>
+				<div id="mainmenu">
+				</div>
+				<hr>
+				<p>Sub Category</p>
+				<div id="mains">
+				</div>
+				<hr>
+				<p>Items</p>
+				<div id="submenu">
+
+				</div> -->
+
+			</div>
+			<!-- <div class="col-sm-2">
+				<div id="mainmenu">
+
+				</div>
+			</div> -->
+		</div>
+		<div class="modal fade login" id="loginModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirm Order</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="box">
+                             <div class="content">
+                                <div class="form loginBox">
+
+                                </div>
+
+
+                             </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" onclick="orderItems();" id="submitButton">Submit</button>
+                    </div>
+    		      </div>
+		      </div>
+		</div>
+		<div class="modal fade login" id="savedModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="saved-modal-title">Select Order</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="box">
+                             <div class="content">
+                                <div class="error"></div>
+                                <div class="form saved-orders">
+
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+    		      </div>
+		      </div>
+		</div>
+
+		<div id="myModal" class="modal">
+
+		  <!-- Modal content -->
+		<div class="modal-contents">
+
+		</div>
+
+		</div>
+	</div>
+</div>
+<script src="{{ asset('js/placeholder.js') }}"></script>
+<!-- Respond JS for IE8 -->
+<script src="{{ asset('js/respond.min.js') }}"></script>
+<!-- HTML5 Support for IE -->
+<script src="{{ asset('js/html5shiv.js') }}"></script>
+
+<script src="{{ asset('js/jquery.fs.stepper.min.js') }}"></script>
+
+<script>var url = "{{ path('homepage') }}";</script>
+<script>
+
+$(document).ready(function() {
+    $('.waiter-table').select2();
+		$(".ui-view-cart").on('click', 'td > a.cross', function(e){
+		e.preventDefault();
+		$(this).parents("tr").fadeOut(300, () => {
+				// console.log($(this))
+				$(this).parents("tr").remove()
+			});   //FadeOut Entire Row
+		});
+});
+
+
+
+
+var cat = {};
+var group = {};
+var group_cat = {};
+	$.get(url, function(data){
+		
+		let itemOrder = [];
+		if ('group_name' in data[0]) {
+			itemOrder.push('Category');
+			if ('cat_name' in data[0]) {
+				group_cat = groupBy(data, ['group_name', 'cat_name', 'item_name'])
+				console.log('group cat', group_cat)
+				itemOrder.push('Sub Category')
+			}else{
+				group_cat = groupBy(data, ['group_name', 'item_name'])
+			}
+		}else {
+			group_cat = groupBy(data, ['item_name'])
+		}
+		itemOrder.push('Items');
+
+		//create rows
+		var count = 0;
+		for (var key in group_cat){
+
+		}
+		for (var i = 0; i < itemOrder.length; i++) {
+			console.log(addRow(itemOrder[i]))
+			// $('.buttons').append(addRow())
+		}
+		console.log(itemOrder)
+		itemOrder.push('Items');
+		// group_cat = groupBy(data, ['group_name', 'cat_name', 'item_name'])
+		cat = groupBy(data, ['cat_name'])
+		group = groupBy(data, ['group_name']);
+		item = groupBy(data, ['item_name']);
+		if (data) {
+			var rel = JSON.parse(JSON.stringify(data));
+			// category(rel);
+			// createMainElements(group_cat);
+		}
+
+	});
+
+		function createSub(elements, cat){
+			const domElements = elements.map(element => {
+				return createElement(element)
+			})
+			console.log(domElements)
+			var output = `
+				<div class='row'>
+					${$.parseHTML(domElements)}
+				</div>
+			`;
+			// for(var key in element){
+			// 	const el = element[key];
+			// 	output += '<div class="col-sm-3 text-center pull-left">';
+			// 	output += "<button class='btn sub' data-price='" +  el.item_price + "' data-category='" + el.cat_name + "' data-id='" + el.item_id + "'>" + el.item_name + "</button>";
+			// 	output += "</div>";
+			// }
+			// output += "";
+			return output;
+		}
+
+		const buttonTemplate = (button) => {
+			return `<button>
+				
+			</button>`
+		}
+
+		const addRow = (category) => {
+			let row = rowTemplate(category);
+			$('.buttons').append(row);
+		}
+
+		const rowTemplate = (category) => {
+
+			return `<p>${category}</p>
+					<div class='catrow ${category.split(' ').join('').toLowerCase()}' data-type="${category}">
+
+					</div>
+			`
+		}
+
+		const addButton = (container, element) => `
+			<div class='col-sm-3 text-center pull-left'>
+				<button class='btn sub' data-price='${element.item_price}' data-category='${element.cat_name}' data-id='${element.item_id}'>${element.item_name}</button>
+			</div>
+		`;
+
+		//this function receives an object and creates and returns a button
+		//as a string for the main menu
+		function createButtonElement(elements){
+			var main = "<div class='row subcategory'>";
+			for(var key in elements){
+				main += "<div class='col-sm-3 text-center pull-left'>";
+				main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button></div>";
+			}
+			main += "</div>";
+			mains.innerHTML = main;
+			// return main;
+		}
+
+		// function createMainElements(element){
+		// 	var main = "<div class='row maincategory'>";
+		// 	for(var key in element){
+		// 		main += "<div class='col-sm-3 text-center'>";
+		// 		main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button></div>";
+		// 	}
+		// 	main += "</div>";
+		// 	mainmenu.innerHTML = main;
+		// }
+
+		$('#mains').on('click', 'button', function(){
+			var sub = createSub(cat[$(this).data('name')], $(this).data('name'));
+			submenu.innerHTML = sub;
+		});
+
+		$('#mainmenu').on('click', 'button', function(){
+			console.log($(this))
+			createButtonElement(group_cat[$(this).data('name')]);
+			// submenu.innerHTML = sub;
+		});
+		
+		$('#sale').on('change', '.stepper-input', setTotal)
+		{# $('#sale').on('click', '.stepper-arrow', setTotal) #}
+		{# $('#sale').on('change', '.stepper-input', setTotal) #}
+
+
+		// Receives an chan
+		function setTotal(event){
+			var parent;
+			console.log(event.currentTarget)
+			if(event.currentTarget){
+				let $el = $(event.currentTarget)
+				parent = $el.closest('tr')
+			}else {
+				console.log('else')
+				parent = event;
+			}
+
+			parent.find('.green').html(itemTotal(parent));
+			calculateTotal();
+		}
+
+		function itemTotal(row) {
+			let price = parseFloat(row.find('.lblue').html())
+			let qty = parseFloat(row.find('.stepper-input').val())
+			return price*qty;
+		}
+
+		// When an item is selected, list the item in the order section
+		// calculate total by adding the prices of each item
+		// Show the pay button and save order button
+		var sales = "";
+		$('#submenu').on('click', 'button', function(){
+			if (!addItem($(this).data('id'))) {
+				sales = `
+				<tr data-row="${$(this).data('id')}" class="sale-row">
+					<td>
+						<h6><a href="#">${$(this).html()}</a></h6>
+					</td>
+					<td class="lblue">${$(this).data('price')}</td>
+					<td class="quantity"><input type="number" min="1" max="40" value="1" class="quantity"/></td>
+					<td class="green">${$(this).data('price')} </td>
+					<td class="text-center">
+						<a href="#" class="cross" data-toggle="tooltip" data-placement="top" title="Remove">X</a>
+					</td>
+				</tr>
+				`;
+				$('#saleList').append(sales);
+				calculateTotal();
+				showPayButton();
+				$("input.quantity").stepper();
+			}
+			
+		});
+
+		function showPayButton(){
+			if(document.querySelectorAll('#saleList tr').length > 0) {
+			    $('.payButton').show();
+			}else {
+				$('#cash').hide();
+				$('#card').hide();
+				$('#saveOrder').hide();
+				// $('#clearButton').hide();
+			}
+		}
+
+</script>
+</body>
+</html>

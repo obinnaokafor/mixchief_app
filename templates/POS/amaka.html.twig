@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Point of Sale</title>
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/print.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-fullscreen-select.css')}}">
+	<script src="{{ asset('js/jquery.js') }}"></script>
+	<script src="{{ asset('js/json-groupBy.js') }}"></script>
+	<script src="{{ asset('js/print.min.js') }}"></script>
+	<script src="{{ asset('js/bootstrap.js') }}"></script>
+	<script src="{{ asset('js/login-register.js') }}"></script>
+	<script type="text/javascript">
+		const changeorder = "{{ path('changeorder') }}";
+		const orderUrl = "{{ path('order') }}";
+		const savedOrderUrl = "{{ path('retrievesavedorder') }}";
+		const reportUrl = "{{ path('printDailyReport') }}";
+	</script>
+	<script src="{{ asset('js/scripts.js') }}"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">EPOS</a>
+		</div>
+		<ul class="nav navbar-nav">
+			<li><a href="javascript: retrieveSavedOrders();">Saved Orders</a></li>
+			<li><a href="{{ path('logout') }}">Logout</a></li>
+			<li><a href="javascript: shiftClose()">Close Shift</a></li>
+			
+		</ul>
+	</div>
+</nav> 
+<div class="wrapper">
+	<div class="container-fluid">
+		<div class="alert alert-success alert-dismissable text-center" id="notify">
+		  	<p>Order Placed Successfully</p>
+		</div>	
+		<div class="row">
+			<div class="col-sm-6 cover">
+				
+				<div id="sale">
+					<ul id="saleList" class="list-group">
+					</ul>
+					
+
+					
+				</div>
+				<div class="total">
+					<div class="row">
+						<div class="col-sm-6">
+							<table class="table">
+								<tr>
+									<td>Discount:</td>
+									<td id="disc">0</td>
+								</tr>
+							</table>
+						</div>
+						<div class="col-sm-6">
+							<table class="table">
+								<tr>
+									<td>Total:</td>
+									<td id="total">0</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="row payItems">
+					<div class="col-sm-3">
+						<button id="cancelOrder" style="display: none;" class="btn btn-default" onclick="cancelOrder();">Clear Order</button>
+					</div>
+					<!-- <div class="col-sm-3">
+						<button id="saveOrder" style="display: none;" class="btn btn-default payButton" onclick="checkDetails();saveOrder();">Save Order</button>
+					</div> -->
+					<div class="col-sm-3">
+						<button id="card" style="display: none;" class="btn btn-default payButton" onclick="checkDetails();pay();openLoginModal();">Card</button>
+					</div>
+					<div class="col-sm-3">
+						<button id="cash" style="display: none;" class="btn btn-default payButton" onclick="checkDetails();payCash();">Cash</button>
+					</div>
+				</div>
+				
+				<div class="row bottomItems">
+					<div class="col-sm-3">
+						<button id="deleteButton" style="display: none;" class="actionButton btn btn-default" onclick="deleteItems();">Delete Item(s)</button>
+					</div>
+					<div class="col-sm-3">
+						<button id="discountButton" style="display: none;" class="actionButton btn btn-default" onclick="discount();">Apply Discount</button>
+					</div>
+					<!-- <div class="col-sm-3">
+						<button id="clearButton" style="display: none;" class="btn btn-default" onclick="clearList();">Clear List</button>
+					</div> -->
+					<div class="col-sm-3">
+						<button id="quantityButton" style="display: none;" class="actionButton btn btn-default" onclick="changeQuantity();">Quantity</button>
+					</div>
+					<!-- <button type="button" onclick="printJS('printJS-form', 'html')">
+					    Print Form
+					</button> -->
+				</div>
+
+			</div>
+			<div class="col-sm-6 buttons">
+				<!-- <p>Category</p>
+				<div id="mainmenu">
+				</div>
+				<hr>
+				<p>Sub Category</p>
+				<div id="mains">
+				</div>
+				<hr> -->
+				<p>Items</p>
+				<div id="submenu">
+
+				</div>
+				
+			</div>
+			<!-- <div class="col-sm-2">
+				<div id="mainmenu">
+					
+				</div>
+			</div> -->
+		</div>
+		<script>
+
+			 function prints(sect){
+			 	printJS({printable: sect, type: 'html', font_size: '12pt'});
+			 }
+		</script>
+		<div class="modal fade login" id="loginModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Confirm Order</h4>
+                    </div>
+                    <div class="modal-body">  
+                        <div class="box">
+                             <div class="content">
+                                <div class="form loginBox">
+
+                                </div>
+                                
+                                
+                             </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" onclick="orderItems();" id="submitButton">Submit</button>
+                    </div>        
+    		      </div>
+		      </div>
+		</div>
+		<div class="modal fade login" id="savedModal">
+		      <div class="modal-dialog login animated">
+    		      <div class="modal-content">
+    		        <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="saved-modal-title">Select Order</h4>
+                    </div>
+                    <div class="modal-body">  
+                        <div class="box">
+                             <div class="content">
+                                <div class="error"></div>
+                                <div class="form saved-orders">
+
+                                </div>
+                                
+                                
+                             </div>
+                        </div>
+                    </div>       
+    		      </div>
+		      </div>
+		</div>
+
+		<div id="myModal" class="modal">
+
+		  <!-- Modal content -->
+		<div class="modal-contents">
+		    
+		</div>
+
+		</div>
+	</div>
+</div>
+<script src="{{ asset('js/bootstrap-fullscreen-select.js') }}"></script>
+<script>var url = "{{ path('homepage') }}";</script>
+<script>
+
+// $('.mobileSelect').mobileSelect();
+	$.get(url, function(data){
+		if (data) {
+			// var rel = JSON.parse(JSON.stringify(data));
+			// category(rel);
+			// createMainElements(group_cat);
+			// console.log(groupBy(data,));
+			var items = groupBy(data, ['item_name']);
+			submenu.innerHTML = createSub(items, 'DRINKS');
+		}
+
+	});
+		var cat = {};
+		var group = {};
+		var group_cat = {};
+
+		function category(data){
+
+			var daily = {};
+			var cats = {};
+			//Sort by categories
+			for(var key in data){
+				if(data[key].cat_name in cats){
+					cats[data[key].cat_name].push(data[key]);
+				}else {
+					cats[data[key].cat_name] = [data[key]];
+				}
+				
+			}
+			console.log("Cats: ")
+			console.log(cats);
+
+			var sets = new Set();
+
+			for(var key in cats){
+				// console.log(cat[key]);
+				sets.add(cats[key][0].group_name);
+			}
+
+			console.log("Sets: ")
+			console.log(Array.from(sets));
+
+			// get the group names
+			sets.forEach(function(element){
+				daily[element] = {};
+			})
+			// console.log(group_cat);
+
+			// loop through the category object
+			// inner loop through each group name
+			// if the category item 
+			for(var key in cats){
+				for(let item of sets){
+					if (cats[key][0].group_name == item) {
+						daily[item][key] = cats[key];
+						break;
+					}
+				}
+			}
+			console.log("Daily: ");
+			console.log(daily);
+			group_cat = daily;
+			cat = cats;
+			return daily;
+			// var cat = new 
+		}
+
+		function createSub(element, catName){
+			var output = "<div class='row'>";
+			console.log(element);
+			for(var key in element){
+				output += '<div class="col-sm-3 text-center pull-left">';
+				output += "<button class='btn sub' data-price='" +  element[key][0].item_price + "' data-category='" + catName + "' data-id='" + element[key][0].item_id + "'>" + element[key][0].item_name + "</button>";
+				output += "</div>";
+			}
+			output += "</div>";
+			return output;
+		}
+
+		//this function receives an object and creates and returns a button
+		//as a string for the main menu
+		function createButtonElement(elements){
+			var main = "<div class='row subcategory'>";
+			for(var key in elements){
+				main += "<div class='col-sm-3 text-center pull-left'>";
+				main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button></div>";
+			}
+			main += "</div>";
+			mains.innerHTML = main;
+			// return main;
+		}
+
+		function createMainElements(element){
+			var main = "<div class='row maincategory'>";
+			for(var key in element){
+				main += "<div class='col-sm-3 text-center'>";
+				main += "<button class='btn btn-default main' data-name='" + key + "'>" + key.toUpperCase() + "</button></div>";
+			}
+			main += "</div>";
+			mainmenu.innerHTML = main;
+		}
+
+		$('#mains').on('click', 'button', function(){
+			var sub = createSub(cat[$(this).data('name')], $(this).data('name'));
+			submenu.innerHTML = sub;
+		});
+
+		$('#mainmenu').on('click', 'button', function(){
+			createButtonElement(group_cat[$(this).data('name')]);
+			// submenu.innerHTML = sub;
+		});
+
+
+
+		// When an item is selected, list the item in the order section
+		// calculate total by adding the prices of each item
+		// Show the pay button and save order button
+		var sales = "";
+		$('#submenu').on('click', 'button', function(){
+			if (!addItem($(this).data('id'))) {
+				sales = "<li data-discount='0' data-quantity='1' data-price='"  + $(this).data('price') + "' data-name='" + $(this).html() + "' data-id='" + $(this).data('id') + "' class='list-group-item'><span class='list-item'>" + $(this).html() + "</span> (<span class='quantity'>1</span>)<span class='pull-right listPrice'>" + $(this).data('price') + "</span></li>";
+				$('#saleList').append(sales);
+				calculateTotal();
+				showPayButton();
+			}
+			
+		});
+
+		$('#saleList').on('click', 'li', function(){
+			$(this).toggleClass('active');
+
+			if(document.querySelectorAll('li.active').length == 0) {
+			    $('#deleteButton').hide();
+			    $('#discountButton').hide();
+			    $('#quantityButton').hide();
+			}else {
+				$('#deleteButton').show();
+			    $('#discountButton').show();
+			    $('#quantityButton').show();
+			}
+			calculateTotal();
+		});
+
+		function showPayButton(){
+			if(document.querySelectorAll('#saleList li').length > 0) {
+			    $('#cash').show();
+			    $('#card').show();
+				$('#saveOrder').show();
+				$('#cancelOrder').show();
+				// $('#clearButton').show();
+			}else {
+				$('#cash').hide();
+				$('#card').hide();
+				$('#saveOrder').hide();
+				// $('#clearButton').hide();
+			}
+		}
+
+</script>
+<script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+<script src="{{ asset('js/chartist.min.js') }}"></script>
+<script src="{{ asset('js/material-dashboard.js') }}"></script>
+<script src="{{ asset('js/material.min.js') }}"></script>
+</body>
+</html>
