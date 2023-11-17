@@ -13,25 +13,25 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use App\Security\LoginFormAuthenticator;
-use App\Service\MailgunTransport;
 use App\Entity\Users;
 use App\Controller\Controller;
+use App\Service\SESEmailClient;
 
 class UserController extends Controller
 {
     /**
      *
-     * @var MailgunTransport
+     * @var SESEmailClient
      */
-    private $mailgun;
+    private $ses;
 
     /**
      *
-     * @param MailgunTransport $mailgun
+     * @param SESEmailClient $ses
      */
-    function __construct(MailgunTransport $mailgun)
+    function __construct(SESEmailClient $ses)
     {
-        $this->mailgun = $mailgun;
+        $this->ses = $ses;
     }
 
     /**
@@ -76,7 +76,7 @@ class UserController extends Controller
           $em->persist($user);
           $em->flush();
 
-        //   $this->sendEmail('email.html.twig', $user, $rand, 'Welcome to Amply');
+          $this->sendEmail('email.html.twig', $user, $rand, 'Welcome to Amply');
 
           return $guardHandler->authenticateUserAndHandleSuccess(
               $user,
@@ -185,7 +185,7 @@ class UserController extends Controller
                 'host' => getenv('HOST_URL')
             ]
         );
-        $response = $this->mailgun->send($user->getEmail(), $subject, $message);
+        $response = $this->ses->sendEmail($user->getEmail(), $subject, $message);
 
         return $response;
     }
@@ -253,10 +253,10 @@ class UserController extends Controller
 
     /**
      * @Route("/password/reset", name="password_email")
-     * @param MailgunTransport $mailgun Mailgun helper class
+     * @param SESEmailClient $ses SES helper class
      * @return Response
      **/
-    public function resetPassword(MailgunTransport $mailgun)
+    public function resetPassword(SESEmailClient $ses)
     {
         $email = '';
         $error = NULL;

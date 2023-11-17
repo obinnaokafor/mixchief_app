@@ -28,13 +28,11 @@ class DefaultController extends Controller
 {
 
     private $ra;
-    private $mailgun;
     private $ses;
 
-    function __construct(RegisterActivity $ra, MailgunTransport $mailgun, SESEmailClient $ses)
+    function __construct(RegisterActivity $ra, SESEmailClient $ses)
     {
         $this->ra = $ra;
-        $this->mailgun = $mailgun;
         $this->ses = $ses;
     }
 
@@ -45,7 +43,7 @@ class DefaultController extends Controller
     {
         // return $this->redirectToRoute('app_login');
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'mike.okafor88@gmail.com']);
+        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $items = $em->getRepository(Item::class)->findBy(['userId' => $user->getId()]);
         $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user->getId()]);
         return $this->render('Default/index.html.twig', ['items' => $items, 'categories' => $categories]);
@@ -94,7 +92,7 @@ class DefaultController extends Controller
 
         $post = $request->request->all();
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'mike.okafor88@gmail.com']);
+        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $order = new Orders();
         $order->setUserId($user->getId());
         $order->setDate(new \DateTime('now'));
@@ -246,7 +244,7 @@ class DefaultController extends Controller
     public function confirmation($reference)
     {
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'mike.okafor88@gmail.com']);
+        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $order = $em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference, 'userId' => $user->getId()]);
         if (!$order || $order->getConfirmed()) {
             return $this->redirectToRoute('homepage');
