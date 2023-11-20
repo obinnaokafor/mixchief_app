@@ -479,14 +479,11 @@ a.tag {
 }
 
 .place-menu-item {
-    /* border: 1px solid #ccc; */
-    /* border-radius: 4px; */
     flex: 1;
     display: flex;
-    /* grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, auto); */
     flex-direction: column;
     padding: 10px;
+    justify-content: space-between;
 }
 
 .name-price {

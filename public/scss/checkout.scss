@@ -134,6 +134,11 @@ body {
                         text-decoration: none;
                     }
                 }
+
+                .delivery-notice {
+                    font-size: 12px;
+                    padding: 10px 0;
+                }
             }
         }
 
@@ -145,12 +150,13 @@ body {
                 border-radius: 10px;
                 padding: 20px;
 
-
                 .checkout-lists {
                     display: flex;
                     flex-direction: column;
                     row-gap: 15px;
                     margin-bottom: 40px;
+                    max-height: 300px;
+                    overflow-y: scroll;
 
                     .card {
                         width: 100%;

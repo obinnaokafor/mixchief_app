@@ -7,6 +7,9 @@
 /public/bundles/
 /var/
 /vendor/
+/public/scss/
+/public/scss/*
+public/scss/*
 ###< symfony/framework-bundle ###
 id_rsa_do
 id_rsa_do.pub

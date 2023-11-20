@@ -8,6 +8,27 @@
 	<link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
 </head>
 <body>
+	<script>
+		function getOrderItems() {
+			const items_string = localStorage.getItem('items')
+			if (items_string !== null) {
+				try {
+					// console.log({items_string})
+					return JSON.parse(items_string)
+				} catch (e) {
+					{}
+				}
+			}
+
+			return {}
+		}
+		let orderItems = getOrderItems();
+
+		// redirect to home if no items in cart
+		if (Object.keys(orderItems).length === 0) {
+			window.location.href = '/';
+		}
+	</script>
 	<nav>
 		<div class="nav-content">
 			<img src="{{ asset('images/mixchief-logo.png') }}" alt="MixChief Logo">
@@ -16,7 +37,11 @@
     <header>
 		<h3>Checkout</h3>
 	</header>
-
+	{% if error %}
+		<div class="error-message">
+			<p>{{ error }}</p>
+		</div>
+	{% endif %}
 	<main>
 		
 		<section class="checkout-form">
@@ -39,6 +64,7 @@
 				</div>
 				<br>
 				<h5>Delivery Information</h5>
+				<p class="delivery-notice"><em>We currently offer delivery services exclusively to Victoria Island, Ikoyi, and Lekki Phase 1. Stay tuned for updates as we plan to expand our delivery locations soon. We apologize for any inconvenience.</em></p>
 				<div class="form-control">
 					<label for="checkout-name">Full name</label>
 					<div>
@@ -100,20 +126,6 @@
             })
         }
 
-		function getOrderItems() {
-			const items_string = localStorage.getItem('items')
-			if (items_string !== null) {
-				try {
-					// console.log({items_string})
-					return JSON.parse(items_string)
-				} catch (e) {
-					{}
-				}
-			}
-
-			return {}
-		}
-
 		const orderItemTemplate = (item) => `
 			<div class="card" data-id="${item.id}">
 				<div class="card-image"><img src="${item.image || '/images/no-image.png'}" alt=""></div>
@@ -129,7 +141,6 @@
 			</div>
 		`
 
-		let orderItems = getOrderItems();
 		calculateTotal();
 
 		// add order items as input fields

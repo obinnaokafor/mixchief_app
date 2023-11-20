@@ -116,6 +116,10 @@ body main .checkout-form form .form-control-btn button, body main .checkout-form
   cursor: pointer;
   text-decoration: none;
 }
+body main .checkout-form form .delivery-notice {
+  font-size: 12px;
+  padding: 10px 0;
+}
 body main .checkout-details {
   width: 40%;
 }
@@ -129,6 +133,8 @@ body main .checkout-details .checkout-details-inner .checkout-lists {
   flex-direction: column;
   row-gap: 15px;
   margin-bottom: 40px;
+  max-height: 300px;
+  overflow-y: scroll;
 }
 body main .checkout-details .checkout-details-inner .checkout-lists .card {
   width: 100%;
