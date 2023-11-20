@@ -63,6 +63,13 @@ class DefaultController extends Controller
 
     private function handleArrayInput(array $arrayInput)
     {
+        $string_values = array();
+        foreach ($arrayInput as $key => $value) {
+            if (!is_countable($value)) {
+                $string_values[$key] = $value;
+                unset($arrayInput[$key]);
+            }
+        }
         try {
             $keys = array_keys($arrayInput);
             $f = array();
@@ -73,8 +80,11 @@ class DefaultController extends Controller
                 }
                 $f[] = $n;
             }
-
-            return $f;
+            
+            return [
+                'items' => $f,
+                'strings' => $string_values
+            ];
         } catch (\Exception $e) {
 
         }
@@ -86,14 +96,14 @@ class DefaultController extends Controller
         $customer = $em->getRepository(Customer::class)->findOneBy(['email' => $data['email'], 'userId' => $user_id]);
         if (!$customer) {
             $customer = new Customer();
-            $customer->setName($data['name']);
-            $customer->setEmail($data['email']);
-            $customer->setTelephone($data['phone']);
-            $customer->setAddress($data['address']);
-            $customer->setUserId($user_id);
-            $em->persist($customer);
-            $em->flush();
         }
+        $customer->setName($data['name']);
+        $customer->setEmail($data['email']);
+        $customer->setTelephone($data['phone']);
+        $customer->setAddress($data['address']);
+        $customer->setUserId($user_id);
+        $em->persist($customer);
+        $em->flush();
 
         return $customer;
     }
@@ -123,9 +133,8 @@ class DefaultController extends Controller
         $customer = $this->getOrCreateCustomer($post, $user->getId());
         
         // remove array objects
-        unset($post['email'], $post['phone'], $post['token'], $post['address'], $post['landmark'], $post['name']);
-
-        $orderItems = $this->handleArrayInput($post);
+        // unset($post['email'], $post['phone'], $post['token'], $post['address'], $post['landmark'], $post['name']);
+        list('items' => $orderItems, 'strings' => $rest) = $this->handleArrayInput($post);
         $items = [];
         $orderTotal = 0;
 
@@ -150,11 +159,11 @@ class DefaultController extends Controller
             // save delivery information
             $delivery = new OrderDelivery();
             $delivery->setOrders($order);
-            $delivery->setAddress($customer->getAddress());
+            $delivery->setAddress($rest['address']);
             // $delivery->setLandmark($post['landmark']);
-            $delivery->setFullname($customer->getName());
-            $delivery->setPhone($customer->getTelephone());
-            $delivery->setEmail($customer->getEmail());
+            $delivery->setFullname($rest['name']);
+            $delivery->setPhone($rest['phone']);
+            $delivery->setEmail($rest['email']);
             $delivery->setStatus('pending');
             $delivery->setUserId($user->getId());
             $em->persist($delivery);
