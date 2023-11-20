@@ -9,10 +9,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpClient\HttpClient;
 use App\Entity\Item;
 use App\Entity\Groups;
-use App\Entity\Category;
 use App\Entity\Orders;
 use App\Entity\Activity;
 use App\Entity\Customer;
@@ -20,7 +18,7 @@ use App\Entity\OrderDelivery;
 use App\Entity\OrderItem;
 use App\Entity\Subscription;
 use App\Entity\Users;
-use App\Service\MailgunTransport;
+use App\Service\PaystackHelper;
 use App\Service\RegisterActivity;
 use App\Service\SESEmailClient;
 
@@ -29,11 +27,13 @@ class DefaultController extends Controller
 
     private $ra;
     private $ses;
+    private $paystackHelper;
 
-    function __construct(RegisterActivity $ra, SESEmailClient $ses)
+    function __construct(RegisterActivity $ra, SESEmailClient $ses, PaystackHelper $paystackHelper)
     {
         $this->ra = $ra;
         $this->ses = $ses;
+        $this->paystackHelper = $paystackHelper;
     }
 
     /**
@@ -50,15 +50,15 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/checkout", name="checkout")
+     * @Route("/checkout/{error}", name="checkout")
      */
-    public function checkout(Request $request)
+    public function checkout(Request $request, $error = null)
     {
         // $em = $this->getDoctrine()->getManager();
         // $user = $this->getUser()->getId();
         // $items = $em->getRepository(Item::class)->findBy(['userId' => $user]);
         // $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user]);
-        return $this->render('Default/checkout.html.twig');
+        return $this->render('Default/checkout.html.twig', ['error' => $error]);
     }
 
     private function handleArrayInput(array $arrayInput)
@@ -80,8 +80,26 @@ class DefaultController extends Controller
         }
     }
 
+    private function getOrCreateCustomer($data, $user_id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $customer = $em->getRepository(Customer::class)->findOneBy(['email' => $data['email'], 'userId' => $user_id]);
+        if (!$customer) {
+            $customer = new Customer();
+            $customer->setName($data['name']);
+            $customer->setEmail($data['email']);
+            $customer->setTelephone($data['phone']);
+            $customer->setAddress($data['address']);
+            $customer->setUserId($user_id);
+            $em->persist($customer);
+            $em->flush();
+        }
+
+        return $customer;
+    }
+
     /**
-     * @Route("/post-checkout", name="postCheckout", methods={"POST"})
+     * @Route("/order/checkout", name="postCheckout", methods={"POST"})
      */
     public function postCheckout(Request $request)
     {
@@ -102,17 +120,7 @@ class DefaultController extends Controller
         $order->setPhone($post['phone']);
 
         // check if customer exists
-        $customer = $em->getRepository(Customer::class)->findOneBy(['email' => $post['email'], 'userId' => $user->getId()]);
-        if (!$customer) {
-            $customer = new Customer();
-            $customer->setName($post['name']);
-            $customer->setEmail($post['email']);
-            $customer->setTelephone($post['phone']);
-            $customer->setAddress($post['address']);
-            $customer->setUserId($user->getId());
-            $em->persist($customer);
-            $em->flush();
-        }
+        $customer = $this->getOrCreateCustomer($post, $user->getId());
         
         // remove array objects
         unset($post['email'], $post['phone'], $post['token'], $post['address'], $post['landmark'], $post['name']);
@@ -134,33 +142,9 @@ class DefaultController extends Controller
         $order->setAmount($orderTotal);
         $order->setCustomer($customer);
 
-        $url = "https://api.paystack.co/transaction/initialize";
-        $fields = [
-            'email' => $order->getCustomer()->getEmail(),
-            'amount' => $order->getAmount() * 100
-        ];
-        $fields_string = http_build_query($fields);
-
-        //open connection
-        $ch = curl_init();
-        
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_POST, true);
-        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "Authorization: Bearer sk_test_311a2741952586fc53b8bb292786108ff817f647",
-            "Cache-Control: no-cache",
-        ));
-        
-        //So that curl_exec returns the contents of the cURL; rather than echoing it
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER, true); 
-        
-        //execute post
-        $result = curl_exec($ch);
-        $res = json_decode($result, true);
-        if ($res['status']) {
-            $order->setPaymentReference($res['data']['reference']);
+        $orderPayment = $this->paystackHelper->orderPayment($order);
+        if ($orderPayment) {
+            $order->setPaymentReference($orderPayment['reference']);
             $em->persist($order);
             $em->flush();
             // save delivery information
@@ -185,56 +169,35 @@ class DefaultController extends Controller
                 $em->persist($orderItem);
             }
             $em->flush();
-            return $this->redirect($res['data']['authorization_url']);
+            return $this->redirect($orderPayment['url']);
         } else {
-            return $this->redirectToRoute('checkout', ['error' => $res['message']]);
+            return $this->redirectToRoute('checkout', ['error' => 'Error occured while processing payment']);
         }
-        // var_dump();die;
     }
 
     /**
-     * @Route("/payment/callback", name="paymentCallback", methods={"POST"})
+     * @Route("/order/payment/callback", name="paymentCallback")
      */
     public function paymentCallback(Request $request)
     {
         $reference = $request->get('reference');
-        $url = sprintf("https://api.paystack.co/transaction/verify/%s", $reference);
-        $curl = curl_init();
-  
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer sk_test_311a2741952586fc53b8bb292786108ff817f647",
-                "Cache-Control: no-cache",
-            ),
-        ));
-        
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
+        $em = $this->getDoctrine()->getManager();
+        $order = $em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference]);
+        if ($order->getConfirmed() || !$order) {
+            return $this->redirectToRoute('homepage');
+        }
 
-        curl_close($curl);
+        $res = $this->paystackHelper->verifyPayment($reference);
         
-        if ($err) {
-            $this->redirectToRoute('error_page', ['error' => $err, 'message' => 'An error occured while verifying payment']);
+        if (!$res) {
+            return $this->redirectToRoute('checkout', ['error' => 'An error occured while verifying payment']);
         } else {
-            $res = json_decode($response, true);
-            if ($res['status']) {
-                $em = $this->getDoctrine()->getManager();
-                $order = $em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference]);
-                $order->setStatus('paid');
-                $em->persist($order);
-                $em->flush();
-            } else {
-                return $this->redirectToRoute('homepage');
-            }
+            $order->setStatus('paid');
+            $em->persist($order);
+            $em->flush();
         }
         // $em = $this->getDoctrine()->getManager();
-        $this->redirectToRoute('confirmation', ['reference' => $reference]);
+        return $this->redirectToRoute('confirmation', ['reference' => $reference]);
     }
 
     /**
@@ -269,6 +232,14 @@ class DefaultController extends Controller
         $em->flush();
 
         return $this->render('Default/orderconfirmation.html.twig', ['order' => $order, 'orderItems' => $orderItems, 'delivery' => $delivery]);
+    }
+
+    /**
+     * @Route("/order/payment/error", name="error_page")
+     **/
+    public function errorPage($error)
+    {
+        return $this->render('Default/error.html.twig', ['error' => $error]);
     }
 
     /**

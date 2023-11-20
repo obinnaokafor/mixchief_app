@@ -11,6 +11,8 @@ parameters:
     aws_secret: '%env(AWS_SECRET_ACCESS_KEY)%'
     aws_region: '%env(AWS_DEFAULT_REGION)%'
     tinify: '%env(TINIFY_KEY)%'
+    paystackPublic: '%env(PAYSTACK_CLIENT)%'
+    paystackSecret: '%env(PAYSTACK_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -47,4 +49,12 @@ services:
     App\Service\ImageManager:
         arguments:
             $tinifyKey: '%tinify%'
+            $awsClient: '%aws_key%'
+            $awsSecret: '%aws_secret%'
+            $awsRegion: '%aws_region%'
+
+    App\Service\PaystackHelper:
+        arguments:
+            $publicKey: '%paystackPublic%'
+            $secretKey: '%paystackSecret%'
 

@@ -37,6 +37,14 @@ body {
 
     }
 
+    .error-message {
+        background-color: firebrick;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
     main {
         height: 85%;
         display: flex;

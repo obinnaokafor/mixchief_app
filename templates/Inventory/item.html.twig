@@ -24,6 +24,12 @@
 								<td scope="row">Category</td>
 								<td>{{ item.category.name }}</td>
 							</tr>
+							{% if item.img %}
+								<tr>
+									<td scope="row">Image</td>
+									<td><img style="width: 70px" src="{{ item.img }}" alt="{{ item.name }}'s image"></td>
+								</tr>
+							{% endif %}
 						</table>
 					</div>
 					<a class="btn btn-danger action-icon" href="{{ path('removeitem', {'id': item.id }) }}"><i class="fa fa-trash"></i>Delete Item</a>

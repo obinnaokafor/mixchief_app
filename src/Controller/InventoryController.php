@@ -17,9 +17,16 @@ use App\Entity\Stock;
 use App\Entity\OrderItem;
 use App\Entity\Supply;
 use App\Entity\SupplyItem;
+use App\Service\ImageManager;
 
 class InventoryController extends Controller
 {
+    protected $imageManager;
+
+    function __construct(ImageManager $imageManager)
+    {
+        $this->imageManager = $imageManager;
+    }
 
     /**
      * @Route("/admin/items", name="registerItem", methods={"POST"})
@@ -53,7 +60,19 @@ class InventoryController extends Controller
                 
             }
 
-            if ($image = $this->upload('image', 300)) {
+            $image = null;
+
+            if ($_FILES['image'] && $_FILES['image']['tmp_name'][$i]) {
+                $image = $this->imageManager->compressAndStore(
+                    'mixchief',
+                    $_FILES['image']['tmp_name'][$i],
+                    strtolower(explode('.', $_FILES['image']['name'][$i])[1]),
+                    $data['name'][$i],
+                    300
+                );
+            }
+
+            if ($image) {
                 $item->setImg($image);
             }
 
@@ -252,9 +271,20 @@ class InventoryController extends Controller
             $item->setCId($_POST['category']);
             $item->setCategory($category);
             $item->setDescription($_POST['description']);
-            // if ($image = $this->upload('image', 300)) {
-            //     $item->setImg($image);
-            // }
+            $image = null;
+            if ($_FILES['image']) {
+                $image = $this->imageManager->compressAndStore(
+                    'mixchief',
+                    $_FILES['image']['tmp_name'],
+                    strtolower(explode('.', $_FILES['image']['name'])[1]),
+                    $_POST['name'],
+                    300
+                );
+            }
+
+            if ($image) {
+                $item->setImg($image);
+            }
             $em->persist($item);
             $em->flush();
             if (!$_POST['stock']) {

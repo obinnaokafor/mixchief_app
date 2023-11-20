@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Orders;
 use Yabacon\Paystack;
 use Yabacon\Paystack\Exception\ApiException;
 // use Yabacon\Paystack\Event;
@@ -17,6 +18,16 @@ class PaystackHelper
 	 * @var LoggerInterface
 	 */
 	private $logger;
+
+	/**
+	 * Payment url
+	 */
+	const PAYMENT_URL = 'https://api.paystack.co/transaction/initialize';
+
+	/**
+	 * Verify url
+	 */
+	const VERIFY_URL = 'https://api.paystack.co/transaction/verify/';
 
 	/**
 	 * Paystack instance
@@ -36,16 +47,19 @@ class PaystackHelper
 	 */
 	private $test_plan;
 
+	private $publicKey;
+
+	private $secretKey;
+
 	/**
 	 * Instantiate payment helpers
 	 * @param LoggerInterface $logger [description]
 	 */
-	public function __construct(LoggerInterface $logger)
+	public function __construct($publicKey, $secretKey, LoggerInterface $logger)
 	{
 		$this->logger = $logger;
-		$this->paystack = new Paystack(getenv('PAYSTACK_SECRET'));
-		$this->standard_plan = getenv('STANDARD_PLAN');
-		$this->test_plan = getenv('TEST_PLAN');
+		$this->publicKey = $publicKey;
+		$this->secretKey = $secretKey;
 	}
 
 	/**
@@ -81,27 +95,86 @@ class PaystackHelper
 	}
 
 	/**
+	 * Order payment
+	 **/
+	public function orderPayment(Orders $order)
+	{
+		$fields = [
+            'email' => $order->getCustomer()->getEmail(),
+            'amount' => $order->getAmount() * 100
+        ];
+
+		$request = new MakeRequest(static::PAYMENT_URL, [
+			'Authorization: Bearer ' . $this->secretKey,
+			'Content-Type: application/json'
+		]);
+
+		$response = $request->post(json_encode($fields));
+
+		if (!$response) {
+			$this->logger->error(
+				'Payment request failed',
+				[
+					'customer' => $order->getCustomer()->getEmail(),
+					'amount' => $order->getAmount()
+				]
+			);
+			return false;
+		}
+
+		$response = json_decode($response, true);
+
+		if (!$response['status']) {
+			$this->logger->error(
+				$response['message'],
+				[
+					'customer' => $order->getCustomer()->getEmail(),
+					'amount' => $order->getAmount()
+				]
+			);
+			return false;
+		}
+
+		$this->logger->info(
+			$response['data']['authorization_url'],
+			[
+				'customer' => $order->getCustomer()->getEmail(),
+				'amount' => $order->getAmount(),
+				'reference' => $response['data']['reference']
+			]
+		);
+
+		return array(
+			'url' => $response['data']['authorization_url'],
+			'reference' => $response['data']['reference']
+		);
+	}
+
+	/**
 	 * Verify Transaction
 	 * @param string $ref
 	 * @return bool
 	 **/
-	public function verify($ref)
+	public function verifyPayment($ref)
 	{
-    	try
-	    {
-	      $tranx = $this->paystack->transaction->verify([
-	        'reference'=>$ref,
-	      ]);
-	    } catch(ApiException $e){
-	      $this->logger->info(
-	      	$e->getMessage()
-	      );
-	      return false;
-	    }
+		$request = new MakeRequest(static::VERIFY_URL . $ref, [
+			'Authorization: Bearer ' . $this->secretKey,
+			'Content-Type: application/json'
+		]);
 
-	    // return $this->json($tranx);
+		$response = $request->get();
 
-	    return $tranx;
+		if (!$response) {
+			return false;
+		}
+
+		$response = json_decode($response);
+
+		if (!$response->status) {
+			return false;
+		}
+
+		return $response->data;
 	}
 
 	/**

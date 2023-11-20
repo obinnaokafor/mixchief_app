@@ -34,10 +34,10 @@ class MakeRequest
         return $response;
     }
 
-    public function post($data = [])
+    public function post($data = "")
     {
         curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
         $response = curl_exec($this->ch);
         $err = curl_error($this->ch);
 

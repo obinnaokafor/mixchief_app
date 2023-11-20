@@ -82,7 +82,7 @@
             </div>
             <div class="place-menu-items" id="drinks-container">
                 {% for item in items %}
-                    <div class="place-menu-item-container drink-item" data-category="{{item.category.name}}" data-id="{{item.id}}" data-name="{{ item.name }}" data-price="{{ item.sellingPrice }}">
+                    <div class="place-menu-item-container drink-item" data-category="{{item.category.name}}" data-id="{{item.id}}" data-name="{{ item.name }}" data-image="{{ item.img ? item.img : '' }}" data-price="{{ item.sellingPrice }}">
                         {% if item.img %}
                             <div class="drink-img">
                                 <img src="{{ item.img }}" alt="{{ item.name }} image" />

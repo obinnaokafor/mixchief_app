@@ -30,31 +30,17 @@ class Controller extends AbstractController
 	 * @param  int $width
 	 * @return string        Uploaded image path
 	 */
-	public function upload($file, $width)
+	public function upload($file, $width, $name)
 	{
 
-	    if ($_FILES[$file]["name"]) {
-	    	var_dump($_FILES[$file]);die;
-		   	$filename = basename($_FILES[$file]["name"]);
-		    $sourceData = file_get_contents($_FILES[$file]["tmp_name"]);
-			// var_dump(getenv('TINIFY_KEY'));die;
-		    // $this->imageManager->compress($sourceData);
-		    $resultData = $this->imageManager->compress($sourceData);
-		    $resized = $resultData->resize(array(
-		    	"method" => "scale",
-		    	"width" => $width
-		    ));
-
-		    $file = sprintf('/amply/public/images/items/%s-%s', uniqid(), $filename);
-
-		    // $saved = getenv('UPLOAD_PATH') . $file;
-
-		    $res = $resized->toFile($file);
-
-		    // var_dump($saved);die;
-
-		    // return $saved;
-	    }
+	    // if ($_FILES[$file]["name"]) {
+		//    	$filename = basename($_FILES[$file]["name"]);
+		// 	// var_dump(getenv('TINIFY_KEY'));die;
+		//     // $this->imageManager->compress($sourceData);
+		//     $resultData = $this->imageManager->compressAndStore('mixchief', $filename, $name);
+		    
+		// 	return $resultData;
+	    // }
 
 	   return null;
 	    // var_dump($res);die;
