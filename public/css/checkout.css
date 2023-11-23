@@ -155,8 +155,8 @@ body main .checkout-details .checkout-details-inner .checkout-lists .card .card-
   flex-direction: column;
 }
 body main .checkout-details .checkout-details-inner .checkout-lists .card .card-details .card-name {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 400;
 }
 body main .checkout-details .checkout-details-inner .checkout-lists .card .card-details .card-price {
   font-size: 14px;
@@ -191,6 +191,17 @@ body main .checkout-details .checkout-details-inner .checkout-lists .card .card-
   cursor: pointer;
   border-radius: 3px;
   font-weight: 500;
+}
+body main .checkout-details .checkout-details-inner .checkout-lists .card .delete-item {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 13px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
 }
 body main .checkout-details .checkout-details-inner .checkout-shipping, body main .checkout-details .checkout-details-inner .checkout-total {
   display: flex;

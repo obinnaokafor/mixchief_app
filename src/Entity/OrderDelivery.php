@@ -68,6 +68,11 @@ class OrderDelivery
      */
     private $user_id;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $amount;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -189,6 +194,18 @@ class OrderDelivery
     public function setUserId(int $user_id): self
     {
         $this->user_id = $user_id;
+
+        return $this;
+    }
+
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(?int $amount): self
+    {
+        $this->amount = $amount;
 
         return $this;
     }

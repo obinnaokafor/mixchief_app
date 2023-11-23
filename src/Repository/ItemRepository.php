@@ -70,5 +70,13 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository
 	        ->getResult();
 	}
 
-	
+	public function findOrderItemsFromList($ids, $user)
+	{
+	    return $this->getEntityManager()
+	        ->createQuery(
+	            'SELECT i.id as index, i.name, i.sellingPrice as price, i.description, i.img as image, g.name as category FROM App\Entity\Item i, App\Entity\Groups g WHERE i.category = g.id AND i.id IN (:ids) AND i.userId = :user'
+	        )->setParameter('ids', $ids)
+	        ->setParameter('user', $user)
+			->getResult();
+	}
 }

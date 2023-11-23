@@ -58,7 +58,7 @@ class DefaultController extends Controller
         // $user = $this->getUser()->getId();
         // $items = $em->getRepository(Item::class)->findBy(['userId' => $user]);
         // $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user]);
-        return $this->render('Default/checkout.html.twig', ['error' => $error]);
+        return $this->render('Default/checkout.html.twig', ['error' => $error, 'delivery' => 1500]);
     }
 
     private function handleArrayInput(array $arrayInput)
@@ -108,6 +108,14 @@ class DefaultController extends Controller
         return $customer;
     }
 
+    // public function checkItems(Request $request)
+    // {
+    //     $post = $request->request->all();
+    //     $em = $this->getDoctrine()->getManager();
+    //     $user = $this->user();
+
+    // }
+
     /**
      * @Route("/order/checkout", name="postCheckout", methods={"POST"})
      */
@@ -117,6 +125,8 @@ class DefaultController extends Controller
         if (!$this->isCsrfTokenValid('checkout', $request->request->get('token'))) {
             return $this->redirectToRoute('homepage');
         }
+
+        $deliveryAmount = 1500;
 
         $post = $request->request->all();
         $em = $this->getDoctrine()->getManager();
@@ -151,7 +161,7 @@ class DefaultController extends Controller
         $order->setAmount($orderTotal);
         $order->setCustomer($customer);
 
-        $orderPayment = $this->paystackHelper->orderPayment($order);
+        $orderPayment = $this->paystackHelper->orderPayment($order, $deliveryAmount);
         if ($orderPayment) {
             $order->setPaymentReference($orderPayment['reference']);
             $em->persist($order);
@@ -165,6 +175,7 @@ class DefaultController extends Controller
             $delivery->setPhone($rest['phone']);
             $delivery->setEmail($rest['email']);
             $delivery->setStatus('pending');
+            $delivery->setAmount($deliveryAmount);
             $delivery->setUserId($user->getId());
             $em->persist($delivery);
 
@@ -222,8 +233,11 @@ class DefaultController extends Controller
             return $this->redirectToRoute('homepage');
         }
         $orderItems = $em->getRepository(OrderItem::class)->findOrderItems($order->getId(), $user->getId());
-        // var_dump($orderItems);die;
         $delivery = $em->getRepository(OrderDelivery::class)->findOneBy(['orders' => $order->getId(), 'user_id' => $user->getId()]);
+        $total = $delivery->getAmount();
+        foreach ($orderItems as $item) {
+            $total += $item['price'] * $item['quantity'];
+        }
 
         $message = $this->renderView(
             "Users/receipt.html.twig",
@@ -240,7 +254,7 @@ class DefaultController extends Controller
         $em->persist($order);
         $em->flush();
 
-        return $this->render('Default/orderconfirmation.html.twig', ['order' => $order, 'orderItems' => $orderItems, 'delivery' => $delivery]);
+        return $this->render('Default/orderconfirmation.html.twig', ['order' => $order, 'orderItems' => $orderItems, 'delivery' => $delivery, 'total' => $total]);
     }
 
     /**

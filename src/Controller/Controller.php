@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Users;
 use App\Service\ImageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Tinify;
@@ -21,7 +22,7 @@ class Controller extends AbstractController
 
 	public function user()
 	{
-		return $this->getDoctrine()->getRepository(Users::class)->findOneBy(['email' => 'mike.okafor88@gmail.com']);
+		return $this->getDoctrine()->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
 	}
 	
 	/**

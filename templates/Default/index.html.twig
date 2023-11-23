@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <link rel="stylesheet" href="{{ asset('css/mixchief.css') }}">
-    <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/mixchief-logo.png') }}">
     <title>MixChief</title>
 </head>
 <body>
@@ -61,6 +61,7 @@
                 <h1>MixChief</h1>
                 <p>Every drink tells a story.</p>
                 <p>Contact us on <a href="tel:+2348133277306">08133277306</a> if you have any questions</p>
+                <p class="delivery-notice"><em>We currently only offer delivery services to Victoria Island, Ikoyi, and Lekki Phase 1. Stay tuned for updates as we plan to expand our delivery locations soon. We apologize for any inconvenience.</em></p>
             </div>
         </div>
 
@@ -71,13 +72,13 @@
         </div> -->
         <section class="place-menu">
             <div class="search-filters">
-                <button type="button" class="button btn-circle filter-category active" data-attr="all">
+                <a href="#all" class="button btn-circle filter-category active" data-attr="all">
                     All
-                </button>
+                </a>
                 {% for category in categories %}
-                    <button type="button" class="button btn-circle filter-category" data-attr="{{ category.name }}">
+                    <a href="#{{ category.name }}" class="button btn-circle filter-category" data-attr="{{ category.name }}">
                         {{ category.name }}
-                    </button>
+                    </a>
                 {% endfor %}
             </div>
             <div class="place-menu-items" id="drinks-container">
@@ -110,23 +111,24 @@
     <script>
         // document.querySelector('.filter-drinks').addEventListener('keyup', filterItems)
 
-        let orderItems = {};
-
         document.addEventListener('DOMContentLoaded', function(e) {
-            const items_string = localStorage.getItem('items')
-            if (items_string !== null) {
-                try {
-                    orderItems = JSON.parse(items_string)
-                    calculateTotal();
-                } catch (e) {
-                    console.log('error parsing orders')
+            calculateTotal();
+
+            if (window.location.hash) {
+                let hash = window.location.hash.substring(1);
+                // ucfirst hash
+                hash = hash.charAt(0).toUpperCase() + hash.slice(1);
+                const el = document.querySelector(`[data-attr="${hash}"]`)
+                if (el) {
+                    filterItems(el)
+                    el.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
                 }
             }
         })
 
         function clearItems() {
-            orderItems = {}
-            calculateTotal()
+            localStorage.setItem('items', JSON.stringify({}))
+            showCart();
             return false
         }
 
@@ -189,32 +191,38 @@
         `
 
         function deleteOrderItem(id) {
+            const orderItems = JSON.parse(localStorage.getItem('items'));
             delete orderItems[id];
-            document.querySelector('.order-items-list').innerHTML = Object.keys(orderItems).map(i => orderItemTemplate(orderItems[i])).join("");
-            calculateTotal();
+            localStorage.setItem('items', JSON.stringify(orderItems))
+            showCart();
         }
 
         let count = 1;
 
         var timeoutId;
 
-        function calculateTotal() {
-            const total = Object.keys(orderItems).reduce((acc, curr) => {
-                return acc + (orderItems[curr].price * orderItems[curr].quantity)
-            }, 0);
-            let t = 0;
-            let items = Object.keys(orderItems).map(i => {
-                t += (orderItems[i].price * orderItems[i].quantity)
-                return orderItems[i]
-            }).sort((a, b) => a.index - b.index)
-            console.log({items})
-            document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${t}`;
-            document.querySelector('.order-items-list').innerHTML = items.map(item => orderItemTemplate(item)).join("");
-            localStorage.setItem('items', JSON.stringify(orderItems))
+        function calculateTotal(orderItems) {
+            if (orderItems) {
+                return Object.keys(orderItems).reduce((acc, curr) => {
+                    return acc + (orderItems[curr].price * orderItems[curr].quantity)
+                }, 0);
+            } else {
+                return 0;
+            }
         }
 
         function showCart() {
-            if (Object.keys(orderItems).length === 0) return;
+            let orderItems = JSON.parse(localStorage.getItem('items'));
+            const total = calculateTotal(orderItems);
+            if (Object.keys(orderItems).length === 0) {
+                document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${total}`;
+                document.querySelector('.order-items-list').innerHTML = "";
+                return
+            };
+            
+            let items = Object.keys(orderItems).map(i => orderItems[i]).sort((a, b) => a.index - b.index)
+            document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${total}`;
+            document.querySelector('.order-items-list').innerHTML = items.map(item => orderItemTemplate(item)).join("");
             document.querySelector('.order-items').classList.add('active');
             timeoutId = setTimeout(() => {
                 document.querySelector('.order-items').classList.remove('active');
@@ -225,12 +233,16 @@
             e.preventDefault()
             clearTimeout(timeoutId);
             const drink = e.target.closest('.drink-item').dataset
+            let orderItems = JSON.parse(localStorage.getItem('items'));
             // const drink = cocktails.find(drink => drink.id == parseInt(id));
+            if (!orderItems) {
+                orderItems = {}
+            }
             if (orderItems[drink.id]) {
                 orderItems[drink.id].quantity += 1;
                 orderItems[drink.id].index = count++;
             } else orderItems[drink.id] = { ...drink, quantity: 1, index: count++ };
-            calculateTotal();
+            localStorage.setItem('items', JSON.stringify(orderItems))
             showCart()
         }
 
@@ -260,26 +272,28 @@
         // document.getElementById('drinks-container').innerHTML = cocktails.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
 
         document.querySelectorAll('.filter-category').forEach(catButton => {
-            catButton.addEventListener('click', e => {
-                e.preventDefault()
-                const chosen = catButton.dataset.attr;
-                // filteredItems = chosen === "all" ? [...cocktails] : [...cocktails].filter(item => item.category.toLowerCase() === chosen.toLowerCase());
-                // document.getElementById('drinks-container').innerHTML = filteredItems.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
-                document.querySelectorAll('.drink-item').forEach(drinkItem => {
-                    if (chosen === "all") {
-                        drinkItem.style.display = "block";
-                    } else {
-                        if (drinkItem.dataset.category.toLowerCase() === chosen.toLowerCase()) {
-                            drinkItem.style.display = "block";
-                        } else {
-                            drinkItem.style.display = "none";
-                        }
-                    }
-                })
-                document.querySelectorAll('.filter-category').forEach(b => b.classList.remove('active'))
-                catButton.classList.add('active')
-            })
+            catButton.addEventListener('click', () => filterItems(catButton))
         })
+
+        function filterItems(catButton) {
+            console.log(catButton)
+            const chosen = catButton.dataset.attr;
+            // filteredItems = chosen === "all" ? [...cocktails] : [...cocktails].filter(item => item.category.toLowerCase() === chosen.toLowerCase());
+            // document.getElementById('drinks-container').innerHTML = filteredItems.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
+            document.querySelectorAll('.drink-item').forEach(drinkItem => {
+                if (chosen === "all") {
+                    drinkItem.style.display = "flex";
+                } else {
+                    if (drinkItem.dataset.category.toLowerCase() === chosen.toLowerCase()) {
+                        drinkItem.style.display = "flex";
+                    } else {
+                        drinkItem.style.display = "none";
+                    }
+                }
+            })
+            document.querySelectorAll('.filter-category').forEach(b => b.classList.remove('active'))
+            catButton.classList.add('active')
+        }
     </script>
 </body>
 </html>

@@ -179,8 +179,8 @@ body {
                             flex-direction: column;
 
                             .card-name {
-                                font-size: 16px;
-                                font-weight: 700;
+                                font-size: 14px;
+                                font-weight: 400;
                             }
                             .card-price {
                                 font-size: 14px;
@@ -218,6 +218,18 @@ body {
                                     font-weight: 500;
                                 }
                             }
+                        }
+
+                        .delete-item {
+                            position: absolute;
+                            top: 5px; 
+                            right: 5px; 
+                            font-size: 13px; 
+                            border: none; 
+                            display: flex; 
+                            align-items: center; 
+                            gap: 5px; 
+                            cursor: pointer;
                         }
                     }
                 }

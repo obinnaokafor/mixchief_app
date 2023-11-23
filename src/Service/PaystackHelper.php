@@ -97,11 +97,11 @@ class PaystackHelper
 	/**
 	 * Order payment
 	 **/
-	public function orderPayment(Orders $order)
+	public function orderPayment(Orders $order, $delivery = 0)
 	{
 		$fields = [
             'email' => $order->getCustomer()->getEmail(),
-            'amount' => $order->getAmount() * 100
+            'amount' => (($order->getAmount()+$delivery) * 100),
         ];
 
 		$request = new MakeRequest(static::PAYMENT_URL, [

@@ -442,12 +442,13 @@ a.tag {
     display: none;
 }
 
-.search-filters button {
+.search-filters button, .search-filters a {
     border: 1px solid #ccc;
     background-color: transparent;
     padding: 5px 10px;
     border-radius: 10px;
     cursor: pointer;
+    color: #222;
 }
 
 .search-filters button.active, .search-filters button:hover {

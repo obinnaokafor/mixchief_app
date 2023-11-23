@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MixChief Order Checkout</title>
     <link rel="stylesheet" href="{{ asset('css/checkout.css') }}">
-	<link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+	<link rel="shortcut icon" href="{{ asset('images/mixchief-logo.png') }}">
 </head>
 <body>
 	<script>
@@ -31,7 +31,7 @@
 	</script>
 	<nav>
 		<div class="nav-content">
-			<img src="{{ asset('images/mixchief-logo.png') }}" alt="MixChief Logo">
+			<a href="/"><img src="{{ asset('images/mixchief-logo.png') }}" alt="MixChief Logo"></a>
 		</div>
 	</nav>
     <header>
@@ -64,7 +64,7 @@
 				</div>
 				<br>
 				<h5>Delivery Information</h5>
-				<p class="delivery-notice"><em>We currently offer delivery services exclusively to Victoria Island, Ikoyi, and Lekki Phase 1. Stay tuned for updates as we plan to expand our delivery locations soon. We apologize for any inconvenience.</em></p>
+				<p class="delivery-notice"><em>We currently only offer delivery services to Victoria Island, Ikoyi, and Lekki Phase 1. Stay tuned for updates as we plan to expand our delivery locations soon. We apologize for any inconvenience.</em></p>
 				<div class="form-control">
 					<label for="checkout-name">Full name</label>
 					<div>
@@ -98,12 +98,12 @@
 				<div class="checkout-lists">
 				</div>
 				<div class="checkout-shipping">
-					<h5>Delivery</h5>
-					<p>&#8358;1500</p>
+					<p>Delivery</p>
+					<p>&#8358;<span class="delivery-amount"></span></p>
 				</div>
 				<div class="checkout-total">
 					<h5>Total</h5>
-					<p class="order-items-total-price"></p>
+					<p class="order-items-total-price">&#8358;<span class="order-total"></span></p>
 				</div>
 			</div>
 		</section>
@@ -126,8 +126,15 @@
             })
         }
 
+		function deleteItem(id) {
+            const orderItems = JSON.parse(localStorage.getItem('items'));
+            delete orderItems[id];
+            localStorage.setItem('items', JSON.stringify(orderItems))
+			listItems(orderItems)
+        }
+
 		const orderItemTemplate = (item) => `
-			<div class="card" data-id="${item.id}">
+			<div class="card" data-id="${item.id}" style="position: relative">
 				<div class="card-image"><img src="${item.image || '/images/no-image.png'}" alt=""></div>
 				<div class="card-details">
 					<div class="card-name">${item.name}</div>
@@ -138,72 +145,94 @@
 						<button class="plus">+</button>
 					</div>
 				</div>
+				<button class="delete-item" onclick="deleteItem(${item.id})">
+					<img src="/images/delete_garbage.svg" style="width: 14px;" alt="delete icon"> <span>REMOVE</span>
+				</button>
 			</div>
 		`
 
-		calculateTotal();
+		document.addEventListener('DOMContentLoaded', function(e) {
+            const orderItems = JSON.parse(localStorage.getItem('items'));
 
-		// add order items as input fields
-		Object.keys(orderItems).forEach(i => {
-			const itemInput = document.createElement('input');
-			const quantityInput = document.createElement('input');
-			const item = orderItems[i];
-			quantityInput.type = 'hidden';
-			quantityInput.name = 'quantity[]';
-			quantityInput.value = item.quantity;
-			itemInput.type = 'hidden';
-			itemInput.name = 'item[]';
-			itemInput.value = i;
-			document.querySelector('.order-form').appendChild(quantityInput);
-			document.querySelector('.order-form').appendChild(itemInput);
-		})
+			const orderItemsArray = Object.keys(orderItems)
+			const itemsObj = {};
+			// get items from server
+			fetch('/api/items', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(orderItemsArray)
+			})
+			.then(res => res.json())
+			.then(data => {
+				// console.log({data})
+				data.items.forEach(item => {
+					itemsObj[item.index] = {...item, quantity: orderItems[item.index].quantity};
+				})
+				console.log({itemsObj})
+				localStorage.setItem('items', JSON.stringify(itemsObj))
+				Object.keys(itemsObj).forEach(i => {
+					const itemInput = document.createElement('input');
+					const quantityInput = document.createElement('input');
+					const item = itemsObj[i];
+					quantityInput.type = 'hidden';
+					quantityInput.name = 'quantity[]';
+					quantityInput.value = item.quantity;
+					itemInput.type = 'hidden';
+					itemInput.name = 'item[]';
+					itemInput.value = i;
+					document.querySelector('.order-form').appendChild(quantityInput);
+					document.querySelector('.order-form').appendChild(itemInput);
+				})
 
-        // document.addEventListener('DOMContentLoaded', function(e) {
-        //     const items_string = localStorage.getItem('items')
-        //     if (items_string !== null) {
-        //         try {
-		// 			// console.log({items_string})
-        //             orderItems = JSON.parse(items_string)
-        //             calculateTotal();
-        //         } catch (e) {
-        //             console.log('error parsing orders', e)
-        //         }
-        //     }
-        // })
+				listItems(itemsObj, data.delivery);
+			})
 
-		function listItems() {
-			document.querySelector('.checkout-lists').innerHTML = Object.keys(orderItems).map(i => orderItemTemplate(orderItems[i])).join("");
+            // add order items as input fields
+			
+
+			
+        })
+
+		function listItems(orderItems, delivery) {
+			console.log({orderItems, entries: Object.entries(orderItems)})
+			document.querySelector('.checkout-lists').innerHTML = Object.keys(orderItems).map(i => {
+				console.log(orderItems[i])
+				return orderItemTemplate(orderItems[i])
+			}).join("");
+			document.querySelector('.delivery-amount').innerHTML = delivery;
+			document.querySelector('.order-total').innerHTML = calculateTotal(orderItems) + delivery;
 		}
 
-		function getTotal() {
-			return Object.keys(orderItems).reduce((acc, curr) => {
-				return acc + (orderItems[curr].price * orderItems[curr].quantity)
-			}, 0);
-		}
-
-		function calculateTotal() {
-            document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${getTotal() + 1500}`;
-            // document.querySelector('.order-items-list').innerHTML = Object.keys(orderItems).map(i => orderItemTemplate(orderItems[i])).join("");
-            localStorage.setItem('items', JSON.stringify(orderItems))
-			listItems();
+		function calculateTotal(orderItems) {
+            if (orderItems) {
+                return Object.keys(orderItems).reduce((acc, curr) => {
+                    return acc + (orderItems[curr].price * orderItems[curr].quantity)
+                }, 0);
+            } else {
+                return 0;
+            }
         }
 
 		document.querySelector('.checkout-lists').addEventListener('click', function(e) {
+			const orderItems = JSON.parse(localStorage.getItem('items'));
+			let total = 0;
 			if (e.target.classList.contains('plus')) {
 				const id = e.target.closest('.card').dataset.id;
 				orderItems[id].quantity += 1;
-				calculateTotal();
+				total = calculateTotal(orderItems);
 			}
 			if (e.target.classList.contains('minus')) {
 				const id = e.target.closest('.card').dataset.id;
 				if (orderItems[id].quantity > 1) {
 					orderItems[id].quantity -= 1;
-					calculateTotal();
 				} else {
 					delete orderItems[id];
-					calculateTotal();
 				}
+				total = calculateTotal(orderItems);
 			}
+			listItems(orderItems);
 		})
     </script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyBISKqcMjACxak-wr_0loOs7YG2y-GU8&libraries=places&callback=initMap"></script>
