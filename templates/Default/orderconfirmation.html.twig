@@ -116,12 +116,16 @@
             <ul class="order-items">
                 {% for item in orderItems %}
                     <li class="order-item">
-                        <span>{{ item.name }}</span>
-                        <span>&#8358;{{ item.price }} x {{ item.quantity }}</span>
+                        <span>{{ item.name }} x {{ item.quantity }}</span>
+                        <span>&#8358;{{ item.price }}</span>
                     </li>
                 {% endfor %}
+                <li class="order-item">
+                    <span>Delivery</span>
+                    <span>&#8358;{{ delivery.amount }}</span>
+                </li>
             </ul>
-            <h3 class="total">Total: &#8358;{{ order.amount }} </h3> 
+            <h3 class="total">Total: &#8358;{{ total }} </h3> 
         </div>
         <div class="shipping-details">
             <h3>Delivery Information</h3>

@@ -183,6 +183,17 @@
                     </td>
                 </tr>
             {% endfor %}
+            <tr class="item">
+                <td>
+                    Delivery
+                </td>
+                <td>
+                </td>
+                
+                <td>
+                    &#8358;{{ delivery.amount }}
+                </td>
+            </tr>
             
             <tr class="total">
                 <td>
@@ -191,7 +202,7 @@
                 <td></td>
                 
                 <td>
-                   <strong>&#8358;{{ order.amount }}</strong>
+                   <strong>&#8358;{{ total }}</strong>
                 </td>
             </tr>
         </table>

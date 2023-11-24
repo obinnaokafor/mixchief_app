@@ -244,7 +244,8 @@ class DefaultController extends Controller
             [
                 'delivery' => $delivery,
                 'items' => $orderItems,
-                'order' => $order
+                'order' => $order,
+                'total' => $total
             ]
         );
 
