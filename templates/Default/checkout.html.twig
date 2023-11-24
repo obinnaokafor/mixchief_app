@@ -86,6 +86,7 @@
 						<input type="text" name="landmark" id="landmark" placeholder="Closest landmark...">
 					</div>
 				</div>
+				<div class="extra-inputs"></div>
 				<div class="form-control-btn">
 					<a href="/">&lt;&lt;&lt; Continue Shopping</a>
 					<button>Proceed to Pay &gt;&gt;&gt;</button>
@@ -126,6 +127,10 @@
             })
         }
 
+		const delivery = {
+			amount: 1500
+		}
+
 		function deleteItem(id) {
             const orderItems = JSON.parse(localStorage.getItem('items'));
             delete orderItems[id];
@@ -134,7 +139,7 @@
         }
 
 		const orderItemTemplate = (item) => `
-			<div class="card" data-id="${item.id}" style="position: relative">
+			<div class="card" data-index="${item.index}" style="position: relative">
 				<div class="card-image"><img src="${item.image || '/images/no-image.png'}" alt=""></div>
 				<div class="card-details">
 					<div class="card-name">${item.name}</div>
@@ -145,7 +150,7 @@
 						<button class="plus">+</button>
 					</div>
 				</div>
-				<button class="delete-item" onclick="deleteItem(${item.id})">
+				<button class="delete-item" onclick="deleteItem(${item.index})">
 					<img src="/images/delete_garbage.svg" style="width: 14px;" alt="delete icon"> <span>REMOVE</span>
 				</button>
 			</div>
@@ -170,39 +175,31 @@
 				data.items.forEach(item => {
 					itemsObj[item.index] = {...item, quantity: orderItems[item.index].quantity};
 				})
-				console.log({itemsObj})
 				localStorage.setItem('items', JSON.stringify(itemsObj))
-				Object.keys(itemsObj).forEach(i => {
-					const itemInput = document.createElement('input');
-					const quantityInput = document.createElement('input');
-					const item = itemsObj[i];
-					quantityInput.type = 'hidden';
-					quantityInput.name = 'quantity[]';
-					quantityInput.value = item.quantity;
-					itemInput.type = 'hidden';
-					itemInput.name = 'item[]';
-					itemInput.value = i;
-					document.querySelector('.order-form').appendChild(quantityInput);
-					document.querySelector('.order-form').appendChild(itemInput);
-				})
-
-				listItems(itemsObj, data.delivery);
+				listItems(itemsObj);
 			})
-
-            // add order items as input fields
-			
-
-			
         })
 
-		function listItems(orderItems, delivery) {
-			console.log({orderItems, entries: Object.entries(orderItems)})
+		function listItems(orderItems) {
 			document.querySelector('.checkout-lists').innerHTML = Object.keys(orderItems).map(i => {
-				console.log(orderItems[i])
 				return orderItemTemplate(orderItems[i])
 			}).join("");
-			document.querySelector('.delivery-amount').innerHTML = delivery;
-			document.querySelector('.order-total').innerHTML = calculateTotal(orderItems) + delivery;
+			document.querySelector('.delivery-amount').innerHTML = delivery.amount;
+			document.querySelector('.order-total').innerHTML = calculateTotal(orderItems) + delivery.amount;
+			document.querySelector('.extra-inputs').innerHTML = "";
+			Object.keys(orderItems).forEach(i => {
+				const itemInput = document.createElement('input');
+				const quantityInput = document.createElement('input');
+				const item = orderItems[i];
+				quantityInput.type = 'hidden';
+				quantityInput.name = 'quantity[]';
+				quantityInput.value = item.quantity;
+				itemInput.type = 'hidden';
+				itemInput.name = 'item[]';
+				itemInput.value = i;
+				document.querySelector('.extra-inputs').appendChild(quantityInput);
+				document.querySelector('.extra-inputs').appendChild(itemInput);
+			})
 		}
 
 		function calculateTotal(orderItems) {
@@ -217,14 +214,15 @@
 
 		document.querySelector('.checkout-lists').addEventListener('click', function(e) {
 			const orderItems = JSON.parse(localStorage.getItem('items'));
+			console.log({ds: orderItems})
 			let total = 0;
 			if (e.target.classList.contains('plus')) {
-				const id = e.target.closest('.card').dataset.id;
+				const id = e.target.closest('.card').dataset.index;
 				orderItems[id].quantity += 1;
 				total = calculateTotal(orderItems);
 			}
 			if (e.target.classList.contains('minus')) {
-				const id = e.target.closest('.card').dataset.id;
+				const id = e.target.closest('.card').dataset.index;
 				if (orderItems[id].quantity > 1) {
 					orderItems[id].quantity -= 1;
 				} else {
@@ -233,6 +231,7 @@
 				total = calculateTotal(orderItems);
 			}
 			listItems(orderItems);
+			localStorage.setItem('items', JSON.stringify(orderItems))
 		})
     </script>
     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyBISKqcMjACxak-wr_0loOs7YG2y-GU8&libraries=places&callback=initMap"></script>

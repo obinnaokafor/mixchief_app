@@ -73,6 +73,7 @@ header {
     align-items: center;
     gap: 20px;
     color: #fff;
+    padding-bottom: 10px;
 }
 
 .header-content---inner img {
