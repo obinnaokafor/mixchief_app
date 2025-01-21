@@ -42,11 +42,42 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         // return $this->redirectToRoute('app_login');
+        return $this->render('index.html.twig');
+    }
+
+    /**
+     * @Route("/shop", name="shop")
+     **/
+    public function shop(Request $request)
+    {
+        // return $this->redirectToRoute('app_login');
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $items = $em->getRepository(Item::class)->findBy(['userId' => $user->getId()]);
         $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user->getId()]);
-        return $this->render('Default/index.html.twig', ['items' => $items, 'categories' => $categories]);
+        return $this->render('Default/shop.html.twig', ['items' => $items, 'categories' => $categories]);
+    }
+
+    /**
+     * @Route("/contact", name="contact", methods="POST")
+     */
+    public function contact(Request $request)
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            $message = $this->renderView(
+                "emails/contact.html.twig",
+                [
+                    'contact' => $data
+                ]
+            );
+
+            $this->ses->sendEmail($data['email'], 'Contact email', $message);
+
+            return $this->json(['status' => 200, 'message' => 'successful']);
+        } catch (\Exception $e) {
+            return $this->json(['status' => 500, 'message' => $e->getMessage()]);
+        }
     }
 
     /**

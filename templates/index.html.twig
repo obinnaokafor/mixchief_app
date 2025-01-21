@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MixChief - Crafting Cocktail Experiences</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+        rel="stylesheet">
+    <link rel="shortcut icon" href="{{ asset('images/mixchief-logo.png') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Crimson Pro", Helvetica, sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #f0c040;
+        }
+
+        a.cta {
+            background-color: #f0c040;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(to right, rgb(0, 0, 0), rgba(0, 0, 0, 0.5)), url('/images/hero.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+        }
+
+        .hero-content {
+            color: white;
+            max-width: 600px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Content Sections */
+        .section {
+            display: flex;
+            height: 600px;
+            padding: 2.5rem 10%;
+            gap: 20px;
+            background-color: #cae6d5;
+        }
+
+        .section:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .section-content,
+        .section-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .section-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .section-content {
+            font-family: "Crimson Pro", serif;
+            background-color: #013927;
+            color: #fff;
+        }
+
+        .section-content--text {
+            padding: 2rem 4rem;
+        }
+
+        .section-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .section-content p {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            background-color: #f8f8f8;
+            text-align: center;
+            padding: 5rem 10%;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: #f0c040;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #e0b030;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 5rem 10%;
+            background-color: #f8f8f8;
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 4rem;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-info h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .contact-info p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .contact-form {
+            flex: 2;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            background-color: #f0c040;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #e0b030;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 3rem 10%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-logo {
+            flex: 1;
+        }
+
+        .footer-content {
+            flex: 2;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a:hover {
+            color: #f0c040;
+        }
+
+        .home-spinner {
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+            .section-content--text {
+                padding: 1rem 2rem;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .section {
+                flex-direction: column !important;
+            }
+
+            .section {
+                padding: 3rem 5%;
+            }
+
+            .section-content {
+                display: none;
+            }
+
+            .section-image--text {
+                width: 100%;
+                height: 100%;
+                background-color: #013927;
+                opacity: 0.7;
+                display: flex;
+                padding: 20px;
+                align-items: end;
+            }
+
+            .section-image--text p {
+                color: #fff;
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* .section { flex-direction: column !important; }
+ .section { padding: 3rem 5%; }
+ .section-content { display: none; } */
+            footer {
+                padding: 3rem 5%;
+                justify-content: space-between;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .contact-container {
+                flex-direction: column;
+                margin-top: 50px;
+            }
+
+            .cta h2 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (min-width: 980px) {
+            .section-image--mobile {
+                display: none;
+            }
+
+            .section-image--text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <img src="/images/mixchief-logo-home.png" alt="MixChief Logo" style="width:150px">
+        </div>
+        <div class="nav-links">
+            <a href="#mixers">Experiences</a>
+            <a href="#events">Events</a> 
+            <a href="#shop">Shop</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Creating memorable experiences</h1>
+            <p>that leave a good taste in your mouth.</p>
+        </div>
+    </section>
+    <section class="section" style="padding-top: 5rem;" id="mixers">
+        <div class="section-content">
+            <div class="section-content--text"> <!-- <h2>Cocktail Tasting Events</h2> -->
+                <!-- <p>Immerse yourself in our carefully curated tasting experiences. Learn about cocktail history, participate in fun quizzes, and discover the stories behind your favorite drinks.</p> -->
+                <p>Experience craft cocktails in a vibrant social setting. Our signature mixers bring together cocktail
+                    enthusiasts for an evening of exceptional drinks, engaging conversations, and lasting connections.
+                    Join our community of spirited individuals who appreciate the perfect blend of sophistication and
+                    fun</p>
+            </div>
+        </div>
+        <div class="section-image"
+            style="background: url('/images/4.jpg'); background-position: center; background-size: cover;">
+            <div class="section-image--text">
+                <p>Experience craft cocktails in a vibrant social setting. Our signature mixers bring together cocktail
+                    enthusiasts for an evening of exceptional drinks, engaging conversations, and lasting connections.
+                    Join our community of spirited individuals who appreciate the perfect blend of sophistication and
+                    fun</p>
+            </div>
+        </div>
+    </section>
+    <!-- <section class="section"> <div class="section-content"> <div class="section-content--text"> <p>Unlock the secrets of expert mixology with our intimate masterclasses. Learn directly from our head bartender as you discover the art of balance, technique, and flavor composition. Whether you're a beginner or enthusiast, you'll leave with professional skills to elevate your cocktail game</p> </div> </div> <div class="section-image" style="background: url('/images/making.jpg'); background-position: center; background-size: cover;"> <div class="section-image--text"> <p>Unlock the secrets of expert mixology with our intimate masterclasses. Learn directly from our head bartender as you discover the art of balance, technique, and flavor composition. Whether you're a beginner or enthusiast, you'll leave with professional skills to elevate your cocktail game</p> </div> </div> </section> -->
+
+    <section class="section" style="padding-bottom: 5rem;" id="events">
+        <div class="section-content">
+            <div class="section-content--text"> <!-- <h2>Private Events</h2> -->
+                <p>Transform your special occasions with MixChief's bespoke cocktail service. From intimate gatherings
+                    to grand celebrations, our expert mixologists create custom drink experiences that match your
+                    event's style. We handle everything from signature cocktails to full bar service, ensuring your
+                    guests enjoy exceptional drinks worthy of the occasion</p>
+                <div class="cta-right"> <a href="#contact" class="cta">Get in touch</a> </div>
+                <!-- <p>Create unforgettable moments with our custom event packages. Perfect for corporate events, celebrations, or intimate gatherings.</p> -->
+            </div>
+        </div>
+        <div class="section-image"
+            style="background: url('/images/3.jpg'); background-position: center; background-size: cover;">
+            <div class="section-image--text">
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    <p>Transform your special occasions with MixChief's bespoke cocktail service. From intimate
+                        gatherings to grand celebrations, our expert mixologists create custom drink experiences that
+                        match your event's style. We handle everything from signature cocktails to full bar service,
+                        ensuring your guests enjoy exceptional drinks worthy of the occasion.</p> <a href="#contact"
+                        class="cta">Get in touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section" id="shop">
+        <div class="section-content">
+            <div class="section-content--text"> <!-- <h2>Premium Packaged Cocktails</h2> -->
+                <p>Bring the MixChief experience home with our premium cocktail pouches. Each carefully crafted blend
+                    captures the magic of our signature drinks, ready to serve at your convenience. Perfect for home
+                    entertaining or as a sophisticated addition to your next event's drinks offering.</p>
+                <div class="cta-right"> <a href="/shop" class="cta">Shop</a> </div>
+            </div>
+        </div>
+        <div class="section-image"
+            style="background: url('/images/shop.jpg'); background-position: center; background-size: cover;">
+            <div class="section-image--text">
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    <p>Bring the MixChief experience home with our premium cocktail pouches. Each carefully crafted
+                        blend captures the magic of our signature drinks, ready to serve at your convenience. Perfect
+                        for home entertaining or as a sophisticated addition to your next event's drinks offering.</p>
+                    <a href="/shop" class="cta">Shop</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- <section class="cta"> <h2>Contact Us Today</h2> </section> -->
+    <section id="contact" class="contact">
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Get in Touch</h3>
+                <p>Ready to start planning your next event or have questions about our services? We'd love to hear from
+                    you!</p>
+                <p> <strong>Phone:</strong><br> +234 (0)8133277306 </p>
+                <p> <strong>Email:</strong><br> obinna@themixchief.com </p>
+                <!-- <p> <strong>Hours:</strong><br> Monday - Friday: 9am - 6pm<br> Saturday: 10am - 4pm </p> -->
+            </div>
+            <div class="contact-form">
+                <form id="contactForm" onsubmit="event.preventDefault();">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group"> <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group"> <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group"> <label for="eventType">Type of Event/Interest</label>
+                        <select
+                            id="eventType" name="eventType" required>
+                            <option value="">Select an option</option>
+                            <option value="corporate">Corporate Event</option>
+                            <option value="private">Private Party</option>
+                            <option value="class">Mixology Class</option>
+                            <option value="tasting">Tasting Event</option>
+                            <option value="other">Other</option>
+                        </select> </div>
+                    <div class="form-group">
+                        <label for="message">Tell us about your event or inquiry</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="footer-logo"> <img src="/images/mixchief-logo-home.png" alt="MixChief Logo" style="width:150px"> </div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contact</h3> <a href="tel:+2348133277306">234 (0)8133277306</a> <a
+                    href="mailto:obinna@themixchief.com">obinna@themixchief.com</a>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3> <a href="#experiences">Experiences</a> <a href="#classes">Classes</a> <a
+                    href="#shop">Shop</a>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3> <a href="https://www.instagram.com/themixchief">Instagram</a> <a
+                    href="https://www.twitter.com/themixchief">Twitter</a>
+            </div>
+        </div>
+    </footer>
+    <div class="home-spinner">
+        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_P7sC{transform-origin:center;animation:spinner_svv2 .75s infinite linear}@keyframes spinner_svv2{100%{transform:rotate(360deg)}}</style><path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" class="spinner_P7sC"/></svg>
+    </div>
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        const spinner = document.querySelector('.home-spinner').firstChild;
+
+        const form = document.getElementById('contactForm')
+        const submitter = document.querySelector('.submit-button')
+
+        form.addEventListener('submit', () => {
+            submitter.innerHTML = ''
+            submitter.appendChild(spinner)
+            const formData = new FormData(form)
+            const data = {}
+            for (const [key, value] of formData) {
+                data[key] = value
+            }
+
+            fetch('/contact', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            })
+            .then(res => res.json())
+            .then(ress => console.log({ress}))
+            .finally(() => submitter.innerHTML = 'Send Message')
+        })
+
+    </script>
+</body>
+
+</html>

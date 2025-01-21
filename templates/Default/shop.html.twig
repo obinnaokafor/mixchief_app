@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/mixchief.css') }}">
+    <link rel="shortcut icon" href="{{ asset('images/mixchief-logo.png') }}">
+    <title>MixChief</title>
+</head>
+<body>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KPSXVH4FDP"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-KPSXVH4FDP');
+    </script>
+    <!-- End Google tag (gtag.js) -->
+
+    <div class="shopping-cart">
+        <img src="/images/shopping.svg" alt="shopping-cart">
+    </div>
+    <div class="order-items">
+        <div class="order-items-inner">
+            <div class="order-items-header">
+                <h3>Order Items</h3>
+                <!-- <span class="close-order-items" onclick="closeOrderList();">&times;</span> -->
+            </div>
+            <div class="order-items-body">
+                <div class="order-items-list">
+                    
+                </div>
+                
+            </div>
+            <div class="order-items-footer">
+                <div class="order-items-total">
+                    <div class="order-items-total-inner">
+                        <div class="order-items-total-label">
+                            Total
+                        </div>
+                        <div class="order-items-total-price">
+                            &#x20A6;0
+                        </div>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <a href="#" class="clear-items" onclick="clearItems()">Clear Items</a>
+                    <a href="/checkout" class="button btn-circle order-checkout-btn">Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <header style="position: relative;">
+        <div class="header-content">
+            <div class="header-content---inner">
+                <a href="/"><img src="/images/mixchief-no-label-trans.png" alt="Logo"></a>
+                <h1>MixChief</h1>
+                <p>Every drink tells a story.</p>
+                <p>Contact us on <a href="tel:+2348133277306">08133277306</a> if you have any questions</p>
+                {# <p class="delivery-notice"><em>We currently only offer delivery services to VI, Ikoyi, and Lekki. We apologize for any inconvenience.</em></p> #}
+            </div>
+        </div>
+
+    </header>
+    <div class="tab">
+        <!-- <div class="search-drinks-menu" id="menu">
+            <input type="text" class="form-control filter-drinks" placeholder="Search menu">
+        </div> -->
+        <section class="place-menu">
+            <div class="search-filters">
+                <a href="#all" class="button btn-circle filter-category active" data-attr="all">
+                    All
+                </a>
+                {% for category in categories %}
+                    <a href="#{{ category.name }}" class="button btn-circle filter-category" data-attr="{{ category.name }}">
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            </div>
+            <div class="place-menu-items" id="drinks-container">
+                {% for item in items %}
+                    <div class="place-menu-item-container drink-item" data-category="{{item.category.name}}" data-id="{{item.id}}" data-name="{{ item.name }}" data-image="{{ item.img ? item.img : '' }}" data-price="{{ item.sellingPrice }}">
+                        {% if item.img %}
+                            <div class="drink-img">
+                                <img src="{{ item.img }}" alt="{{ item.name }} image" />
+                            </div>
+                        {% endif %}
+                        <div class="place-menu-item review-wrapper">
+                            <div class="name-price">
+                                <div class="place-menu-name drink-name">
+                                    {{item.name}}
+                                </div>
+                                <div class="place-menu-price">&#x20A6;{{item.sellingPrice}}</div>
+                            </div>
+                            <div class="place-menu-description" style="padding-bottom: 5px;">
+                                {{item.description}}
+                            </div>
+                            <div class="order-button">
+                                <button class="button btn-circle btn-sm addToOrder">Add to Order</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+    <script>
+        // document.querySelector('.filter-drinks').addEventListener('keyup', filterItems)
+
+        document.addEventListener('DOMContentLoaded', function(e) {
+            calculateTotal();
+
+            if (window.location.hash) {
+                let hash = window.location.hash.substring(1);
+                // ucfirst hash
+                hash = hash.charAt(0).toUpperCase() + hash.slice(1);
+                const el = document.querySelector(`[data-attr="${hash}"]`)
+                if (el) {
+                    filterItems(el)
+                    el.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                }
+            }
+        })
+
+        function clearItems() {
+            localStorage.setItem('items', JSON.stringify({}))
+            showCart();
+            return false
+        }
+
+        document.querySelector('.shopping-cart').addEventListener('click', showCart)
+
+        document.querySelector('.shopping-cart').addEventListener('mouseover', showCart)
+
+        const capitalize = (str) => 
+            str ? str.split(" ").map(word => {
+                if (typeof word != "string") return word;
+                else return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            }).join(" ") : '';
+    
+
+
+        function drinkTemplate(drink, i, place_slug) {
+
+            let img = drink.img ? 
+                `<div class="drink-img">
+                    <img src="${drink.img}" />
+                </div>` : '';
+            return `
+                <div class="place-menu-item-container">
+                    ${img}
+                    <div class="place-menu-item drink-item review-wrapper" data-id="${drink.id}" data-index="${i}">
+                        <div class="place-menu-name drink-name">
+                            ${drink.name}
+                        </div>
+                        <div class="place-menu-price">&#x20A6;${drink.price}</div>
+                        <div class="place-menu-description">
+                            ${drink.description}
+                        </div>
+                        <div class="order-button">
+                            <button class="button btn-circle btn-sm" onclick="addToOrder(${drink.id})">Add to Order</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeOrderList() {
+            document.querySelector('.order-items').classList.remove('active');
+        }
+
+        document.querySelectorAll('.addToOrder').forEach(orderButton => {
+            orderButton.addEventListener('click', addToOrder)
+        })
+
+        const orderItemTemplate = (orderItem) => `
+            <div class="order-item">
+                <div class="order-left">
+                    <div class="order-item-name">${orderItem.name}</div>
+                    <div class="order-item-price">${orderItem.price}</div>
+                </div>
+                <div class="order-right">
+                    <div class="order-item-quantity">${orderItem.quantity}</div>
+                    <button class="delete-item" onclick="deleteOrderItem(${orderItem.id})"><img src="/images/delete.svg" /></button>
+                </div>
+            </div>
+        `
+
+        function deleteOrderItem(id) {
+            const orderItems = JSON.parse(localStorage.getItem('items'));
+            delete orderItems[id];
+            localStorage.setItem('items', JSON.stringify(orderItems))
+            showCart();
+        }
+
+        let count = 1;
+
+        var timeoutId;
+
+        function calculateTotal(orderItems) {
+            if (orderItems) {
+                return Object.keys(orderItems).reduce((acc, curr) => {
+                    return acc + (orderItems[curr].price * orderItems[curr].quantity)
+                }, 0);
+            } else {
+                return 0;
+            }
+        }
+
+        function showCart() {
+            let orderItems = JSON.parse(localStorage.getItem('items'));
+            const total = calculateTotal(orderItems);
+            if (Object.keys(orderItems).length === 0) {
+                document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${total}`;
+                document.querySelector('.order-items-list').innerHTML = "";
+                return
+            };
+            
+            let items = Object.keys(orderItems).map(i => orderItems[i]).sort((a, b) => a.index - b.index)
+            document.querySelector('.order-items-total-price').innerHTML = `&#x20A6;${total}`;
+            document.querySelector('.order-items-list').innerHTML = items.map(item => orderItemTemplate(item)).join("");
+            document.querySelector('.order-items').classList.add('active');
+            timeoutId = setTimeout(() => {
+                document.querySelector('.order-items').classList.remove('active');
+            }, 3000)
+        }
+
+        function addToOrder(e) {
+            e.preventDefault()
+            clearTimeout(timeoutId);
+            const drink = e.target.closest('.drink-item').dataset
+            let orderItems = JSON.parse(localStorage.getItem('items'));
+            // const drink = cocktails.find(drink => drink.id == parseInt(id));
+            if (!orderItems) {
+                orderItems = {}
+            }
+            if (orderItems[drink.id]) {
+                orderItems[drink.id].quantity += 1;
+                orderItems[drink.id].index = count++;
+            } else orderItems[drink.id] = { ...drink, quantity: 1, index: count++ };
+            localStorage.setItem('items', JSON.stringify(orderItems))
+            showCart()
+        }
+
+        // document.querySelectorAll('.place-menu-items .place-menu-item').forEach(item => {
+        //     item.addEventListener('click', e => {
+        //         e.preventDefault();
+        //         console.log('a')
+        //         const index = item.dataset.id;
+        //         const drink = cocktails.find(drink => drink.id == parseInt(index));
+        //         orderItems.push(drink);
+        //         document.querySelector('.order-items-list').innerHTML = orderItems.map((item, i) => orderItemTemplate(item, i)).join("");
+        //         document.querySelector('.order-items').classList.add('active');
+        //         // scroll to bottom
+        //         document.querySelector('.order-items-body').scrollTop = document.querySelector('.order-items-list').scrollHeight;
+        //         setTimeout(() => {
+        //             document.querySelector('.order-items').classList.remove('active');
+        //         }, 3000)
+        //     })
+        // })
+
+        // function filterItems(e) {
+        //     const inp = e.target.value;
+        //     filteredItems = [...cocktails].filter(item => item.name.toLowerCase().includes(inp.toLowerCase()));
+        //     document.getElementById('drinks-container').innerHTML = filteredItems.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
+        // }
+
+        // document.getElementById('drinks-container').innerHTML = cocktails.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
+
+        document.querySelectorAll('.filter-category').forEach(catButton => {
+            catButton.addEventListener('click', () => filterItems(catButton))
+        })
+
+        function filterItems(catButton) {
+            console.log(catButton)
+            const chosen = catButton.dataset.attr;
+            // filteredItems = chosen === "all" ? [...cocktails] : [...cocktails].filter(item => item.category.toLowerCase() === chosen.toLowerCase());
+            // document.getElementById('drinks-container').innerHTML = filteredItems.map((cocktail, i) => drinkTemplate(cocktail, i)).join("")
+            document.querySelectorAll('.drink-item').forEach(drinkItem => {
+                if (chosen === "all") {
+                    drinkItem.style.display = "flex";
+                } else {
+                    if (drinkItem.dataset.category.toLowerCase() === chosen.toLowerCase()) {
+                        drinkItem.style.display = "flex";
+                    } else {
+                        drinkItem.style.display = "none";
+                    }
+                }
+            })
+            document.querySelectorAll('.filter-category').forEach(b => b.classList.remove('active'))
+            catButton.classList.add('active')
+        }
+    </script>
+</body>
+</html>
