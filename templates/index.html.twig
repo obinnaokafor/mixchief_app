@@ -357,7 +357,7 @@
 </head>
 
 <body>
-    <nav>
+    <nav id="top-nav">
         <div class="logo">
             <img src="/images/mixchief-logo-home.png" alt="MixChief Logo" style="width:150px">
         </div>
@@ -520,8 +520,9 @@
         const submitter = document.querySelector('.submit-button')
 
         form.addEventListener('submit', () => {
-            submitter.innerHTML = ''
-            submitter.appendChild(spinner)
+            submitter.disbled = true;
+            submitter.innerHTML = 'Sending...'
+            // submitter.appendChild(spinner)
             const formData = new FormData(form)
             const data = {}
             for (const [key, value] of formData) {
@@ -534,7 +535,15 @@
             })
             .then(res => res.json())
             .then(ress => console.log({ress}))
-            .finally(() => submitter.innerHTML = 'Send Message')
+            .finally(() => {
+                window.alert('We have received your message and will get back to you as soon as possible.')
+                submitter.disbled = false;
+                submitter.innerHTML = 'Send Message';
+                form.reset();
+                document.querySelector('#top-nav').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            })
         })
 
     </script>

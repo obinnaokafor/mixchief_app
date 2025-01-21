@@ -72,7 +72,7 @@ class DefaultController extends Controller
                 ]
             );
 
-            $this->ses->sendEmail($data['email'], 'Contact email', $message);
+            $this->ses->sendEmail('obinna.okafor01@gmail.com', 'Contact email', $message);
 
             return $this->json(['status' => 200, 'message' => 'successful']);
         } catch (\Exception $e) {
