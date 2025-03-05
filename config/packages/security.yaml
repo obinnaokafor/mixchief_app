@@ -11,6 +11,18 @@ security:
                 class: App\Entity\Users
                 property: email
     firewalls:
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            jwt: ~
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -42,6 +54,7 @@ security:
         - { path: ^/password/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/checkout, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/order/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/payment/*, roles: ROLE_USER }
         - { path: ^/admin/*, roles: ROLE_USER }
         - { path: ^/pos/*, roles: ROLE_USER }
