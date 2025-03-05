@@ -57,4 +57,3 @@ services:
         arguments:
             $publicKey: '%paystackPublic%'
             $secretKey: '%paystackSecret%'
-
