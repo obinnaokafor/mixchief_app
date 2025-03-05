@@ -12,12 +12,21 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository
 {
 	// Select all the items and categories for the logged in user 
 	// to be used in the point of sale
-	public function findPointOfSale($user)
+	public function findPointOfSale()
 	{
 	    return $this->getEntityManager()
 	        ->createQuery(
-	            'SELECT i.id as item_id, i.name as item_name, i.sellingPrice as item_price, i.img as item_image, g.name as group_name from App\Entity\Item i, App\Entity\Groups g where g.id = i.cId AND i.userId = :user AND i.deleted is NULL'
-	        )->setParameter('user', $user)
+	            'SELECT i.id as id, 
+					i.name as name, 
+					i.sellingPrice as price, 
+					i.img as image_url, 
+					g.id as category_id
+					
+					from App\Entity\Item i, 
+						App\Entity\Groups g 
+					where g.id = i.cId
+					AND i.deleted is NULL'
+	        )
 	        ->getResult();
 	}
 

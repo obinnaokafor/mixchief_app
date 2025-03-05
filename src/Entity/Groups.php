@@ -26,9 +26,16 @@ class Groups
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, unique=false)
+     * @ORM\Column(name="name", type="string", length=255, unique=true)
      */
     private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255, unique=false, nullable=true)
+     */
+    private $description;
 
     /**
      * @var \App\Entity\Item
@@ -106,6 +113,30 @@ class Groups
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $description
+     *
+     * @return Groups
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

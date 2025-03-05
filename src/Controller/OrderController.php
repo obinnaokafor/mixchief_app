@@ -294,61 +294,6 @@ class OrderController extends Controller
         $em->flush();
     }
 
-    /**
-     * @Route("/admin/orderitems/saved", name="savedorderitems")
-     */
-    public function retrieveSavedOrderItemsAction(Request $request)
-    {
-        $user = $this->getUser()->getId();
-        $savedorderitems = $this->getDoctrine()
-                    ->getRepository(Orders::class)->findPendingOrders($user);
-        return $this->json($savedorderitems);
-    }
-
-    /**
-     * @Route("/admin/order/saved/{id}", name="savedorder", methods="GET")
-     */
-    public function retrieveSavedOrderAction($id = null)
-    {
-        if (!$id) {
-            return $this->json(['message' => 'Not Found']);
-        }
-
-        $user = $this->getUser()->getId();
-        $savedorder = $this->getDoctrine()
-                    ->getRepository(Orders::class)->findPendingOrder($id, $user);
-        return $this->json($savedorder);
-    }
-
-    /**
-     * @Route("/admin/order/saved/{id}", name="deleteSavedOrder", methods="DELETE")
-     */
-    public function removeOrderAction($id = null)
-    {
-        if (!$id) {
-            return $this->json(['message' => 'Not Found']);
-        }
-
-        $user = $this->getUser()->getId();
-
-        $em = $this->getDoctrine()->getManager();
-        $order = $em->getRepository(Orders::class)->findOneBy(['id' => $id, 'userId' => $user]);
-
-        $deleted = $this->getDoctrine()
-                    ->getRepository(Orders::class)->deletePendingOrder($id, $user);
-        $deletedItems = $this->getDoctrine()
-                    ->getRepository(OrderItem::class)->deleteOrderItems($id, $user);
-
-        $message = 'Saved order of ' . $order->getAmount() . ', placed at ' . $order->getDate()->format('d/m/Y') . ' deleted';
-        $this->ra->register('Orders', $id, $message);
-        
-        $response = new JsonResponse();
-        $response->setData(json_encode($deleted));
-        // // set a HTTP response header
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }
-
     // /**
     //  * @Route("/admin", name="admin")
     //  */

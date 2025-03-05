@@ -26,11 +26,13 @@ var Order = {
 		this.total = 0;
 	},
 	loadItems: function(){
+		console.log('here')
 		var $self = this;
 		doFetch(items_url)
 		.then(response => {
 			let itemOrder = []
 			var grouped = groupBy(response, ['group_name', 'item_name']);
+			console.log({items_url, response, grouped})
 			$self.groups = grouped;
 			$self.right.find('.mainmenu').html($self.createElement($self.groups))
 			if (Object.keys(grouped).length === 1) {
@@ -490,6 +492,7 @@ var Order = {
 }
 
 function doFetch(link, props){
+	console.log('do fetch')
 	var load = $('#preloader');
 	load.show();
 	var init = {
