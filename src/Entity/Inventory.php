@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Inventory
+ * Inventory.
  *
  * @ORM\Table(name="inventory")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\InventoryRepository")
  */
 class Inventory
@@ -16,7 +17,9 @@ class Inventory
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -35,9 +38,8 @@ class Inventory
      */
     private $quantity;
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -47,9 +49,9 @@ class Inventory
     }
 
     /**
-     * Set itemId
+     * Set itemId.
      *
-     * @param integer $itemId
+     * @param int $itemId
      *
      * @return Inventory
      */
@@ -61,7 +63,7 @@ class Inventory
     }
 
     /**
-     * Get itemId
+     * Get itemId.
      *
      * @return int
      */
@@ -71,9 +73,9 @@ class Inventory
     }
 
     /**
-     * Set quantity
+     * Set quantity.
      *
-     * @param integer $quantity
+     * @param int $quantity
      *
      * @return Inventory
      */
@@ -85,7 +87,7 @@ class Inventory
     }
 
     /**
-     * Get quantity
+     * Get quantity.
      *
      * @return int
      */

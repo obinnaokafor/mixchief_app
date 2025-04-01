@@ -5,8 +5,8 @@ namespace App\Form;
 use App\Entity\Users;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
@@ -21,20 +21,20 @@ class RegistrationFormType extends AbstractType
             ->add('email')
             ->add('telephone')
             ->add('plainPassword', RepeatedType::class, [
-              'type' => PasswordType::class,
-              'mapped' => false,
-              'first_options'  => ['label' => 'Password'],
-              'second_options' => ['label' => 'Repeat Password'],
-              'invalid_message' => 'The password fields must match.',
-              'constraints' => [
+                'type' => PasswordType::class,
+                'mapped' => false,
+                'first_options' => ['label' => 'Password'],
+                'second_options' => ['label' => 'Repeat Password'],
+                'invalid_message' => 'The password fields must match.',
+                'constraints' => [
                     new NotBlank([
-                        'message' => 'Choose a password!'
+                        'message' => 'Choose a password!',
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Choose a stronger password'
-                    ])
-                ]
+                        'minMessage' => 'Choose a stronger password',
+                    ]),
+                ],
             ]);
     }
 

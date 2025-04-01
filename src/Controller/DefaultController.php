@@ -2,34 +2,31 @@
 
 namespace App\Controller;
 
-use App\Controller\Controller;
 // use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Entity\Item;
-use App\Entity\Groups;
-use App\Entity\Orders;
 use App\Entity\Activity;
 use App\Entity\Customer;
+use App\Entity\Groups;
+use App\Entity\Item;
 use App\Entity\OrderDelivery;
 use App\Entity\OrderItem;
+use App\Entity\Orders;
 use App\Entity\Subscription;
 use App\Entity\Users;
 use App\Service\PaystackHelper;
 use App\Service\RegisterActivity;
 use App\Service\SESEmailClient;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends Controller
 {
-
     private $ra;
     private $ses;
     private $paystackHelper;
 
-    function __construct(RegisterActivity $ra, SESEmailClient $ses, PaystackHelper $paystackHelper)
+    public function __construct(RegisterActivity $ra, SESEmailClient $ses, PaystackHelper $paystackHelper)
     {
         $this->ra = $ra;
         $this->ses = $ses;
@@ -39,7 +36,7 @@ class DefaultController extends Controller
     /**
      * @Route("/", name="homepage")
      **/
-    public function indexAction(Request $request)
+    public function index(): Response
     {
         // return $this->redirectToRoute('app_login');
         return $this->render('index.html.twig');
@@ -48,27 +45,28 @@ class DefaultController extends Controller
     /**
      * @Route("/shop", name="shop")
      **/
-    public function shop(Request $request)
+    public function shop(): Response
     {
         // return $this->redirectToRoute('app_login');
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $items = $em->getRepository(Item::class)->findBy(['userId' => $user->getId()]);
         $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user->getId()]);
+
         return $this->render('Default/shop.html.twig', ['items' => $items, 'categories' => $categories]);
     }
 
     /**
      * @Route("/contact", name="contact", methods="POST")
      */
-    public function contact(Request $request)
+    public function contact(Request $request): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
             $message = $this->renderView(
-                "emails/contact.html.twig",
+                'emails/contact.html.twig',
                 [
-                    'contact' => $data
+                    'contact' => $data,
                 ]
             );
 
@@ -83,7 +81,7 @@ class DefaultController extends Controller
     /**
      * @Route("/checkout/{error}", name="checkout")
      */
-    public function checkout(Request $request, $error = null)
+    public function checkout($error = null): Response
     {
         // $em = $this->getDoctrine()->getManager();
         // $user = $this->getUser()->getId();
@@ -94,7 +92,7 @@ class DefaultController extends Controller
 
     private function handleArrayInput(array $arrayInput)
     {
-        $string_values = array();
+        $string_values = [];
         foreach ($arrayInput as $key => $value) {
             if (!is_countable($value)) {
                 $string_values[$key] = $value;
@@ -103,21 +101,20 @@ class DefaultController extends Controller
         }
         try {
             $keys = array_keys($arrayInput);
-            $f = array();
-            for ($i=0; $i < count($arrayInput[$keys[0]]); $i++) {
-                $n = array();
+            $f = [];
+            for ($i = 0; $i < count($arrayInput[$keys[0]]); ++$i) {
+                $n = [];
                 foreach ($keys as $key) {
                     $n[$key] = $arrayInput[$key][$i];
                 }
                 $f[] = $n;
             }
-            
+
             return [
                 'items' => $f,
-                'strings' => $string_values
+                'strings' => $string_values,
             ];
         } catch (\Exception $e) {
-
         }
     }
 
@@ -150,7 +147,7 @@ class DefaultController extends Controller
     /**
      * @Route("/order/checkout", name="postCheckout", methods={"POST"})
      */
-    public function postCheckout(Request $request)
+    public function postCheckout(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         // new order
         if (!$this->isCsrfTokenValid('checkout', $request->request->get('token'))) {
@@ -172,7 +169,7 @@ class DefaultController extends Controller
 
         // check if customer exists
         $customer = $this->getOrCreateCustomer($post, $user->getId());
-        
+
         // remove array objects
         // unset($post['email'], $post['phone'], $post['token'], $post['address'], $post['landmark'], $post['name']);
         list('items' => $orderItems, 'strings' => $rest) = $this->handleArrayInput($post);
@@ -188,7 +185,7 @@ class DefaultController extends Controller
             $orderTotal += $item->getSellingPrice() * $orderItem['quantity'];
             $items[] = $it;
         }
-        
+
         $order->setAmount($orderTotal);
         $order->setCustomer($customer);
 
@@ -220,6 +217,7 @@ class DefaultController extends Controller
                 $em->persist($orderItem);
             }
             $em->flush();
+
             return $this->redirect($orderPayment['url']);
         } else {
             return $this->redirectToRoute('checkout', ['error' => 'Error occured while processing payment']);
@@ -229,7 +227,7 @@ class DefaultController extends Controller
     /**
      * @Route("/order/payment/callback", name="paymentCallback")
      */
-    public function paymentCallback(Request $request)
+    public function paymentCallback(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $reference = $request->get('reference');
         $em = $this->getDoctrine()->getManager();
@@ -239,7 +237,7 @@ class DefaultController extends Controller
         }
 
         $res = $this->paystackHelper->verifyPayment($reference);
-        
+
         if (!$res) {
             return $this->redirectToRoute('checkout', ['error' => 'An error occured while verifying payment']);
         } else {
@@ -247,6 +245,7 @@ class DefaultController extends Controller
             $em->persist($order);
             $em->flush();
         }
+
         // $em = $this->getDoctrine()->getManager();
         return $this->redirectToRoute('confirmation', ['reference' => $reference]);
     }
@@ -271,12 +270,12 @@ class DefaultController extends Controller
         }
 
         $message = $this->renderView(
-            "Users/receipt.html.twig",
+            'Users/receipt.html.twig',
             [
                 'delivery' => $delivery,
                 'items' => $orderItems,
                 'order' => $order,
-                'total' => $total
+                'total' => $total,
             ]
         );
 
@@ -292,7 +291,7 @@ class DefaultController extends Controller
     /**
      * @Route("/order/payment/error", name="error_page")
      **/
-    public function errorPage($error)
+    public function errorPage($error): Response
     {
         return $this->render('Default/error.html.twig', ['error' => $error]);
     }
@@ -300,7 +299,7 @@ class DefaultController extends Controller
     /**
      * @Route("/howto", name="howto")
      **/
-    public function howTo()
+    public function howTo(): Response
     {
         return $this->render('Default/howto.html.twig');
     }
@@ -308,20 +307,21 @@ class DefaultController extends Controller
     /**
      * @Route("/positems", name="positems")
      */
-    public function posItemsAction(Request $request)
+    public function posItems(): JsonResponse
     {
         $user = $this->getUser()->getId();
         $products = $this->getDoctrine()
                         ->getRepository(Item::class)->findPointOfSale($user);
         $response = new JsonResponse();
         $response->setData($products);
+
         return $response;
     }
 
     /**
      * @Route("/admin", name="admin")
      */
-    public function adminAction(Request $request)
+    public function admin(): Response
     {
         // return new Response('Hello there');
         // $products = "Mike";
@@ -329,43 +329,36 @@ class DefaultController extends Controller
         $date = date('d-m-Y');
         $tod = new \DateTime($date);
         $yes = new \DateTime($date);
-        $yes->modify("-1 day");
+        $yes->modify('-1 day');
         $now = new \DateTime('now');
         $prev = new \DateTime('now');
         $em = $this->getDoctrine()->getManager();
         $subscription = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
-
         // Get today's and yesterday's total
         $today = $em->getRepository(Orders::class)->salesTotal($user->getId(), $tod, $now);
         $yesterday = $em->getRepository(Orders::class)->salesTotal($user->getId(), $yes, $tod);
-
         $dow = date('w');
         $tweek = date('d-m-Y', strtotime('-'.$dow.' days'));
         $lweek = date('d-m-Y', strtotime('-'.$dow.' days'));
         $bow = new \DateTime($tweek);
         $bolw = new \DateTime($lweek);
         $bolw->modify('-7 days');
-
         $m = date('01-m-Y');
         $lm = date('01-m-Y');
         $bom = new \DateTime($m);
         $bolm = new \DateTime($m);
         $bolm->modify('-1 month');
-
         $thisWeekTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bow, $now);
         $lastWeekTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bolw, $bow);
         $thisMonthTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bom, $now);
         $lastMonthTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bolm, $bom);
         $salesmonth = $em->getRepository(Orders::class)->salesPeriod($user->getId(), date('Y-m-01 H:i:s'), $now->format('Y-m-d H:i:s'));
-
         $denominator = $yesterday ?: 1;
-        $increase = $today ? (($today - $yesterday)/$denominator)*100 : 0;
+        $increase = $today ? (($today - $yesterday) / $denominator) * 100 : 0;
         $activities = $this->getDoctrine()->getRepository(Activity::class)->findBy(['userId' => $user->getId()], ['date' => 'DESC'], 15);
         $diff = '';
         $stat = '';
-        
         // $diff = $prev >= $user->getCreated();
-
         // if user doesn't have a running subscription (cancelled or never subscribed)
         if (!$subscription || !$subscription->getStatus()) {
             $prev->modify('-14 days');
@@ -378,26 +371,28 @@ class DefaultController extends Controller
     }
 
     /**
-     * Get all items from database and push to template
+     * Get all items from database and push to template.
+     *
      * @Route("/all", name="get_all")
+     *
      * @return Response
      */
-    public function allAction()
+    public function all(): JsonResponse
     {
-      $user = $this->getUser();
-      $cats = $this->getDoctrine()->getRepository(Groups::class)->findAll();
-      $items = $this->getDoctrine()->getRepository(Item::class)->findAll();
+        $user = $this->getUser();
+        $cats = $this->getDoctrine()->getRepository(Groups::class)->findAll();
+        $items = $this->getDoctrine()->getRepository(Item::class)->findAll();
 
-      $response = new JsonResponse();
-      $response->setData($cats);
+        $response = new JsonResponse();
+        $response->setData($cats);
 
-      return $response;
+        return $response;
     }
 
     /**
      * @Route("/drinks", name="drinks")
      */
-    public function drinksAction(Request $request)
+    public function drinks(): JsonResponse
     {
         $user = $this->getUser();
         // $products = "Mike";
@@ -405,9 +400,9 @@ class DefaultController extends Controller
                         ->getRepository(Item::class)->findPointOfSaleDrinks();
         $response = new JsonResponse();
         $response->setData(json_encode($products));
-
         // // set a HTTP response header
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
         // return $this->render('Default/index.html.twig', array('title' => 'EPOS', 'product' => $products));
     }
@@ -415,25 +410,27 @@ class DefaultController extends Controller
     /**
      * @Route("/pos", name="pos")
      */
-    public function posAction(Request $request)
+    public function pos(): Response
     {
         $user = $this->getUser()->getId();
         $lastOrder = $this->getDoctrine()
                         ->getRepository(Orders::class)->findLastOrder($user);
-        return $this->render('POS/index.html.twig', array('title' => 'EPOS'));
+
+        return $this->render('POS/index.html.twig', ['title' => 'EPOS']);
     }
 
     /**
      * @Route("/pos/drinks", name="posDrinks")
      */
-    public function posDrinksAction()
+    public function posDrinks(): Response
     {
         $waiter = $this->getDoctrine()
-                        ->getRepository(Staff::class)->findBy(array('role' => 'Waiter'));
+                        ->getRepository(Staff::class)->findBy(['role' => 'Waiter']);
         $table = $this->getDoctrine()
                         ->getRepository(Tables::class)->findAll();
         $lastOrder = $this->getDoctrine()
                         ->getRepository(Orders::class)->findLastOrder();
-        return $this->render('POS/index.html.twig', array('title' => 'EPOS', 'waiter' => $waiter, 'table' => $table));
+
+        return $this->render('POS/index.html.twig', ['title' => 'EPOS', 'waiter' => $waiter, 'table' => $table]);
     }
 }

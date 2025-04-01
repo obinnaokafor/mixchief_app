@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Supply
+ * Supply.
  *
  * @ORM\Table(name="supply")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\SupplyRepository")
  */
 class Supply
@@ -18,7 +19,9 @@ class Supply
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -63,14 +66,13 @@ class Supply
      */
     private $userId;
 
-    
     // public function __construct()
     // {
     //     $this->supplyItems = new ArrayCollection();
     // }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -84,7 +86,7 @@ class Supply
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -93,9 +95,8 @@ class Supply
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -105,7 +106,7 @@ class Supply
     }
 
     /**
-     * Set date
+     * Set date.
      *
      * @param \DateTime $date
      *
@@ -119,7 +120,7 @@ class Supply
     }
 
     /**
-     * Get date
+     * Get date.
      *
      * @return \DateTime
      */
@@ -129,7 +130,7 @@ class Supply
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
      *
@@ -143,7 +144,7 @@ class Supply
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -153,9 +154,9 @@ class Supply
     }
 
     /**
-     * Set supplier
+     * Set supplier.
      *
-     * @param integer $supplier
+     * @param int $supplier
      *
      * @return Supply
      */
@@ -167,7 +168,7 @@ class Supply
     }
 
     /**
-     * Get supplier
+     * Get supplier.
      *
      * @return int
      */
@@ -177,7 +178,7 @@ class Supply
     }
 
     /**
-     * Get supplier
+     * Get supplier.
      *
      * @return int
      */
@@ -187,7 +188,7 @@ class Supply
     // }
 
     /**
-     * Set total
+     * Set total.
      *
      * @param float $total
      *
@@ -201,7 +202,7 @@ class Supply
     }
 
     /**
-     * Get total
+     * Get total.
      *
      * @return float
      */

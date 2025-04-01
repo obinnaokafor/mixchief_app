@@ -2,27 +2,26 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Cancelled;
+use App\Entity\Customer;
+use App\Entity\Item;
+use App\Entity\ItemPart;
+use App\Entity\OrderItem;
+use App\Entity\Orders;
+use App\Entity\Stock;
 use App\Service\MailgunTransport;
 use App\Service\RegisterActivity;
-use App\Entity\Item;
-use App\Entity\Orders;
-use App\Entity\OrderItem;
-use App\Entity\Cancelled;
-use App\Entity\ItemPart;
-use App\Entity\Stock;
-use App\Entity\Customer;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class OrderController extends Controller
 {
     private $ra;
     private $mailgun;
 
-    function __construct(RegisterActivity $ra, MailgunTransport $mailgun)
+    public function __construct(RegisterActivity $ra, MailgunTransport $mailgun)
     {
         $this->ra = $ra;
         $this->mailgun = $mailgun;
@@ -31,7 +30,7 @@ class OrderController extends Controller
     /**
      * @Route("/admin/order", name="order", methods="POST")
      */
-    public function orderPutAction(Request $request)
+    public function orderPut(Request $request): JsonResponse
     {
         $user = $this->getUser()->getId();
         $em = $this->getDoctrine()->getManager();
@@ -47,7 +46,7 @@ class OrderController extends Controller
             //     $em->persist($customer);
             //     $em->flush();
             // }
-            
+
             $order->setCustomer($email);
         }
         $order->setUserId($user);
@@ -55,19 +54,17 @@ class OrderController extends Controller
         if ($data['id']) {
             $order->setModified($date);
             if ($data['status'] === 'Completed') {
-                $message = 'Sale completed at ' . $date->format('d/m/Y');
-            }else {
-                $message = 'Sale modified at ' . $date->format('d/m/Y');
+                $message = 'Sale completed at '.$date->format('d/m/Y');
+            } else {
+                $message = 'Sale modified at '.$date->format('d/m/Y');
             }
-            
-        }else {
+        } else {
             $order->setDate($date);
-            $message = 'Sale of ' . $order->getAmount() . ' ' . strtolower($order->getStatus()) . ', placed at ' . $date->format('d/m/Y h:i:s A.');
+            $message = 'Sale of '.$order->getAmount().' '.strtolower($order->getStatus()).', placed at '.$date->format('d/m/Y h:i:s A.');
         }
         $em->persist($order);
         $em->flush();
 
-        
         $this->orderItemAction($order->getId(), $data['items'], $data['status']);
 
         if ($set && $email) {
@@ -84,7 +81,7 @@ class OrderController extends Controller
      * Get Total Sales within a timeframe
      *
      **/
-    public function getTotalSalesBetween()
+    public function getTotalSalesBetween(): JsonResponse
     {
         $from = $_POST['from'];
         $to = $_POST['to'];
@@ -99,7 +96,7 @@ class OrderController extends Controller
      * Get Daily Sales within a timeframe
      *
      **/
-    public function getSalesPeriod()
+    public function getSalesPeriod(): JsonResponse
     {
         $from = $_POST['from'];
         $to = $_POST['to'];
@@ -114,18 +111,19 @@ class OrderController extends Controller
      * Send e-receipt to customer
      *
      * @return void
-     * @author 
+     *
+     * @author
      **/
-    public function eReceipt($order, $email)
+    public function eReceipt($order, $email): Response
     {
         $user = $this->getUser();
         $items = $this->getDoctrine()->getRepository(OrderItem::class)->findOrder($order->getId(), $user->getId());
         // $order = $this->getDoctrine()->getRepository(Orders::class)->findOneBy(['id' => 78, 'userId' => $user->getId()]);
         $message = $this->renderView(
-            "Users/receipt.html.twig",
+            'Users/receipt.html.twig',
             [
                 'items' => $items,
-                'order' => $order
+                'order' => $order,
             ]
         );
 
@@ -139,22 +137,23 @@ class OrderController extends Controller
     /**
      * @Route("/admin/orders/saved", name="savedorders", methods="GET")
      */
-    public function savedAction()
+    public function saved(): JsonResponse
     {
         $user = $this->getUser()->getId();
         $saved = $this->getDoctrine()->getRepository(Orders::class)->findBy(['status' => 'pending', 'userId' => $user]);
+
         return $this->json($saved);
     }
 
-    public function orderItemAction($id, $items, $status = false)
+    public function orderItem($id, $items, $status = false)
     {
         $user = $this->getUser()->getId();
         $em = $this->getDoctrine()->getManager();
-        foreach ($items as $key => $value) {
+        foreach ($items as $value) {
             if (isset($value['status']) && ($value['status'] === 'Pending')) {
-                $orderitem = $em->getRepository(OrderItem::class)->findOneBy(['orderId' =>$id, 'itemId' => $value['id'], 'userId' => $user]);
-                // continue;
-            }else {
+                $orderitem = $em->getRepository(OrderItem::class)->findOneBy(['orderId' => $id, 'itemId' => $value['id'], 'userId' => $user]);
+            // continue;
+            } else {
                 $orderitem = new OrderItem();
                 $orderitem->setOrderId($id);
                 $orderitem->setItemId($value['id']);
@@ -162,7 +161,7 @@ class OrderController extends Controller
             }
 
             $orderitem->setQuantity(intval($value['quantity']));
-            $price = floatval($value['price'])*intval($value['quantity']);
+            $price = floatval($value['price']) * intval($value['quantity']);
             $orderitem->setPrice(floatval($value['price']));
             // if (floatval($value['discount'])>0) {
             //     $discount = (floatval($value['price']) * floatval($value['discount']))/100;
@@ -171,7 +170,7 @@ class OrderController extends Controller
             // }else {
             //     $orderitem->setDiscount(floatval($value['discount']));
             // }
-            
+
             // $em = $this->getDoctrine()->getManager();
             $em->persist($orderitem);
         }
@@ -184,18 +183,18 @@ class OrderController extends Controller
     }
 
     /**
-     * Deduct order items from inventory
+     * Deduct order items from inventory.
      *
-     * @return Bool
+     * @return bool
      **/
     public function deductStock($items, $em)
     {
         $user = $this->getUser()->getId();
         foreach ($items as $item) {
             $itempart = $this->getDoctrine()->getRepository(ItemPart::class)->findByItem($item['id'], $user);
-            for ($i=0; $i < sizeof($itempart); $i++) {
+            for ($i = 0; $i < count($itempart); ++$i) {
                 $stock = $this->getDoctrine()->getRepository(Stock::class)->findOneBy(['id' => $itempart[$i]->getStockId(), 'userId' => $user]);
-                $stock->setQuantity(floatval($stock->getQuantity()) - (floatval($itempart[$i]->getPortion())*$item['quantity']));
+                $stock->setQuantity(floatval($stock->getQuantity()) - (floatval($itempart[$i]->getPortion()) * $item['quantity']));
                 $em->persist($stock);
             }
         }
@@ -206,14 +205,14 @@ class OrderController extends Controller
      *
      * @param int $id Order ID
      **/
-    public function deleteOrder($id)
+    public function deleteOrder($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
         $em = $this->getDoctrine()->getEntityManager();
         $order = $em->getRepository(Orders::class)->findOneBy(['id' => $id, 'userId' => $user]);
 
         $response = $this->forward('App\Controller\InventoryController::delete', [
-            'query'  => 'Order',
+            'query' => 'Order',
             'id' => $id,
         ]);
 
@@ -228,7 +227,7 @@ class OrderController extends Controller
     /**
      * @Route("/order/change", name="changeorder")
      */
-    public function deleteItemAction()
+    public function deleteItem(): Response
     {
         $user = $this->getUser()->getId();
         $response = new Response();
@@ -250,16 +249,17 @@ class OrderController extends Controller
             $em->remove($item);
             $em->flush();
             $response->setContent('done');
-        }else {
+        } else {
             $response->setContent('Not Done');
         }
+
         return $response;
     }
 
     /**
      * @Route("/admin/orderitems/delete/{order}/{item}", name="deletesavedorderitems")
      */
-    public function deleteOrderItem($order = null, $item = null)
+    public function deleteOrderItem($order = null, $item = null): JsonResponse
     {
         if (!$item || !$order) {
             return $this->json(['message' => 'Not Found']);
@@ -271,7 +271,7 @@ class OrderController extends Controller
         // $this->getDoctrine()->getRepository(OrderItem::class)->deleteOrderItem($order, $item, $user);
         if ($item) {
             $order = $em->getRepository(Orders::class)->findOneBy(['id' => $order, 'userId' => $user]);
-            $order->setAmount($order->getAmount() - ($item->getPrice()*$item->getQuantity()));
+            $order->setAmount($order->getAmount() - ($item->getPrice() * $item->getQuantity()));
             $em->remove($item);
             $em->persist($order);
             $em->flush();
@@ -282,7 +282,7 @@ class OrderController extends Controller
         return $this->json(['message' => 'Item not found']);
     }
 
-    public function completeOrderAction($id)
+    public function completeOrder($id)
     {
         $user = $this->getUser()->getId();
         $order = $this->getDoctrine()
@@ -297,18 +297,19 @@ class OrderController extends Controller
     /**
      * @Route("/admin/orderitems/saved", name="savedorderitems")
      */
-    public function retrieveSavedOrderItemsAction(Request $request)
+    public function retrieveSavedOrderItems(): JsonResponse
     {
         $user = $this->getUser()->getId();
         $savedorderitems = $this->getDoctrine()
                     ->getRepository(Orders::class)->findPendingOrders($user);
+
         return $this->json($savedorderitems);
     }
 
     /**
      * @Route("/admin/order/saved/{id}", name="savedorder", methods="GET")
      */
-    public function retrieveSavedOrderAction($id = null)
+    public function retrieveSavedOrder($id = null): JsonResponse
     {
         if (!$id) {
             return $this->json(['message' => 'Not Found']);
@@ -317,13 +318,14 @@ class OrderController extends Controller
         $user = $this->getUser()->getId();
         $savedorder = $this->getDoctrine()
                     ->getRepository(Orders::class)->findPendingOrder($id, $user);
+
         return $this->json($savedorder);
     }
 
     /**
      * @Route("/admin/order/saved/{id}", name="deleteSavedOrder", methods="DELETE")
      */
-    public function removeOrderAction($id = null)
+    public function removeOrder($id = null): JsonResponse
     {
         if (!$id) {
             return $this->json(['message' => 'Not Found']);
@@ -339,13 +341,14 @@ class OrderController extends Controller
         $deletedItems = $this->getDoctrine()
                     ->getRepository(OrderItem::class)->deleteOrderItems($id, $user);
 
-        $message = 'Saved order of ' . $order->getAmount() . ', placed at ' . $order->getDate()->format('d/m/Y') . ' deleted';
+        $message = 'Saved order of '.$order->getAmount().', placed at '.$order->getDate()->format('d/m/Y').' deleted';
         $this->ra->register('Orders', $id, $message);
-        
+
         $response = new JsonResponse();
         $response->setData(json_encode($deleted));
         // // set a HTTP response header
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
@@ -356,73 +359,75 @@ class OrderController extends Controller
     // {
     //     $user = $this->getUser()->getId();
     //     $orders = $this->getDoctrine()->getRepository(Orders::class)->findBy(['userId' => $user]);
-        
+
     //     return $this->render('Orders/index.html.twig', array('title' => 'Orders', 'orders' => $orders));
     // }
 
     /**
      * @Route("/admin/allorders", name="orders")
      */
-    public function allOrdersAction(Request $request)
+    public function allOrders(): Response
     {
         $user = $this->getUser()->getId();
         $orders = $this->getDoctrine()->getRepository(Orders::class)->findBy(['userId' => $user], ['date' => 'DESC']);
-        
-        return $this->render('Orders/orders.html.twig', array('title' => 'Order', 'orders' => $orders));
+
+        return $this->render('Orders/orders.html.twig', ['title' => 'Order', 'orders' => $orders]);
     }
 
     /**
      * @Route("/admin/vieworder/{id}", name="vieworder")
      */
-    public function viewOrderAction($id)
+    public function viewOrder($id): Response
     {
         $user = $this->getUser()->getId();
         $order = $this->getDoctrine()->getRepository(Orders::class)->findOneBy(['id' => $id, 'userId' => $user]);
         // var_dump($order);die;
         $order_items = $this->getDoctrine()->getRepository(OrderItem::class)->findOrder($id, $user);
-        
-        return $this->render('Orders/order.html.twig', array('title' => 'Order', 'order' => $order, 'orderitems' => $order_items));
+
+        return $this->render('Orders/order.html.twig', ['title' => 'Order', 'order' => $order, 'orderitems' => $order_items]);
     }
 
     /**
      * @Route("/order/payments", name="payments")
      */
-    public function paymentsAction()
+    public function payments(): JsonResponse
     {
         $user = $this->getUser()->getId();
         $date = date('Y-m-d');
         $order = $this->getDoctrine()->getRepository(Orders::class)->findPayment($date, $user);
-        
+
         $response = new JsonResponse();
         $response->setData(json_encode($order));
 
         // // set a HTTP response header
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 
     /**
      * @Route("/order/printreport", name="printDailyReport")
      */
-    public function printReportAction()
+    public function printReport(): JsonResponse
     {
         $user = $this->getUser()->getId();
         $date = date('Y-m-d');
         $report = $this->getDoctrine()->getRepository(Orders::class)->printReport($date);
         $cancelled = $this->getDoctrine()->getRepository(Orders::class)->findCancelled($date);
         $order = $this->getDoctrine()->getRepository(Orders::class)->findPayment($date);
-        $count = sizeof($report);
-        // for ($i=0; $i < sizeof($cancelled); $i++) { 
+        $count = count($report);
+        // for ($i=0; $i < sizeof($cancelled); $i++) {
         //     $report[$count] = $cancelled[$i];
         //     $count++;
         // }
 
-        $combined = array('report' => json_encode($report), 'cancelled' => json_encode($cancelled), 'payments' => json_encode($order));
+        $combined = ['report' => json_encode($report), 'cancelled' => json_encode($cancelled), 'payments' => json_encode($order)];
         $response = new JsonResponse();
         $response->setData(json_encode($combined));
 
         // // set a HTTP response header
         $response->headers->set('Content-Type', 'application/json');
+
         return $response;
     }
 }

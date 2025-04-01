@@ -3,12 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+
 // use App\Entity\Supply;
 
 /**
- * SupplyItem
+ * SupplyItem.
  *
  * @ORM\Table(name="supply_item")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\SupplyItemRepository")
  */
 class SupplyItem
@@ -17,7 +19,9 @@ class SupplyItem
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -26,6 +30,7 @@ class SupplyItem
      * @var int
      *
      * @ORM\Column(name="stock", type="integer")
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Stock")
      */
     private $stock;
@@ -34,6 +39,7 @@ class SupplyItem
      * @var int
      *
      * @ORM\Column(name="supply_id", type="integer")
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Supply", inversedBy="supplyItems")
      */
     private $supplyId;
@@ -60,7 +66,7 @@ class SupplyItem
     private $userId;
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -74,7 +80,7 @@ class SupplyItem
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -83,9 +89,8 @@ class SupplyItem
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -95,9 +100,9 @@ class SupplyItem
     }
 
     /**
-     * Set stock
+     * Set stock.
      *
-     * @param integer $stock
+     * @param int $stock
      *
      * @return SupplyItem
      */
@@ -109,7 +114,7 @@ class SupplyItem
     }
 
     /**
-     * Get stock
+     * Get stock.
      *
      * @return int
      */
@@ -119,9 +124,9 @@ class SupplyItem
     }
 
     /**
-     * Set supplyId
+     * Set supplyId.
      *
-     * @param integer $supplyId
+     * @param int $supplyId
      *
      * @return SupplyItem
      */
@@ -133,7 +138,7 @@ class SupplyItem
     }
 
     /**
-     * Get supplyId
+     * Get supplyId.
      *
      * @return int
      */
@@ -143,9 +148,9 @@ class SupplyItem
     }
 
     /**
-     * Set quantity
+     * Set quantity.
      *
-     * @param integer $quantity
+     * @param int $quantity
      *
      * @return SupplyItem
      */
@@ -157,7 +162,7 @@ class SupplyItem
     }
 
     /**
-     * Get quantity
+     * Get quantity.
      *
      * @return int
      */
@@ -167,7 +172,7 @@ class SupplyItem
     }
 
     /**
-     * Set amount
+     * Set amount.
      *
      * @param float $amount
      *
@@ -181,7 +186,7 @@ class SupplyItem
     }
 
     /**
-     * Get amount
+     * Get amount.
      *
      * @return float
      */

@@ -2,14 +2,15 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Supplier
+ * Supplier.
  *
  * @ORM\Table(name="supplier")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\SupplierRepository")
  */
 class Supplier
@@ -18,7 +19,9 @@ class Supplier
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -65,14 +68,13 @@ class Supplier
      */
     private $supply;
 
-
-    function __construct()
+    public function __construct()
     {
         $this->supply = new ArrayCollection();
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -86,7 +88,7 @@ class Supplier
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -95,9 +97,8 @@ class Supplier
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -107,7 +108,7 @@ class Supplier
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
      *
@@ -121,7 +122,7 @@ class Supplier
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -131,7 +132,7 @@ class Supplier
     }
 
     /**
-     * Set address
+     * Set address.
      *
      * @param string $address
      *
@@ -145,7 +146,7 @@ class Supplier
     }
 
     /**
-     * Get address
+     * Get address.
      *
      * @return string
      */
@@ -155,9 +156,9 @@ class Supplier
     }
 
     /**
-     * Set telephone
+     * Set telephone.
      *
-     * @param integer $telephone
+     * @param int $telephone
      *
      * @return Supplier
      */
@@ -169,7 +170,7 @@ class Supplier
     }
 
     /**
-     * Get telephone
+     * Get telephone.
      *
      * @return int
      */
@@ -179,7 +180,7 @@ class Supplier
     }
 
     /**
-     * Set email
+     * Set email.
      *
      * @param string $email
      *
@@ -193,7 +194,7 @@ class Supplier
     }
 
     /**
-     * Get email
+     * Get email.
      *
      * @return string
      */
@@ -203,7 +204,7 @@ class Supplier
     }
 
     /**
-     * Get Supplies
+     * Get Supplies.
      *
      * @return ArrayCollection
      */
@@ -213,7 +214,7 @@ class Supplier
     }
 
     /**
-     * Remove Supplies
+     * Remove Supplies.
      *
      * @return ArrayCollection
      */

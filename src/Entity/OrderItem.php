@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * OrderItem
+ * OrderItem.
  *
  * @ORM\Table(name="order_item")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\OrderItemRepository")
  */
 class OrderItem
@@ -16,7 +17,9 @@ class OrderItem
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -64,7 +67,7 @@ class OrderItem
     private $userId;
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -78,7 +81,7 @@ class OrderItem
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -92,9 +95,8 @@ class OrderItem
         $this->quantity = 1;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -104,9 +106,9 @@ class OrderItem
     }
 
     /**
-     * Set itemId
+     * Set itemId.
      *
-     * @param integer $itemId
+     * @param int $itemId
      *
      * @return OrderItem
      */
@@ -118,7 +120,7 @@ class OrderItem
     }
 
     /**
-     * Get itemId
+     * Get itemId.
      *
      * @return int
      */
@@ -128,9 +130,9 @@ class OrderItem
     }
 
     /**
-     * Set orderId
+     * Set orderId.
      *
-     * @param integer $orderId
+     * @param int $orderId
      *
      * @return OrderItem
      */
@@ -142,7 +144,7 @@ class OrderItem
     }
 
     /**
-     * Get orderId
+     * Get orderId.
      *
      * @return int
      */
@@ -152,7 +154,7 @@ class OrderItem
     }
 
     /**
-     * Set discount
+     * Set discount.
      *
      * @param float $discount
      *
@@ -166,7 +168,7 @@ class OrderItem
     }
 
     /**
-     * Get discount
+     * Get discount.
      *
      * @return float
      */
@@ -176,9 +178,9 @@ class OrderItem
     }
 
     /**
-     * Set quantity
+     * Set quantity.
      *
-     * @param integer $quantity
+     * @param int $quantity
      *
      * @return OrderItem
      */
@@ -190,7 +192,7 @@ class OrderItem
     }
 
     /**
-     * Get quantity
+     * Get quantity.
      *
      * @return int
      */
@@ -200,7 +202,7 @@ class OrderItem
     }
 
     /**
-     * Set price
+     * Set price.
      *
      * @param float $price
      *
@@ -214,7 +216,7 @@ class OrderItem
     }
 
     /**
-     * Get price
+     * Get price.
      *
      * @return float
      */

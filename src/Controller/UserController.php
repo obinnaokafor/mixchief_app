@@ -2,42 +2,41 @@
 
 namespace App\Controller;
 
+use App\Entity\Users;
 use App\Form\RegistrationFormType;
-
+use App\Security\LoginFormAuthenticator;
+use App\Service\SESEmailClient;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
-use App\Security\LoginFormAuthenticator;
-use App\Entity\Users;
-use App\Controller\Controller;
-use App\Service\SESEmailClient;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserController extends Controller
 {
     /**
-     *
      * @var SESEmailClient
      */
     private $ses;
+    private AuthorizationCheckerInterface $authorizationChecker;
+    private ManagerRegistry $doctrine;
 
-    /**
-     *
-     * @param SESEmailClient $ses
-     */
-    function __construct(SESEmailClient $ses)
+    public function __construct(SESEmailClient $ses, AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine)
     {
         $this->ses = $ses;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->doctrine = $doctrine;
     }
 
     /**
      * @Route("/user", name="user")
      */
-    public function index()
+    public function index(): Response
     {
         return $this->render('user/index.html.twig', [
             'controller_name' => 'UserController',
@@ -47,47 +46,42 @@ class UserController extends Controller
     /**
      * @Route("/register", name="register")
      * Register new user
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     * @param EntityManagerInterface $em
-     * @param GuardAuthenticatorHandler $guardHandler
-     * @param LoginFormAuthenticator $formAuthenticator
-     * @param Request $request
      */
     public function register(
-      EntityManagerInterface $em,
-      GuardAuthenticatorHandler $guardHandler,
-      UserPasswordEncoderInterface $passwordEncoder,
-      LoginFormAuthenticator $formAuthenticator,
-      Request $request)
+        EntityManagerInterface $em,
+        GuardAuthenticatorHandler $guardHandler,
+        UserPasswordEncoderInterface $passwordEncoder,
+        LoginFormAuthenticator $formAuthenticator,
+        Request $request)
     {
         $form = $this->createForm(RegistrationFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-          $user = $form->getData();
-          $user->setCreated(new \DateTime('now'));
-          $rand = $this->randomString();
-          $user->setVerification($rand);
-          $plain = $form['plainPassword']->getData();
-          $user->setPassword($passwordEncoder->encodePassword(
-              $user,
-              $plain
-          ));
-          $em->persist($user);
-          $em->flush();
+            $user = $form->getData();
+            $user->setCreated(new \DateTime('now'));
+            $rand = $this->randomString();
+            $user->setVerification($rand);
+            $plain = $form['plainPassword']->getData();
+            $user->setPassword($passwordEncoder->encodePassword(
+                $user,
+                $plain
+            ));
+            $em->persist($user);
+            $em->flush();
 
-          $this->sendEmail('email.html.twig', $user, $rand, 'Welcome to Amply');
+            $this->sendEmail('email.html.twig', $user, $rand, 'Welcome to Amply');
 
-          return $guardHandler->authenticateUserAndHandleSuccess(
-              $user,
-              $request,
-              $formAuthenticator,
-              'main'
-          );
+            return $guardHandler->authenticateUserAndHandleSuccess(
+                $user,
+                $request,
+                $formAuthenticator,
+                'main'
+            );
         }
 
         return $this->render('user/registers.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -137,20 +131,19 @@ class UserController extends Controller
 
     /**
      * @Route("/admin/account", name="account")
-     * @param Request $request
      **/
-    public function updateProfile(Request $request)
+    public function updateProfile()
     {
         $user = $this->getUser();
         if (isset($_POST['company'])) {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
             $user->setCompany($_POST['company']);
             $user->setTelephone($_POST['telephone']);
             $user->setAddress($_POST['address']);
             $user->setState($_POST['state']);
             $now = new \DateTime('now');
             $user->setModified($now);
-            if ($logo = $this->upload("logo", 300)) {
+            if ($logo = $this->upload('logo', 300)) {
                 $user->setLogo($logo);
             }
 
@@ -165,15 +158,16 @@ class UserController extends Controller
             return $this->redirectToRoute('account');
         }
 
-        return $this->render('Users/profile.html.twig', array('title' => 'Account', 'user' => $user));
+        return $this->render('Users/profile.html.twig', ['title' => 'Account', 'user' => $user]);
     }
 
     /**
-     * [sendEmail description]
-     * @param  string $view    The view to render
-     * @param  Users $user    The user to send the email to
-     * @param  string $rand    Random string
-     * @param  string $subject Email subject
+     * [sendEmail description].
+     *
+     * @param string $view    The view to render
+     * @param Users  $user    The user to send the email to
+     * @param string $rand    Random string
+     * @param string $subject Email subject
      */
     private function sendEmail($view, $user, $rand, $subject)
     {
@@ -182,7 +176,7 @@ class UserController extends Controller
             [
                 'name' => $user->getCompany(),
                 'token' => $rand,
-                'host' => getenv('HOST_URL')
+                'host' => getenv('HOST_URL'),
             ]
         );
         $response = $this->ses->sendEmail($user->getEmail(), $subject, $message);
@@ -194,9 +188,9 @@ class UserController extends Controller
      * @Route("/admin/users/verification/resend", name="resendveremail")
      *
      **/
-    public function resendVerEmail()
+    public function resendVerEmail(): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $user = $this->getUser();
         $rand = $user->getVerification();
 
@@ -206,8 +200,10 @@ class UserController extends Controller
     }
 
     /**
-     * Generate a random string for email verification
+     * Generate a random string for email verification.
+     *
      * @param int $length
+     *
      * @return string
      **/
     private function randomString($length = 32)
@@ -215,19 +211,19 @@ class UserController extends Controller
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
+
         return $randomString;
     }
 
     /**
      * @Route("/email/verify/{token}", name="verify_email")
      *
-     * @param string $token
      * @return bool
      **/
-    public function verifyEmail(String $token)
+    public function verifyEmail(string $token): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(Users::class)->findOneBy(['verification' => $token]);
@@ -237,9 +233,9 @@ class UserController extends Controller
                 'danger',
                 'Verification link invalid!!!'
             );
-        }else {
+        } else {
             $user->setEnabled(true);
-            $user->setVerification(NULL);
+            $user->setVerification(null);
             $em->persist($user);
             $em->flush();
 
@@ -248,18 +244,19 @@ class UserController extends Controller
                 'Email verified successfully'
             );
         }
+
         return $this->redirectToRoute('app_login');
     }
 
     /**
      * @Route("/password/reset", name="password_email")
+     *
      * @param SESEmailClient $ses SES helper class
-     * @return Response
      **/
-    public function resetPassword(SESEmailClient $ses)
+    public function resetPassword(SESEmailClient $ses): Response
     {
         $email = '';
-        $error = NULL;
+        $error = null;
         if (isset($_POST['submit'])) {
             $email = $_POST['email'];
             $em = $this->getDoctrine()->getManager();
@@ -277,6 +274,7 @@ class UserController extends Controller
 
             $error = 'Email not registered to any account';
         }
+
         return $this->render('Users/passwordreset.html.twig', ['email' => $email, 'error' => $error]);
     }
 
@@ -292,7 +290,7 @@ class UserController extends Controller
         if ($user) {
             return $this->render('Users/passwordchange.html.twig', [
                 'email' => $user->getEmail(),
-                'token' => $token
+                'token' => $token,
             ]);
         }
 
@@ -304,7 +302,7 @@ class UserController extends Controller
      *
      * @param UserPasswordEncoder $passwordEncoder
      **/
-    public function passwordChange(UserPasswordEncoderInterface $passwordEncoder)
+    public function passwordChange(UserPasswordEncoderInterface $passwordEncoder): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(Users::class)->findOneBy(['email' => $_POST['email']]);
@@ -323,7 +321,7 @@ class UserController extends Controller
                 'success',
                 'Password changed successfully'
             );
-        }else {
+        } else {
             $this->addFlash(
                 'error',
                 'Password could not be changed at this time. Try again later'
@@ -335,8 +333,6 @@ class UserController extends Controller
 
     /**
      * @Route("/login", name="app_login")
-     * @param AuthenticationUtils $authenticationUtils
-     * @return Response
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -344,7 +340,7 @@ class UserController extends Controller
             return $this->redirectToRoute('admin');
         }
 
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+        if ($this->authorizationChecker->isGranted('ROLE_USER')) {
             $this->redirectToRoute('admin');
         }
         // get the login error if there is one
@@ -357,9 +353,8 @@ class UserController extends Controller
 
     /**
      * @Route("/ajax/login", name="ajax_login")
-     * @param Request $request
      **/
-    public function rlogin(Request $request)
+    public function rlogin(): Response
     {
         return $this->render('user/rlogin.html.twig');
     }
