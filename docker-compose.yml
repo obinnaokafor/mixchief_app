@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # PHP Service with Apache
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mixchief-app
+    container_name: mixchief-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - mixchief-network
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: mixchief-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: mixchief
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: mixchief
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - mixchief-network
+
+# Networks
+networks:
+  mixchief-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata: 
