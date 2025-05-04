@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Groups
+ * Groups.
  *
  * @ORM\Table(name="category")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\GroupsRepository")
  */
 class Groups
@@ -18,7 +18,9 @@ class Groups
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -31,7 +33,7 @@ class Groups
     private $name;
 
     /**
-     * @var \App\Entity\Item
+     * @var Item
      *
      * @ORM\OneToMany(targetEntity="App\Entity\Item", mappedBy="category")
      */
@@ -50,7 +52,7 @@ class Groups
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -64,7 +66,7 @@ class Groups
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -73,9 +75,8 @@ class Groups
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -85,7 +86,7 @@ class Groups
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
      *
@@ -99,7 +100,7 @@ class Groups
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -109,7 +110,7 @@ class Groups
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */

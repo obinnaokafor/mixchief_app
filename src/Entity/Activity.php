@@ -11,7 +11,9 @@ class Activity
 {
     /**
      * @ORM\Id()
+     *
      * @ORM\GeneratedValue()
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -40,7 +42,6 @@ class Activity
      * @ORM\Column(type="integer", name="entity_id", nullable=true)
      */
     private $entityId;
-
 
     public function getId(): ?int
     {
@@ -84,7 +85,7 @@ class Activity
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -98,7 +99,7 @@ class Activity
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -108,7 +109,7 @@ class Activity
     }
 
     /**
-     * Set entityId
+     * Set entityId.
      *
      * @param int $entityId
      *
@@ -122,7 +123,7 @@ class Activity
     }
 
     /**
-     * Get entityId
+     * Get entityId.
      *
      * @return int
      */

@@ -12,7 +12,9 @@ class OrderDelivery
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -59,6 +61,7 @@ class OrderDelivery
 
     /**
      * @ORM\OneToOne(targetEntity=Orders::class, inversedBy="delivery", cascade={"persist", "remove"})
+     *
      * @ORM\JoinColumn(nullable=false)
      */
     private $orders;

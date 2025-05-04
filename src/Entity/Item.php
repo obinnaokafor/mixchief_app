@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Item
+ * Item.
  *
  * @ORM\Table(name="item")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\ItemRepository")
  */
 class Item
@@ -16,7 +17,9 @@ class Item
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -63,7 +66,6 @@ class Item
      */
     private $category;
 
-
     /**
      * @var string
      *
@@ -86,7 +88,7 @@ class Item
     private $userId;
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -100,7 +102,7 @@ class Item
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -109,9 +111,8 @@ class Item
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -121,7 +122,7 @@ class Item
     }
 
     /**
-     * Set name
+     * Set name.
      *
      * @param string $name
      *
@@ -135,7 +136,7 @@ class Item
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -145,7 +146,7 @@ class Item
     }
 
     /**
-     * Set description
+     * Set description.
      *
      * @param string $description
      *
@@ -159,7 +160,7 @@ class Item
     }
 
     /**
-     * Get description
+     * Get description.
      *
      * @return string
      */
@@ -169,7 +170,7 @@ class Item
     }
 
     /**
-     * Set category
+     * Set category.
      *
      * @param string $category
      *
@@ -183,7 +184,7 @@ class Item
     }
 
     /**
-     * Get category
+     * Get category.
      *
      * @return string
      */
@@ -193,7 +194,7 @@ class Item
     }
 
     /**
-     * Set sellingPrice
+     * Set sellingPrice.
      *
      * @param float $sellingPrice
      *
@@ -207,7 +208,7 @@ class Item
     }
 
     /**
-     * Get sellingPrice
+     * Get sellingPrice.
      *
      * @return float
      */
@@ -217,7 +218,7 @@ class Item
     }
 
     /**
-     * Set deleted
+     * Set deleted.
      *
      * @param float $deleted
      *
@@ -231,9 +232,9 @@ class Item
     }
 
     /**
-     * Get deleted
+     * Get deleted.
      *
-     * @return boolean
+     * @return bool
      */
     public function getDeleted()
     {
@@ -241,7 +242,7 @@ class Item
     }
 
     /**
-     * Set discount
+     * Set discount.
      *
      * @param float $discount
      *
@@ -255,7 +256,7 @@ class Item
     }
 
     /**
-     * Get discount
+     * Get discount.
      *
      * @return float
      */
@@ -265,9 +266,9 @@ class Item
     }
 
     /**
-     * Set cId
+     * Set cId.
      *
-     * @param integer $cId
+     * @param int $cId
      *
      * @return Item
      */
@@ -279,7 +280,7 @@ class Item
     }
 
     /**
-     * Get cId
+     * Get cId.
      *
      * @return int
      */
@@ -289,7 +290,7 @@ class Item
     }
 
     /**
-     * Set img
+     * Set img.
      *
      * @param string $img
      *
@@ -303,7 +304,7 @@ class Item
     }
 
     /**
-     * Get img
+     * Get img.
      *
      * @return string
      */

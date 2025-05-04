@@ -7,9 +7,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Stock
+ * Stock.
  *
  * @ORM\Table(name="stock")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\StockRepository")
  */
 class Stock
@@ -18,7 +19,9 @@ class Stock
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -69,7 +72,7 @@ class Stock
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -83,7 +86,7 @@ class Stock
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -92,9 +95,8 @@ class Stock
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -104,9 +106,9 @@ class Stock
     }
 
     /**
-     * Set name
+     * Set name.
      *
-     * @param String $name
+     * @param string $name
      *
      * @return Stock
      */
@@ -118,7 +120,7 @@ class Stock
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return string
      */
@@ -128,7 +130,7 @@ class Stock
     }
 
     /**
-     * Set deleted
+     * Set deleted.
      *
      * @param float $deleted
      *
@@ -142,9 +144,9 @@ class Stock
     }
 
     /**
-     * Get deleted
+     * Get deleted.
      *
-     * @return boolean
+     * @return bool
      */
     public function getDeleted()
     {
@@ -152,7 +154,7 @@ class Stock
     }
 
     /**
-     * Set quantity
+     * Set quantity.
      *
      * @param float $quantity
      *
@@ -166,7 +168,7 @@ class Stock
     }
 
     /**
-     * Get quantity
+     * Get quantity.
      *
      * @return float
      */
@@ -176,7 +178,7 @@ class Stock
     }
 
     /**
-     * Set unit
+     * Set unit.
      *
      * @param string $unit
      *
@@ -190,7 +192,7 @@ class Stock
     }
 
     /**
-     * Get unit
+     * Get unit.
      *
      * @return string
      */
@@ -229,4 +231,3 @@ class Stock
         return $this;
     }
 }
-

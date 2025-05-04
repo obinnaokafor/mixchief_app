@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Orders
+ * Orders.
  *
  * @ORM\Table(name="orders")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\OrdersRepository")
  */
 class Orders
@@ -16,7 +17,9 @@ class Orders
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -107,7 +110,7 @@ class Orders
     private $confirmed;
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -121,7 +124,7 @@ class Orders
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -136,7 +139,7 @@ class Orders
     }
 
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -146,7 +149,7 @@ class Orders
     }
 
     /**
-     * Set customer
+     * Set customer.
      *
      * @param Customer $customer
      *
@@ -160,7 +163,7 @@ class Orders
     }
 
     /**
-     * Get customer
+     * Get customer.
      *
      * @return Customer
      */
@@ -170,7 +173,7 @@ class Orders
     }
 
     /**
-     * Set phone
+     * Set phone.
      *
      * @param Phone $phone
      *
@@ -184,7 +187,7 @@ class Orders
     }
 
     /**
-     * Get phone
+     * Get phone.
      *
      * @return Phone
      */
@@ -194,7 +197,7 @@ class Orders
     }
 
     /**
-     * Set date
+     * Set date.
      *
      * @param \DateTime $date
      *
@@ -208,7 +211,7 @@ class Orders
     }
 
     /**
-     * Get date
+     * Get date.
      *
      * @return \DateTime
      */
@@ -218,7 +221,7 @@ class Orders
     }
 
     /**
-     * Set date
+     * Set date.
      *
      * @param \DateTime $date
      *
@@ -232,7 +235,7 @@ class Orders
     }
 
     /**
-     * Get date
+     * Get date.
      *
      * @return \DateTime
      */
@@ -242,7 +245,7 @@ class Orders
     }
 
     /**
-     * Set amount
+     * Set amount.
      *
      * @param float $amount
      *
@@ -256,7 +259,7 @@ class Orders
     }
 
     /**
-     * Get amount
+     * Get amount.
      *
      * @return float
      */
@@ -266,7 +269,7 @@ class Orders
     }
 
     /**
-     * Set status
+     * Set status.
      *
      * @param string $status
      *
@@ -280,7 +283,7 @@ class Orders
     }
 
     /**
-     * Get status
+     * Get status.
      *
      * @return string
      */
@@ -290,7 +293,7 @@ class Orders
     }
 
     /**
-     * Set payment
+     * Set payment.
      *
      * @param string $payment
      *
@@ -304,7 +307,7 @@ class Orders
     }
 
     /**
-     * Get payment
+     * Get payment.
      *
      * @return string
      */
@@ -314,7 +317,7 @@ class Orders
     }
 
     /**
-     * Set comment
+     * Set comment.
      *
      * @param string $comment
      *
@@ -328,7 +331,7 @@ class Orders
     }
 
     /**
-     * Get comment
+     * Get comment.
      *
      * @return string
      */
@@ -338,7 +341,7 @@ class Orders
     }
 
     /**
-     * Set discount
+     * Set discount.
      *
      * @param float $discount
      *
@@ -352,7 +355,7 @@ class Orders
     }
 
     /**
-     * Get discount
+     * Get discount.
      *
      * @return float
      */

@@ -12,7 +12,9 @@ class Spillage
 {
     /**
      * @ORM\Id
+     *
      * @ORM\GeneratedValue
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -29,6 +31,7 @@ class Spillage
 
     /**
      * @ORM\ManyToOne(targetEntity=Stock::class, inversedBy="spillages")
+     *
      * @ORM\JoinColumn(nullable=false)
      */
     private $stock;
@@ -51,7 +54,7 @@ class Spillage
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -65,7 +68,7 @@ class Spillage
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */

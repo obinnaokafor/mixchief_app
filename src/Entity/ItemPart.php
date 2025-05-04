@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ItemPart
+ * ItemPart.
  *
  * @ORM\Table(name="item_part")
+ *
  * @ORM\Entity(repositoryClass="App\Repository\ItemPartRepository")
  */
 class ItemPart
@@ -16,7 +17,9 @@ class ItemPart
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -50,7 +53,7 @@ class ItemPart
     private $userId;
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -64,7 +67,7 @@ class ItemPart
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
@@ -73,9 +76,8 @@ class ItemPart
         return $this->userId;
     }
 
-
     /**
-     * Get id
+     * Get id.
      *
      * @return int
      */
@@ -85,9 +87,9 @@ class ItemPart
     }
 
     /**
-     * Set itemId
+     * Set itemId.
      *
-     * @param integer $itemId
+     * @param int $itemId
      *
      * @return ItemPart
      */
@@ -99,7 +101,7 @@ class ItemPart
     }
 
     /**
-     * Get itemId
+     * Get itemId.
      *
      * @return int
      */
@@ -109,9 +111,9 @@ class ItemPart
     }
 
     /**
-     * Set stockId
+     * Set stockId.
      *
-     * @param integer $stockId
+     * @param int $stockId
      *
      * @return ItemPart
      */
@@ -123,7 +125,7 @@ class ItemPart
     }
 
     /**
-     * Get stockId
+     * Get stockId.
      *
      * @return int
      */
@@ -133,7 +135,7 @@ class ItemPart
     }
 
     /**
-     * Set portion
+     * Set portion.
      *
      * @param float $portion
      *
@@ -147,7 +149,7 @@ class ItemPart
     }
 
     /**
-     * Get portion
+     * Get portion.
      *
      * @return float
      */
@@ -156,4 +158,3 @@ class ItemPart
         return $this->portion;
     }
 }
-

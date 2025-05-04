@@ -11,7 +11,9 @@ class Transaction
 {
     /**
      * @ORM\Id()
+     *
      * @ORM\GeneratedValue()
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -42,10 +44,11 @@ class Transaction
     private $paystack_auth;
 
     /**
-     * Last four digits of card
+     * Last four digits of card.
+     *
      * @ORM\Column(type="integer", nullable=true)
      *
-     * @var integer
+     * @var int
      **/
     private $last_four;
 
@@ -114,18 +117,11 @@ class Transaction
         return $this;
     }
 
-    /**
-     * @return String
-     */   
     public function getPaystackAuth(): ?string
     {
         return $this->paystack_auth;
     }
 
-     /**
-     * @param String $paystack_auth
-     * @return self
-     */   
     public function setPaystackAuth(string $paystack_auth): self
     {
         $this->paystack_auth = $paystack_auth;

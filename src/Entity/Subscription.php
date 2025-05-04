@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Users;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SubscriptionRepository")
@@ -12,7 +11,9 @@ class Subscription
 {
     /**
      * @ORM\Id()
+     *
      * @ORM\GeneratedValue()
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -58,7 +59,6 @@ class Subscription
      * @ORM\Column(name="renew", type="boolean")
      */
     private $renew;
-
 
     public function getId(): ?int
     {

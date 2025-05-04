@@ -11,7 +11,9 @@ class Customer
 {
     /**
      * @ORM\Id()
+     *
      * @ORM\GeneratedValue()
+     *
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -56,7 +58,7 @@ class Customer
     }
 
     /**
-     * Set userId
+     * Set userId.
      *
      * @param int $userId
      *
@@ -70,7 +72,7 @@ class Customer
     }
 
     /**
-     * Get userId
+     * Get userId.
      *
      * @return int
      */
