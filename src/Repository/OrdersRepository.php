@@ -114,26 +114,28 @@ class OrdersRepository extends \Doctrine\ORM\EntityRepository
             ->getResult();
     }
 
-    public function printReport($dates)
+    public function printReport($dates, $user)
     {
         $date = date('Y-m-d');
 
         return $this->getEntityManager()
             ->createQuery(
-                'SELECT g.name as group_name, i.name as item_name, i.id as item_id, sum(oi.quantity) as quantity, sum((oi.price*oi.quantity)) as item_price, sum(oi.discount) as discount from App\Entity\Item i, App\Entity\Groups g, App\Entity\Orders o, App\Entity\OrderItem oi where oi.itemId = i.id and oi.orderId = o.id and i.cId = g.id and o.date > :dates group by g.name, i.name, i.id'
-            )->setParameter('dates', '2017-08-31')
+                'SELECT g.name as group_name, i.name as item_name, i.id as item_id, sum(oi.quantity) as quantity, sum((oi.price*oi.quantity)) as item_price, sum(oi.discount) as discount from App\Entity\Item i, App\Entity\Groups g, App\Entity\Orders o, App\Entity\OrderItem oi where oi.itemId = i.id and oi.orderId = o.id and i.cId = g.id and o.date > :dates and o.userId = :user group by g.name, i.name, i.id'
+            )->setParameter('dates', $dates)
+            ->setParameter('user', $user)
             ->getResult();
     }
 
-    // public function findCancelled($dates)
-    // {
-    //     return $this->getEntityManager()
-    //         ->createQuery(
-    //             'SELECT (:cancelled) as group_name, (:void) as cat_name, i.name as item_name, sum(c.price) as item_price, (:price) as discount, sum(c.quantity) as quantity from App\Entity\Item i, App\Entity\Cancelled c, App\Entity\Orders o where i.id = c.itemId and o.id = c.orderId and c.date > :dates group by group_name, cat_name, i.name'
-    //         )->setParameter('dates', '2017-08-31')
-    //         ->setParameter('cancelled', 'CANCELLED')
-    //         ->setParameter('void', 'VOID')
-    //         ->setParameter('price', 0)
-    //         ->getResult();
-    // }
+    public function findCancelled($dates, $user)
+    {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT (:cancelled) as group_name, (:void) as cat_name, i.name as item_name, sum(c.price) as item_price, (:price) as discount, sum(c.quantity) as quantity from App\Entity\Item i, App\Entity\Cancelled c, App\Entity\Orders o where i.id = c.itemId and o.id = c.orderId and c.date > :dates and o.userId = :user group by group_name, cat_name, i.name'
+            )->setParameter('dates', $dates)
+            ->setParameter('user', $user)
+            ->setParameter('cancelled', 'CANCELLED')
+            ->setParameter('void', 'VOID')
+            ->setParameter('price', 0)
+            ->getResult();
+    }
 }

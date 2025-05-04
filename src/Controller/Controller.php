@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Users;
 use App\Service\ImageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\Persistence\ManagerRegistry;
 use Tinify;
 
 /**
@@ -14,14 +15,18 @@ class Controller extends AbstractController
 {
     protected $imageManager;
 
-    public function __construct(ImageManager $imageManager)
+    protected $em;
+
+    public function __construct(ImageManager $imageManager, ManagerRegistry $doctrine)
     {
         $this->imageManager = $imageManager;
+        $this->em = $doctrine->getManager();
+
     }
 
     public function user()
     {
-        return $this->getDoctrine()->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
+        return $this->em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
     }
 
     /**
@@ -32,7 +37,7 @@ class Controller extends AbstractController
      *
      * @return string Uploaded image path
      */
-    public function upload($file, $width, $name)
+    public function upload($file, $width)
     {
         // if ($_FILES[$file]["name"]) {
         //    	$filename = basename($_FILES[$file]["name"]);

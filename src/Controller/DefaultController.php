@@ -33,25 +33,20 @@ class DefaultController extends Controller
         $this->paystackHelper = $paystackHelper;
     }
 
-    /**
-     * @Route("/", name="homepage")
-     **/
+    #[Route("/", name: "homepage")]
     public function index(): Response
     {
         // return $this->redirectToRoute('app_login');
         return $this->render('index.html.twig');
     }
 
-    /**
-     * @Route("/shop", name="shop")
-     **/
+    #[Route("/shop", name: "shop")]
     public function shop(): Response
     {
         // return $this->redirectToRoute('app_login');
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
-        $items = $em->getRepository(Item::class)->findBy(['userId' => $user->getId()]);
-        $categories = $em->getRepository(Groups::class)->findBy(['userId' => $user->getId()]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
+        $items = $this->em->getRepository(Item::class)->findBy(['userId' => $user->getId()]);
+        $categories = $this->em->getRepository(Groups::class)->findBy(['userId' => $user->getId()]);
 
         return $this->render('Default/shop.html.twig', ['items' => $items, 'categories' => $categories]);
     }
@@ -120,8 +115,7 @@ class DefaultController extends Controller
 
     private function getOrCreateCustomer($data, $user_id)
     {
-        $em = $this->getDoctrine()->getManager();
-        $customer = $em->getRepository(Customer::class)->findOneBy(['email' => $data['email'], 'userId' => $user_id]);
+        $customer = $this->em->getRepository(Customer::class)->findOneBy(['email' => $data['email'], 'userId' => $user_id]);
         if (!$customer) {
             $customer = new Customer();
         }
@@ -130,8 +124,8 @@ class DefaultController extends Controller
         $customer->setTelephone($data['phone']);
         $customer->setAddress($data['address']);
         $customer->setUserId($user_id);
-        $em->persist($customer);
-        $em->flush();
+        $this->em->persist($customer);
+        $this->em->flush();
 
         return $customer;
     }
@@ -157,8 +151,7 @@ class DefaultController extends Controller
         $deliveryAmount = 1500;
 
         $post = $request->request->all();
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
         $order = new Orders();
         $order->setUserId($user->getId());
         $order->setDate(new \DateTime('now'));
@@ -177,7 +170,7 @@ class DefaultController extends Controller
         $orderTotal = 0;
 
         foreach ($orderItems as $orderItem) {
-            $item = $em->getRepository(Item::class)->find($orderItem['item']);
+            $item = $this->em->getRepository(Item::class)->find($orderItem['item']);
             $it = [];
             $it['item_id'] = $item->getId();
             $it['quantity'] = $orderItem['quantity'];
@@ -192,8 +185,8 @@ class DefaultController extends Controller
         $orderPayment = $this->paystackHelper->orderPayment($order, $deliveryAmount);
         if ($orderPayment) {
             $order->setPaymentReference($orderPayment['reference']);
-            $em->persist($order);
-            $em->flush();
+            $this->em->persist($order);
+            $this->em->flush();
             // save delivery information
             $delivery = new OrderDelivery();
             $delivery->setOrders($order);
@@ -205,7 +198,7 @@ class DefaultController extends Controller
             $delivery->setStatus('pending');
             $delivery->setAmount($deliveryAmount);
             $delivery->setUserId($user->getId());
-            $em->persist($delivery);
+            $this->em->persist($delivery);
 
             foreach ($items as $item) {
                 $orderItem = new OrderItem();
@@ -214,9 +207,9 @@ class DefaultController extends Controller
                 $orderItem->setQuantity($item['quantity']);
                 $orderItem->setPrice($item['price']);
                 $orderItem->setUserId($user->getId());
-                $em->persist($orderItem);
+                $this->em->persist($orderItem);
             }
-            $em->flush();
+            $this->em->flush();
 
             return $this->redirect($orderPayment['url']);
         } else {
@@ -230,8 +223,7 @@ class DefaultController extends Controller
     public function paymentCallback(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $reference = $request->get('reference');
-        $em = $this->getDoctrine()->getManager();
-        $order = $em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference]);
+        $order = $this->em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference]);
         if ($order->getConfirmed() || !$order) {
             return $this->redirectToRoute('homepage');
         }
@@ -242,8 +234,8 @@ class DefaultController extends Controller
             return $this->redirectToRoute('checkout', ['error' => 'An error occured while verifying payment']);
         } else {
             $order->setStatus('paid');
-            $em->persist($order);
-            $em->flush();
+            $this->em->persist($order);
+            $this->em->flush();
         }
 
         // $em = $this->getDoctrine()->getManager();
@@ -256,14 +248,13 @@ class DefaultController extends Controller
      **/
     public function confirmation($reference)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
-        $order = $em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference, 'userId' => $user->getId()]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => 'hello@themixchief.com']);
+        $order = $this->em->getRepository(Orders::class)->findOneBy(['payment_reference' => $reference, 'userId' => $user->getId()]);
         if (!$order || $order->getConfirmed()) {
             return $this->redirectToRoute('homepage');
         }
-        $orderItems = $em->getRepository(OrderItem::class)->findOrderItems($order->getId(), $user->getId());
-        $delivery = $em->getRepository(OrderDelivery::class)->findOneBy(['orders' => $order->getId(), 'user_id' => $user->getId()]);
+        $orderItems = $this->em->getRepository(OrderItem::class)->findOrderItems($order->getId(), $user->getId());
+        $delivery = $this->em->getRepository(OrderDelivery::class)->findOneBy(['orders' => $order->getId(), 'user_id' => $user->getId()]);
         $total = $delivery->getAmount();
         foreach ($orderItems as $item) {
             $total += $item['price'] * $item['quantity'];
@@ -282,8 +273,8 @@ class DefaultController extends Controller
         $this->ses->sendEmail('hello@themixchief.com', 'Receipt for order', $message);
         $this->ses->sendEmail($delivery->getEmail(), 'Receipt for order', $message);
         $order->setConfirmed(true);
-        $em->persist($order);
-        $em->flush();
+        $this->em->persist($order);
+        $this->em->flush();
 
         return $this->render('Default/orderconfirmation.html.twig', ['order' => $order, 'orderItems' => $orderItems, 'delivery' => $delivery, 'total' => $total]);
     }
@@ -310,7 +301,7 @@ class DefaultController extends Controller
     public function posItems(): JsonResponse
     {
         $user = $this->getUser()->getId();
-        $products = $this->getDoctrine()
+        $products = $this->em
                         ->getRepository(Item::class)->findPointOfSale($user);
         $response = new JsonResponse();
         $response->setData($products);
@@ -332,11 +323,10 @@ class DefaultController extends Controller
         $yes->modify('-1 day');
         $now = new \DateTime('now');
         $prev = new \DateTime('now');
-        $em = $this->getDoctrine()->getManager();
-        $subscription = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
+        $subscription = $this->em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
         // Get today's and yesterday's total
-        $today = $em->getRepository(Orders::class)->salesTotal($user->getId(), $tod, $now);
-        $yesterday = $em->getRepository(Orders::class)->salesTotal($user->getId(), $yes, $tod);
+        $today = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $tod, $now);
+        $yesterday = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $yes, $tod);
         $dow = date('w');
         $tweek = date('d-m-Y', strtotime('-'.$dow.' days'));
         $lweek = date('d-m-Y', strtotime('-'.$dow.' days'));
@@ -348,14 +338,14 @@ class DefaultController extends Controller
         $bom = new \DateTime($m);
         $bolm = new \DateTime($m);
         $bolm->modify('-1 month');
-        $thisWeekTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bow, $now);
-        $lastWeekTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bolw, $bow);
-        $thisMonthTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bom, $now);
-        $lastMonthTotal = $em->getRepository(Orders::class)->salesTotal($user->getId(), $bolm, $bom);
-        $salesmonth = $em->getRepository(Orders::class)->salesPeriod($user->getId(), date('Y-m-01 H:i:s'), $now->format('Y-m-d H:i:s'));
+        $thisWeekTotal = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $bow, $now);
+        $lastWeekTotal = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $bolw, $bow);
+        $thisMonthTotal = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $bom, $now);
+        $lastMonthTotal = $this->em->getRepository(Orders::class)->salesTotal($user->getId(), $bolm, $bom);
+        $salesmonth = $this->em->getRepository(Orders::class)->salesPeriod($user->getId(), date('Y-m-01 H:i:s'), $now->format('Y-m-d H:i:s'));
         $denominator = $yesterday ?: 1;
         $increase = $today ? (($today - $yesterday) / $denominator) * 100 : 0;
-        $activities = $this->getDoctrine()->getRepository(Activity::class)->findBy(['userId' => $user->getId()], ['date' => 'DESC'], 15);
+        $activities = $this->em->getRepository(Activity::class)->findBy(['userId' => $user->getId()], ['date' => 'DESC'], 15);
         $diff = '';
         $stat = '';
         // $diff = $prev >= $user->getCreated();
@@ -380,8 +370,8 @@ class DefaultController extends Controller
     public function all(): JsonResponse
     {
         $user = $this->getUser();
-        $cats = $this->getDoctrine()->getRepository(Groups::class)->findAll();
-        $items = $this->getDoctrine()->getRepository(Item::class)->findAll();
+        $cats = $this->em->getRepository(Groups::class)->findAll();
+        $items = $this->em->getRepository(Item::class)->findAll();
 
         $response = new JsonResponse();
         $response->setData($cats);
@@ -396,7 +386,7 @@ class DefaultController extends Controller
     {
         $user = $this->getUser();
         // $products = "Mike";
-        $products = $this->getDoctrine()
+        $products = $this->em
                         ->getRepository(Item::class)->findPointOfSaleDrinks();
         $response = new JsonResponse();
         $response->setData(json_encode($products));
@@ -413,7 +403,7 @@ class DefaultController extends Controller
     public function pos(): Response
     {
         $user = $this->getUser()->getId();
-        $lastOrder = $this->getDoctrine()
+        $lastOrder = $this->em
                         ->getRepository(Orders::class)->findLastOrder($user);
 
         return $this->render('POS/index.html.twig', ['title' => 'EPOS']);
@@ -424,11 +414,11 @@ class DefaultController extends Controller
      */
     public function posDrinks(): Response
     {
-        $waiter = $this->getDoctrine()
+        $waiter = $this->em
                         ->getRepository(Staff::class)->findBy(['role' => 'Waiter']);
-        $table = $this->getDoctrine()
+        $table = $this->em
                         ->getRepository(Tables::class)->findAll();
-        $lastOrder = $this->getDoctrine()
+        $lastOrder = $this->em
                         ->getRepository(Orders::class)->findLastOrder();
 
         return $this->render('POS/index.html.twig', ['title' => 'EPOS', 'waiter' => $waiter, 'table' => $table]);

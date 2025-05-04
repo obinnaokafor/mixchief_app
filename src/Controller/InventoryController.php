@@ -10,6 +10,7 @@ use App\Entity\ItemPart;
 use App\Entity\OrderItem;
 use App\Entity\Orders;
 use App\Entity\Stock;
+use App\Entity\Supplier;
 use App\Entity\Supply;
 use App\Entity\SupplyItem;
 use App\Service\ImageManager;
@@ -26,19 +27,15 @@ class InventoryController extends Controller
         $this->imageManager = $imageManager;
     }
 
-    /**
-     * @Route("/admin/items", name="registerItem", methods={"POST"})
-     */
+    #[Route("/admin/items", name: "registerItem", methods: ["POST"])]
     public function register()
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        // $data = json_decode($request->getContent(), true);
         $data = $_POST;
         // return $this->json($data);
         for ($i = 0; $i < count($data['name']); ++$i) {
-            $item = $em->getRepository(Item::class)->findOneBy(['name' => $data['name'][$i], 'userId' => $user]);
-            $category = $em->getRepository(Groups::class)->findOneBy(['userId' => $user, 'id' => $data['category'][$i]]);
+            $item = $this->em->getRepository(Item::class)->findOneBy(['name' => $data['name'][$i], 'userId' => $user]);
+            $category = $this->em->getRepository(Groups::class)->findOneBy(['userId' => $user, 'id' => $data['category'][$i]]);
 
             // If there is a duplicate name, check if the item was soft deleted else return error
             if ($item && $item->getDeleted()) {
@@ -78,18 +75,18 @@ class InventoryController extends Controller
             $item->setCategory($category);
             // $item->setIcon($data['icon']);
 
-            $em->persist($item);
-            $em->persist($stock);
-            $em->flush();
+            $this->em->persist($item);
+            $this->em->persist($stock);
+            $this->em->flush();
 
             $part = new ItemPart();
             $part->setItemId($item->getId());
             $part->setStockId($stock->getId());
             $part->setPortion(1);
             $part->setUserId($user);
-            $em->persist($part);
+            $this->em->persist($part);
         }
-        $em->flush();
+        $this->em->flush();
         $url = $this->generateUrl(
             'item',
             ['id' => $item->getId()]
@@ -99,14 +96,11 @@ class InventoryController extends Controller
         // return $this->json($item, 201, ['Location' => $url]);
     }
 
-    /**
-     * @Route("/admin/inventory/all", name="allinventory")
-     *
-     **/
+    #[Route("/admin/inventory/all", name: "allinventory")]
     public function inventory(): JsonResponse
     {
         $user = $this->getUser()->getId();
-        $stock = $this->getDoctrine()->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
+        $stock = $this->em->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
 
         return $this->json($stock);
     }
@@ -119,31 +113,31 @@ class InventoryController extends Controller
      *
      * @Route("/admin/delete/{query}/{id}", name="delete")
      */
+    #[Route("/admin/delete/{query}/{id}", name: "delete")]
     public function delete($query, $id)
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository("App\Entity\\$query")->findOneBy(['id' => $id, 'userId' => $user]);
+        $item = $this->em->getRepository("App\Entity\\$query")->findOneBy(['id' => $id, 'userId' => $user]);
 
         if ($item && in_array($query, ['Category', 'Supply', 'Orders', 'Item', 'Stock', 'Supplier'])) {
             switch ($query) {
                 case 'Supplier':
-                    $this->getDoctrine()->getRepository(Supply::class)->deleteSuppliesBySupplier($id, $user);
+                    $this->em->getRepository(Supply::class)->deleteSuppliesBySupplier($id, $user);
                     break;
                 case 'Supply':
-                    $this->getDoctrine()->getRepository(SupplyItem::class)->deleteSupplyItems($id, $user);
+                    $this->em->getRepository(SupplyItem::class)->deleteSupplyItems($id, $user);
                     break;
                 case 'Item':
-                    $this->getDoctrine()->getRepository(ItemPart::class)->deleteByItem($id, $user);
+                    $this->em->getRepository(ItemPart::class)->deleteByItem($id, $user);
                     break;
                 case 'Stock':
-                    $this->getDoctrine()->getRepository(ItemPart::class)->deleteByStock($id, $user);
+                    $this->em->getRepository(ItemPart::class)->deleteByStock($id, $user);
                     break;
                 case 'Orders':
-                    $this->getDoctrine()->getRepository(OrderItem::class)->deleteByOrder($id, $user);
+                    $this->em->getRepository(OrderItem::class)->deleteByOrder($id, $user);
                     break;
                 case 'Category':
-                    $this->getDoctrine()->getRepository(Item::class)->deleteByCategory($id, $user);
+                    $this->em->getRepository(Item::class)->deleteByCategory($id, $user);
                     break;
                 default:
                     break;
@@ -166,19 +160,20 @@ class InventoryController extends Controller
      *
      * @Route("/admin/items/{id}", name="item", methods={"GET"})
      */
+    #[Route("/admin/items/{id}", name: "item", methods: ["GET"])]
     public function items($id = null): Response
     {
         $user = $this->getUser()->getId();
         // dd($user);
         if ($id) {
-            $item = $this->getDoctrine()->getRepository(Item::class)->find($id);
-            $itempart = $this->getDoctrine()->getRepository(ItemPart::class)->findItem($id, $user);
+            $item = $this->em->getRepository(Item::class)->find($id);
+            $itempart = $this->em->getRepository(ItemPart::class)->findItem($id, $user);
 
             // var_dump($itempart);die;
             return $this->render('Inventory/item.html.twig', ['title' => 'Item', 'item' => $item, 'itempart' => $itempart]);
         }
-        $items = $this->getDoctrine()->getRepository(Item::class)->findBy(['userId' => $user, 'deleted' => null]);
-        $category = $this->getDoctrine()->getRepository(Groups::class)->findBy(['userId' => $user]);
+        $items = $this->em->getRepository(Item::class)->findBy(['userId' => $user, 'deleted' => null]);
+        $category = $this->em->getRepository(Groups::class)->findBy(['userId' => $user]);
 
         if (!$category) {
             $url = $this->generateUrl('group');
@@ -188,7 +183,7 @@ class InventoryController extends Controller
                 'At least one category is required before adding items.'
             );
         }
-        $stock = $this->getDoctrine()->getRepository(Stock::class)->findBy(['userId' => $user]);
+        $stock = $this->em->getRepository(Stock::class)->findBy(['userId' => $user]);
 
         return $this->render('Inventory/items.html.twig', ['title' => 'Items', 'items' => $items, 'category' => $category, 'stock' => $stock]);
     }
@@ -198,16 +193,16 @@ class InventoryController extends Controller
      *
      * @param int $id Item ID
      **/
+    #[Route("/admin/items/delete/{id}", name: "removeitem")]
     public function removeItem($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository(Item::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $item = $this->em->getRepository(Item::class)->findOneBy(['id' => $id, 'userId' => $user]);
         $this->delete('Item', $id);
 
         $item->setDeleted(true);
-        $em->persist($item);
-        $em->flush();
+        $this->em->persist($item);
+        $this->em->flush();
 
         return $this->redirectToRoute('item');
     }
@@ -217,16 +212,16 @@ class InventoryController extends Controller
      *
      * @param int $id Inventory ID
      **/
+    #[Route("/admin/inventory/delete/{id}", name: "removeinventoryitem")]
     public function removeInventoryItem($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $stock = $em->getRepository(Stock::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $stock = $this->em->getRepository(Stock::class)->findOneBy(['id' => $id, 'userId' => $user]);
         $this->delete('Stock', $id);
 
         $stock->setDeleted(true);
-        $em->persist($stock);
-        $em->flush();
+        $this->em->persist($stock);
+        $this->em->flush();
 
         return $this->redirectToRoute('stock');
     }
@@ -238,13 +233,13 @@ class InventoryController extends Controller
      *
      * @Route("/admin/stockitem/remove/{id}", name="removeStockItem")
      */
+    #[Route("/admin/stockitem/remove/{id}", name: "removeStockItem")]
     public function stockItemRemove($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $itempart = $this->getDoctrine()->getRepository(ItemPart::class)->findOneBy(['id' => $id, 'userId' => $user]);
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($itempart);
-        $em->flush();
+        $itempart = $this->em->getRepository(ItemPart::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $this->em->remove($itempart);
+        $this->em->flush();
 
         return $this->redirectToRoute('item', ['id' => $itempart->getItemId()]);
     }
@@ -252,13 +247,13 @@ class InventoryController extends Controller
     /**
      * @Route("/admin/edititem", name="editItem")
      */
+    #[Route("/admin/edititem", name: "editItem")]
     public function edit()
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
         if (isset($_POST['submit'])) {
-            $item = $this->getDoctrine()->getRepository(Item::class)->findOneBy(['id' => $_POST['id'], 'userId' => $user]);
-            $category = $em->getRepository(Groups::class)->findOneBy(['userId' => $user, 'id' => $_POST['category']]);
+            $item = $this->em->getRepository(Item::class)->findOneBy(['id' => $_POST['id'], 'userId' => $user]);
+            $category = $this->em->getRepository(Groups::class)->findOneBy(['userId' => $user, 'id' => $_POST['category']]);
             $item->setName($_POST['name']);
             $item->setSellingPrice($_POST['selling']);
             $item->setCId($_POST['category']);
@@ -278,8 +273,8 @@ class InventoryController extends Controller
             if ($image) {
                 $item->setImg($image);
             }
-            $em->persist($item);
-            $em->flush();
+            $this->em->persist($item);
+            $this->em->flush();
             if (!$_POST['stock']) {
                 // code...
             } else {
@@ -291,18 +286,18 @@ class InventoryController extends Controller
                         $stocks->setStockId($stockId);
                         $stocks->setPortion($_POST['portion'][$i] ?: 1);
                         $stocks->setUserId($user);
-                        $em->persist($stocks);
+                        $this->em->persist($stocks);
                     }
                 }
-                $em->flush();
+                $this->em->flush();
             }
 
             return $this->redirectToRoute('item', ['id' => $_POST['id']]);
         } else {
-            $item = $this->getDoctrine()->getRepository(Item::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
-            $category = $this->getDoctrine()->getRepository(Groups::class)->findBy(['userId' => $user]);
-            $stock = $this->getDoctrine()->getRepository(Stock::class)->findBy(['userId' => $user]);
-            $itempart = $this->getDoctrine()->getRepository(ItemPart::class)->findItem($_GET['id'], $user);
+            $item = $this->em->getRepository(Item::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
+            $category = $this->em->getRepository(Groups::class)->findBy(['userId' => $user]);
+            $stock = $this->em->getRepository(Stock::class)->findBy(['userId' => $user]);
+            $itempart = $this->em->getRepository(ItemPart::class)->findItem($_GET['id'], $user);
             $id = $_GET['id'];
         }
 
@@ -312,34 +307,34 @@ class InventoryController extends Controller
     /**
      * @Route("/admin/category-old", name="category")
      */
+    #[Route("/admin/category-old", name: "category")]
     public function category()
     {
         $user = $this->getUser()->getId();
 
-        $group = $this->getDoctrine()->getRepository(Groups::class)->findBy(['userId' => $user]);
-        $categories = $this->getDoctrine()->getRepository(Category::class)->findAllGroup($user);
+        $group = $this->em->getRepository(Groups::class)->findBy(['userId' => $user]);
+        $categories = $this->em->getRepository(Groups::class)->findAllGroup($user);
 
         $category = null;
         if (isset($_GET['id'])) {
-            $category = $this->getDoctrine()->getRepository(Category::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
+            $category = $this->em->getRepository(Groups::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
         }
 
         if (isset($_POST['submit'])) {
             if (isset($_POST['edit'])) {
-                $category = $this->getDoctrine()->getRepository(Category::class)->findOneBy(['id' => $_POST['id'], 'userId' => $user]);
+                $category = $this->em->getRepository(Groups::class)->findOneBy(['id' => $_POST['id'], 'userId' => $user]);
             } else {
-                $response = $this->check('Category', 'name', $_POST['name'], 'category');
+                $response = $this->check('Groups', 'name', $_POST['name'], 'group');
                 if ($response) {
                     return $response;
                 }
-                $category = new Category();
+                $category = new Groups();
                 $category->setUserId($user);
             }
             $category->setName($_POST['name']);
-            $category->setGId($_POST['group']);
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($category);
-            $em->flush();
+            // $category->setGId($_POST['group']);
+            $this->em->persist($category);
+            $this->em->flush();
 
             return $this->redirectToRoute('category');
         }
@@ -350,20 +345,21 @@ class InventoryController extends Controller
     /**
      * @Route("/admin/category", name="group")
      */
+    #[Route("/admin/category", name: "group")]
     public function group()
     {
         $user = $this->getUser()->getId();
 
-        $groups = $this->getDoctrine()->getRepository(Groups::class)->findBy(['userId' => $user]);
+        $groups = $this->em->getRepository(Groups::class)->findBy(['userId' => $user]);
 
         $group = null;
         if (isset($_GET['id'])) {
-            $group = $this->getDoctrine()->getRepository(Groups::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
+            $group = $this->em->getRepository(Groups::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
         }
 
         if (isset($_POST['submit'])) {
             if (isset($_POST['edit'])) {
-                $group = $this->getDoctrine()->getRepository(Groups::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
+                $group = $this->em->getRepository(Groups::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
             } else {
                 $response = $this->check('Groups', 'name', $_POST['name'], 'group');
                 if ($response) {
@@ -373,9 +369,8 @@ class InventoryController extends Controller
                 $group->setUserId($user);
             }
             $group->setName($_POST['name']);
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($group);
-            $em->flush();
+            $this->em->persist($group);
+            $this->em->flush();
 
             return $this->redirectToRoute('group');
         }
@@ -386,19 +381,19 @@ class InventoryController extends Controller
     /**
      * @Route("/admin/category/delete/{id}", name="deletecategory")
      */
+    #[Route("/admin/category/delete/{id}", name: "deletecategory")]
     public function deleteCategory($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $category = $em->getRepository(Groups::class)->findOneBy(['id' => $id, 'userId' => $user]);
-        $items = $em->getRepository(Item::class)->findBy(['cId' => $id, 'userId' => $user]);
+        $category = $this->em->getRepository(Groups::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $items = $this->em->getRepository(Item::class)->findBy(['cId' => $id, 'userId' => $user]);
         foreach ($items as $item) {
             $this->delete('Item', $item->getId());
             // $em->remove($item);
         }
-        $em->getRepository(Item::class)->deleteByCategory($category, $user);
-        $em->remove($category);
-        $em->flush();
+        $this->em->getRepository(Item::class)->deleteByCategory($category, $user);
+        $this->em->remove($category);
+        $this->em->flush();
 
         return $this->redirectToRoute('group');
     }
@@ -408,20 +403,20 @@ class InventoryController extends Controller
      *
      * @param int $id Item ID
      **/
+    #[Route("/admin/items/delete/{id}", name: "removeitem")]
     public function removeSupplier($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supplier = $em->getRepository(Supplier::class)->findOneBy(['id' => $id, 'userId' => $user]);
-        $supplies = $em->getRepository(Supply::class)->findBy(['supplier_id' => $id, 'user_id' => $user]);
+        $supplier = $this->em->getRepository(Supplier::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $supplies = $this->em->getRepository(Supply::class)->findBy(['supplier_id' => $id, 'user_id' => $user]);
         $this->delete('Supplier', $id);
         foreach ($supplies as $supply) {
             $this->delete('Supply', $supply->getId());
         }
 
         $supplier->setDeleted(true);
-        $em->persist($supplier);
-        $em->flush();
+        $this->em->persist($supplier);
+        $this->em->flush();
 
         return $this->redirectToRoute('supplier');
     }
@@ -429,7 +424,7 @@ class InventoryController extends Controller
     public function check($entity, $name, $value)
     {
         $user = $this->getUser()->getId();
-        $item = $this->getDoctrine()->getRepository('App\Entity\\'.$entity)->findOneBy([$name => $value, 'userId' => $user]);
+        $item = $this->em->getRepository('App\Entity\\'.$entity)->findOneBy([$name => $value, 'userId' => $user]);
         // var_dump($item);
         if ($item) {
             if ($item->getDeleted()) {

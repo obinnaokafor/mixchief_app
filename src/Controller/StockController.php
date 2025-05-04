@@ -13,29 +13,26 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class StockController extends AbstractController
+class StockController extends Controller
 {
-    /**
-     * @Route("/admin/stock", name="stock")
-     */
+    #[Route("/admin/stock", name: "stock")]
     public function stock()
     {
         $user = $this->getUser()->getId();
-        $stock = $this->getDoctrine()->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null], ['name' => 'ASC']);
+        $stock = $this->em->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null], ['name' => 'ASC']);
         $stockitem = [];
         // Get stock item to edit
         if (isset($_GET['id'])) {
-            $stockitem = $this->getDoctrine()->getRepository(Stock::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
+            $stockitem = $this->em->getRepository(Stock::class)->findOneBy(['id' => $_GET['id'], 'userId' => $user]);
         }
         if (isset($_POST['name'])) {
-            $em = $this->getDoctrine()->getManager();
             // check if its an update then update item with id else add new stock items
             if (isset($_POST['edit'])) {
-                $stockitem = $this->getDoctrine()->getRepository(Stock::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
+                $stockitem = $this->em->getRepository(Stock::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
                 $stockitem->setName($_POST['name'][0]);
                 $stockitem->setUnit($_POST['unit'][0]);
                 $stockitem->setQuantity(isset($_POST['quantity'][0]) ? $_POST['quantity'][0] : 0);
-                $em->persist($stockitem);
+                $this->em->persist($stockitem);
             } else {
                 for ($i = 0; $i < count($_POST['name']); ++$i) {
                     $stockitem = new Stock();
@@ -43,10 +40,10 @@ class StockController extends AbstractController
                     $stockitem->setUserId($user);
                     $stockitem->setUnit($_POST['unit'][$i]);
                     $stockitem->setQuantity($_POST['quantity'][$i] ?: 0);
-                    $em->persist($stockitem);
+                    $this->em->persist($stockitem);
                 }
             }
-            $em->flush();
+            $this->em->flush();
 
             return $this->redirectToRoute('stock');
         }
@@ -54,208 +51,154 @@ class StockController extends AbstractController
         return $this->render('Stock/index.html.twig', ['title' => 'Stock', 'stock' => $stock, 'stockitem' => $stockitem]);
     }
 
-    /**
-     * @Route("/admin/inventory/sales/{id}", name="inventorysales")
-     *
-     * @param int $id inventory item id
-     **/
+    #[Route("/admin/stock/sales/{id}", name: "stock_sales")]
     public function inventorySales($id)
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
     }
 
-    /**
-     * @Route("/ajax/{page}", name="ajax")
-     *
-     **/
+    #[Route("/admin/stock/ajax/{page}", name: "stock_ajax")]
     public function ajax($page): Response
     {
         return $this->render("ajax/$page.html.twig");
     }
 
-    /**
-     * @Route("/admin/supply/{supplierId}", name="supply")
-     *
-     * Add Supply
-     */
+    #[Route("/admin/stock/supply/{supplierId}", name: "stock_supply")]
     public function supply($supplierId = null)
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $suppliers = $em->getRepository(Supplier::class)->findBy(['userId' => $user]);
-        $items = $em->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
+        $suppliers = $this->em->getRepository(Supplier::class)->findBy(['userId' => $user]);
+        $items = $this->em->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
 
         if (isset($_POST['supplier'])) {
             $date = date('m/d/Y H:i:s');
             $supply = new Supply();
-            $supply->setSupplier($em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $_POST['supplier']]));
+            $supply->setSupplier($this->em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $_POST['supplier']]));
             $total = array_sum($_POST['amount']);
             $supply->setTotal($total);
             $supply->setUserId($user);
             $supply->setDate(\DateTime::createFromFormat('d/m/Y', $_POST['date']));
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($supply);
-            $em->flush();
+            $this->em->persist($supply);
+            $this->em->flush();
             $this->supplyItemAction($supply->getId(), $_POST);
 
-            return $this->redirectToRoute('supplyitems', ['id' => $supply->getId()]);
+            return $this->redirectToRoute('stock_supply_items', ['id' => $supply->getId()]);
         }
 
         return $this->render('Stock/supply.html.twig', ['title' => 'Enter Supply', 'suppliers' => $suppliers, 'items' => $items, 'supplierId' => $supplierId]);
     }
 
-    /**
-     * @Route("/admin/supplies", name="supplies")
-     *
-     * Show all supplies
-     */
+    #[Route("/admin/stock/supplies", name: "stock_supplies")]
     public function supplies(): Response
     {
         $user = $this->getUser()->getId();
-        $supplies = $this->getDoctrine()->getRepository(Supply::class)->findBy(['userId' => $user]);
+        $supplies = $this->em->getRepository(Supply::class)->findBy(['userId' => $user]);
 
         return $this->render('Stock/supplies.html.twig', ['title' => 'Supplies', 'supplies' => $supplies]);
     }
 
-    /**
-     * @Route("/admin/supplyitems/{id}", name="supplyitems")
-     *
-     * Show all supply items part of a supply
-     */
+    #[Route("/admin/stock/supply/items/{id}", name: "stock_supply_items")]
     public function supplyItems($id): Response
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supply = $em->getRepository(Supply::class)->findOneBy(['id' => $id, 'userId' => $user]);
-        $supplies = $em->getRepository(SupplyItem::class)->findSupplyItems($id, $user);
+        $supply = $this->em->getRepository(Supply::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $supplies = $this->em->getRepository(SupplyItem::class)->findSupplyItems($id, $user);
 
         return $this->render('Stock/itemSupplies.html.twig', ['title' => 'Supplies', 'supplies' => $supplies, 'supply' => $supply]);
     }
 
-    /**
-     * @Route("/admin/supplyitems/stock/{id}", name="stocksupplyitems")
-     *
-     * Show all supply items of an inventory/stock item
-     */
+    #[Route("/admin/stock/supply/items/stock/{id}", name: "stock_supply_items_stock")]
     public function supplyItemsByStock($id): Response
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $stock = $em->getRepository(Stock::class)->findOneBy(['id' => $id, 'userId' => $user]);
-        $supplies = $em->getRepository(SupplyItem::class)->findSupplyItemsByStock($id, $user);
+        $stock = $this->em->getRepository(Stock::class)->findOneBy(['id' => $id, 'userId' => $user]);
+        $supplies = $this->em->getRepository(SupplyItem::class)->findSupplyItemsByStock($id, $user);
 
         return $this->render('Stock/stocksupplies.html.twig', ['title' => 'Stock Supplies', 'supplies' => $supplies, 'stock' => $stock]);
     }
 
-    /**
-     * @Route("/admin/stock/supplyitems/{id}", name="stocksupply")
-     *
-     * @param int $id Stock id
-     **/
+    #[Route("/admin/stock/supplies/stock/{id}", name: "stock_supplies_stock")]
     public function suppliesByStock($id)
     {
-        $supplies = $this->getDoctrine()->getRepository(SupplyItem::class)->findAllSupplyItem($user);
+        $supplies = $this->em->getRepository(SupplyItem::class)->findAllSupplyItem($user);
     }
 
-    /**
-     * @Route("/admin/supplier/{id}/supplies", name="suppliesbysupplier")
-     *
-     * Show supplies by supplier identified by id
-     *
-     * @param int $id Supplier ID
-     **/
+    #[Route("/admin/stock/supplies/supplier/{id}", name: "stock_supplies_supplier")]
     public function suppliesBySupplier($id): Response
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supplier = $em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $supplier = $this->em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $id]);
 
         return $this->render('Stock/supplies.html.twig', ['title' => 'Supplies', 'supplies' => $supplier->getSupply(), 'supplier' => $supplier]);
     }
 
-    /**
-     * @Route("/admin/supply/edit/{id}", name="editsupply")
-     *
-     **/
+    #[Route("/admin/stock/supply/edit/{id}", name: "stock_supply_edit")]
     public function editSupply($id): Response
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supply = $em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $supply = $this->em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
         if ($supply) {
-            $supplier = $em->getRepository(Supplier::class)->findBy(['userId' => $user]);
-            $supplyitems = $em->getRepository(SupplyItem::class)->findBySupplyStock($id, $user);
-            $stockitems = $this->getDoctrine()->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
+            $supplier = $this->em->getRepository(Supplier::class)->findBy(['userId' => $user]);
+            $supplyitems = $this->em->getRepository(SupplyItem::class)->findBySupplyStock($id, $user);
+            $stockitems = $this->em->getRepository(Stock::class)->findBy(['userId' => $user, 'deleted' => null]);
 
             return $this->render('Stock/editsupply.html.twig', ['title' => 'Supplies', 'supply' => $supply, 'supplier' => $supplier, 'supplyitems' => $supplyitems, 'stockitems' => $stockitems]);
         }
     }
 
-    /**
-     * @Route("/admin/supply/update/{id}", name="updatesupply")
-     *
-     * @return void
-     *
-     * @author
-     **/
+    #[Route("/admin/stock/supply/update/{id}", name: "stock_supply_update")]
     public function updateSupply($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         if (isset($_POST['supplier'])) {
             $user = $this->getUser()->getId();
-            $em = $this->getDoctrine()->getManager();
-            $supply = $em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
+            $supply = $this->em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
             // $supply->setName($_POST['name']);
-            $supply->setSupplier($em->getRepository(Supplier::class)->findOneBy(['id' => $_POST['supplier'], 'userId' => $user]));
+            $supply->setSupplier($this->em->getRepository(Supplier::class)->findOneBy(['id' => $_POST['supplier'], 'userId' => $user]));
             $total = array_sum($_POST['amount']) + $supply->getTotal();
             $supply->setTotal($total);
             $supply->setDate(\DateTime::createFromFormat('d/m/Y', $_POST['date']));
-            $em->persist($supply);
-            $em->flush();
+            $this->em->persist($supply);
+            $this->em->flush();
             $this->supplyItemAction($supply->getId(), $_POST);
 
-            return $this->redirectToRoute('supplyitems', ['id' => $id]);
+            return $this->redirectToRoute('stock_supply_items', ['id' => $id]);
         }
     }
 
-    /**
-     * @Route("/admin/supply/delete/{id}", name="deletesupply")
-     *
-     **/
+    #[Route("/admin/stock/supply/delete/{id}", name: "stock_supply_delete")]
     public function deleteSupply($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supply = $em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $supply = $this->em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $id]);
 
         if ($supply) {
-            $supplyitems = $em->getRepository(SupplyItem::class)->findBy(['userId' => $user, 'supplyId' => $id]);
+            $supplyitems = $this->em->getRepository(SupplyItem::class)->findBy(['userId' => $user, 'supplyId' => $id]);
             foreach ($supplyitems as $item) {
                 // $this->deleteSupplyItem($item->getId());
-                $stock = $em->getRepository(Stock::class)->findOneBy(['id' => $item->getStock(), 'userId' => $user]);
+                $stock = $this->em->getRepository(Stock::class)->findOneBy(['id' => $item->getStock(), 'userId' => $user]);
                 if ($stock) {
                     $stock->setQuantity(max($stock->getQuantity() - $item->getQuantity(), 0));
-                    $em->persist($stock);
+                    $this->em->persist($stock);
                 }
             }
-            $em->getRepository(SupplyItem::class)->deleteSupplyItems($id, $user);
+            $this->em->getRepository(SupplyItem::class)->deleteSupplyItems($id, $user);
 
-            $em->remove($supply);
-            $em->flush();
+            $this->em->remove($supply);
+            $this->em->flush();
 
             // return $this->json(['message' => 'Supply deleted successfully']);
         }
 
-        return $this->redirectToRoute('supplies');
+        return $this->redirectToRoute('stock_supplies');
     }
 
+    #[Route("/admin/stock/supply/item/{id}/{items}", name: "stock_supply_item")]
     public function supplyItem($id, $items)
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
         for ($i = 0; $i < count($items['item']); ++$i) {
             if ($items['item'][$i] !== '-1') {
-                $stock = $this->getDoctrine()->getRepository(Stock::class)->findOneBy([
+                $stock = $this->em->getRepository(Stock::class)->findOneBy([
                     'id' => explode('|', $items['item'][$i])[0],
                     'userId' => $user,
                 ]);
@@ -266,8 +209,8 @@ class StockController extends AbstractController
                 $stock->setUserId($user);
             }
             $stock->setQuantity($stock->getQuantity() + floatval($items['quantity'][$i]));
-            $em->persist($stock);
-            $em->flush();
+            $this->em->persist($stock);
+            $this->em->flush();
             $item = new SupplyItem();
             $item->setSupplyId($id);
             $item->setUserId($user);
@@ -276,116 +219,95 @@ class StockController extends AbstractController
             $item->setQuantity(floatval($items['quantity'][$i]));
             $item->setAmount(floatval($items['amount'][$i]));
 
-            $em->persist($item);
+            $this->em->persist($item);
         }
-        $em->flush();
+        $this->em->flush();
     }
 
-    /**
-     * show/add spillages.
-     *
-     * @Route("/admin/spillage", name="spillage")
-     **/
+    #[Route("/admin/stock/spillage", name: "stock_spillage")]
     public function spillage(): Response
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $spillage = $em->getRepository(Spillage::class)->findBy(['userId' => $user]);
-        $inventory = $em->getRepository(Stock::class)->findBy(['userId' => $user]);
+        $spillage = $this->em->getRepository(Spillage::class)->findBy(['userId' => $user]);
+        $inventory = $this->em->getRepository(Stock::class)->findBy(['userId' => $user]);
 
         return $this->render('Stock/spillage.html.twig', ['title' => 'Spillage', 'spillages' => $spillage, 'inventory' => $inventory]);
     }
 
-    /**
-     * post spillages.
-     *
-     * @Route("/admin/spillage/post", name="post_spillage", methods="POST")
-     **/
+    #[Route("/admin/stock/spillage/post", name: "stock_spillage_post")]
     public function postSplillage(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $stock = $em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $_POST['stock']]);
+        $stock = $this->em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $_POST['stock']]);
         $splillage = new Spillage();
         $splillage->setReason($_POST['reason']);
         $splillage->setStock($stock);
         $splillage->setQuantity($_POST['quantity']);
         $splillage->setUserId($user);
         $splillage->setCreated(\DateTime::createFromFormat('d/m/Y', $_POST['date']));
-        $stock = $em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $_POST['stock']]);
+        $stock = $this->em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $_POST['stock']]);
         if ($stock) {
-            $em->persist($splillage);
+            $this->em->persist($splillage);
             $stock->setQuantity(max($stock->getQuantity() - $_POST['quantity'], 0));
-            $em->persist($stock);
-            $em->flush();
+            $this->em->persist($stock);
+            $this->em->flush();
         }
 
-        return $this->redirectToRoute('spillage');
+        return $this->redirectToRoute('stock_spillage');
     }
 
-    /**
-     * delete spillage.
-     *
-     * @Route("/admin/spillage/delete/{id}", name="delete_spillage")
-     **/
+    #[Route("/admin/stock/spillage/delete/{id}", name: "stock_spillage_delete")]
     public function deleteSpillage($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $spillage = $em->getRepository(Spillage::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $spillage = $this->em->getRepository(Spillage::class)->findOneBy(['userId' => $user, 'id' => $id]);
         if ($spillage) {
-            $stock = $em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $spillage->getStock()]);
+            $stock = $this->em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $spillage->getStock()]);
             $stock->setQuantity($stock->getQuantity() + $spillage->getQuantity());
-            $em->remove($spillage);
-            $em->persist($stock);
-            $em->flush();
+            $this->em->remove($spillage);
+            $this->em->persist($stock);
+            $this->em->flush();
         }
 
-        return $this->redirectToRoute('spillage');
+        return $this->redirectToRoute('stock_spillage');
     }
 
-    /**
-     * @Route("/admin/supply/item/delete/{id}", name="deleteSupplyItem")
-     *
-     **/
+    #[Route("/admin/stock/supply/item/delete/{id}", name: "stock_supply_item_delete")]
     public function deleteSupplyItem($id): JsonResponse
     {
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $item = $em->getRepository(SupplyItem::class)->findOneBy(['userId' => $user, 'id' => $id]);
-        $stock = $em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $item->getStock()]);
-        $supply = $em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $item->getSupplyId()]);
+        $item = $this->em->getRepository(SupplyItem::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $stock = $this->em->getRepository(Stock::class)->findOneBy(['userId' => $user, 'id' => $item->getStock()]);
+        $supply = $this->em->getRepository(Supply::class)->findOneBy(['userId' => $user, 'id' => $item->getSupplyId()]);
         try {
             $stock->setQuantity(max($stock->getQuantity() - $item->getQuantity(), 0));
             $supply->setTotal(max($supply->getTotal() - $item->getAmount(), 0));
         } catch (\Exception $e) {
             return $this->json(['message' => 'Coudn\'t delete item']);
         }
-        $em->persist($stock);
-        $em->persist($supply);
-        $em->remove($item);
-        $em->flush();
+        $this->em->persist($stock);
+        $this->em->persist($supply);
+        $this->em->remove($item);
+        $this->em->flush();
 
         return $this->json(['message' => 'Item deleted succesfully']);
     }
 
-    /**
-     * @Route("/admin/supplier/{id}", name="supplier")
-     */
+    #[Route("/admin/stock/supplier/{id}", name: "stock_supplier")]
     public function supplier($id = null)
     {
         $user = $this->getUser()->getId();
 
-        $suppliers = $this->getDoctrine()->getRepository(Supplier::class)->findBy(['userId' => $user]);
+        $suppliers = $this->em->getRepository(Supplier::class)->findBy(['userId' => $user]);
 
         $supplier = [];
         if ($id) {
-            $supplier = $this->getDoctrine()->getRepository(Supplier::class)->findOneBy(['id' => $id, 'userId' => $user]);
+            $supplier = $this->em->getRepository(Supplier::class)->findOneBy(['id' => $id, 'userId' => $user]);
         }
 
         if (isset($_POST['name'])) {
             if (isset($_POST['edit'])) {
-                $supplier = $this->getDoctrine()->getRepository(Supplier::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
+                $supplier = $this->em->getRepository(Supplier::class)->findOneBy(['id' => $_POST['edit'], 'userId' => $user]);
             } else {
                 $supplier = new Supplier();
                 $supplier->setUserId($user);
@@ -394,9 +316,8 @@ class StockController extends AbstractController
             $supplier->setAddress($_POST['address']);
             $supplier->setTelephone($_POST['telephone']);
             $supplier->setEmail($_POST['email']);
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($supplier);
-            $em->flush();
+            $this->em->persist($supplier);
+            $this->em->flush();
 
             $flash = isset($_POST['edit']) ? 'Supplier updated' : 'Supplier added';
 
@@ -405,40 +326,35 @@ class StockController extends AbstractController
                 $flash
             );
 
-            return $this->redirectToRoute('supplier');
+            return $this->redirectToRoute('stock_supplier');
         }
 
         return $this->render('Stock/supplier.html.twig', ['title' => 'Suppliers', 'suppliers' => $suppliers, 'supplier' => $supplier]);
     }
 
-    /**
-     * @Route("/admin/supplier/delete/{id}", name="deletesupplier")
-     *
-     * @param int $id Supplier ID
-     **/
+    #[Route("/admin/stock/supplier/delete/{id}", name: "stock_supplier_delete")]
     public function deleteSupplier($id): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         // return $this->json(['hello']);
         $user = $this->getUser()->getId();
-        $em = $this->getDoctrine()->getManager();
-        $supplyitems = $em->getRepository(SupplyItem::class)->suppierItems($id, $user);
+        $supplyitems = $this->em->getRepository(SupplyItem::class)->suppierItems($id, $user);
         // var_dump($supplyitems);die;
         foreach ($supplyitems as $item) {
-            $stock = $em->getRepository(Stock::class)->findOneBy(['id' => $item['stock'], 'userId' => $user]);
+            $stock = $this->em->getRepository(Stock::class)->findOneBy(['id' => $item['stock'], 'userId' => $user]);
             if ($stock) {
                 $stock->setQuantity(max($stock->getQuantity() - $item['quantity'], 0));
-                $em->persist($stock);
+                $this->em->persist($stock);
             }
         }
 
-        $supplier = $em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $id]);
+        $supplier = $this->em->getRepository(Supplier::class)->findOneBy(['userId' => $user, 'id' => $id]);
         $name = $supplier->getName();
         foreach ($supplier->getSupply() as $supply) {
-            $em->getRepository(SupplyItem::class)->deleteSupplyItems($supply->getId(), $user);
+            $this->em->getRepository(SupplyItem::class)->deleteSupplyItems($supply->getId(), $user);
         }
-        $em->getRepository(Supply::class)->deleteSuppliesBySupplier($id, $user);
-        $em->remove($supplier);
-        $em->flush();
+        $this->em->getRepository(Supply::class)->deleteSuppliesBySupplier($id, $user);
+        $this->em->remove($supplier);
+        $this->em->flush();
 
         $flash = $name.' deleted';
 
@@ -448,7 +364,7 @@ class StockController extends AbstractController
         );
 
         // return $this->json($supplies);
-        return $this->redirectToRoute('supplier');
+        return $this->redirectToRoute('stock_supplier');
     }
 
     /*

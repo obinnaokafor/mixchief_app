@@ -9,13 +9,13 @@ use App\Service\SESEmailClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class UserController extends Controller
 {
@@ -24,13 +24,11 @@ class UserController extends Controller
      */
     private $ses;
     private AuthorizationCheckerInterface $authorizationChecker;
-    private ManagerRegistry $doctrine;
 
-    public function __construct(SESEmailClient $ses, AuthorizationCheckerInterface $authorizationChecker, ManagerRegistry $doctrine)
+    public function __construct(SESEmailClient $ses, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->ses = $ses;
         $this->authorizationChecker = $authorizationChecker;
-        $this->doctrine = $doctrine;
     }
 
     /**
@@ -48,10 +46,9 @@ class UserController extends Controller
      * Register new user
      */
     public function register(
-        EntityManagerInterface $em,
-        GuardAuthenticatorHandler $guardHandler,
-        UserPasswordEncoderInterface $passwordEncoder,
-        LoginFormAuthenticator $formAuthenticator,
+        UserPasswordHasherInterface $userPasswordHasher,
+        LoginFormAuthenticator $authenticator,
+        UserAuthenticatorInterface $userAuthenticator,
         Request $request)
     {
         $form = $this->createForm(RegistrationFormType::class);
@@ -63,20 +60,16 @@ class UserController extends Controller
             $rand = $this->randomString();
             $user->setVerification($rand);
             $plain = $form['plainPassword']->getData();
-            $user->setPassword($passwordEncoder->encodePassword(
-                $user,
-                $plain
-            ));
-            $em->persist($user);
-            $em->flush();
+            $user->setPassword($userPasswordHasher->hashPassword($plain));
+            $this->em->persist($user);
+            $this->em->flush();
 
             $this->sendEmail('email.html.twig', $user, $rand, 'Welcome to Amply');
 
-            return $guardHandler->authenticateUserAndHandleSuccess(
+            return $userAuthenticator->authenticateUser(
                 $user,
-                $request,
-                $formAuthenticator,
-                'main'
+                $authenticator,
+                $request
             );
         }
 
@@ -98,7 +91,7 @@ class UserController extends Controller
     //         return $this->redirectToRoute('admin');
     //     }
     // 	if (isset($_POST['submit'])) {
-    //         $em = $this->getDoctrine()->getManager();
+    //         $em = $this->em->getManager();
     //         $user = new Users();
     //         $user->setEmail($_POST['email']);
     //         $user->setCompany($_POST['company']);
@@ -136,7 +129,6 @@ class UserController extends Controller
     {
         $user = $this->getUser();
         if (isset($_POST['company'])) {
-            $em = $this->doctrine->getManager();
             $user->setCompany($_POST['company']);
             $user->setTelephone($_POST['telephone']);
             $user->setAddress($_POST['address']);
@@ -147,8 +139,8 @@ class UserController extends Controller
                 $user->setLogo($logo);
             }
 
-            $em->persist($user);
-            $em->flush();
+            $this->em->persist($user);
+            $this->em->flush();
 
             $this->addFlash(
                 'success',
@@ -190,7 +182,6 @@ class UserController extends Controller
      **/
     public function resendVerEmail(): \Symfony\Component\HttpFoundation\JsonResponse
     {
-        $em = $this->doctrine->getManager();
         $user = $this->getUser();
         $rand = $user->getVerification();
 
@@ -225,8 +216,7 @@ class UserController extends Controller
      **/
     public function verifyEmail(string $token): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['verification' => $token]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['verification' => $token]);
 
         if (!$user) {
             $this->addFlash(
@@ -236,8 +226,8 @@ class UserController extends Controller
         } else {
             $user->setEnabled(true);
             $user->setVerification(null);
-            $em->persist($user);
-            $em->flush();
+            $this->em->persist($user);
+            $this->em->flush();
 
             $this->addFlash(
                 'success',
@@ -259,13 +249,12 @@ class UserController extends Controller
         $error = null;
         if (isset($_POST['submit'])) {
             $email = $_POST['email'];
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository(Users::class)->findOneBy(['email' => $email]);
+            $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $email]);
             if ($user) {
                 $rand = $this->randomString(64);
                 $user->setReset($rand);
-                $em->persist($user);
-                $em->flush();
+                $this->em->persist($user);
+                $this->em->flush();
 
                 $this->sendEmail('passwordemail.html.twig', $user, $rand, 'Password Reset');
 
@@ -285,8 +274,7 @@ class UserController extends Controller
      **/
     public function reset($token)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['reset' => $token]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['reset' => $token]);
         if ($user) {
             return $this->render('Users/passwordchange.html.twig', [
                 'email' => $user->getEmail(),
@@ -300,22 +288,18 @@ class UserController extends Controller
     /**
      * @Route("/password/change", name="password_change")
      *
-     * @param UserPasswordEncoder $passwordEncoder
+     * @param PasswordHasherInterface $passwordEncoder
      **/
-    public function passwordChange(UserPasswordEncoderInterface $passwordEncoder): \Symfony\Component\HttpFoundation\RedirectResponse
+    public function passwordChange(PasswordHasherInterface $passwordEncoder): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => $_POST['email']]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $_POST['email']]);
         $error = '';
 
         if ($user && ($user->getReset() === $_POST['token']) && $_POST['password'] === $_POST['confirmpassword']) {
             $user->setReset('');
-            $user->setPassword($passwordEncoder->encodePassword(
-                $user,
-                $_POST['password']
-            ));
-            $em->persist($user);
-            $em->flush();
+            $user->setPassword($passwordEncoder->hash($_POST['password']));
+            $this->em->persist($user);
+            $this->em->flush();
 
             $this->addFlash(
                 'success',
@@ -334,6 +318,7 @@ class UserController extends Controller
     /**
      * @Route("/login", name="app_login")
      */
+    #[Route("/login", name: "app_login")]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {

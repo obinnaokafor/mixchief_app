@@ -15,7 +15,7 @@ use Yabacon\Paystack;
 use Yabacon\Paystack\Event;
 use Yabacon\Paystack\Exception\ApiException;
 
-class BillingController extends AbstractController
+class BillingController extends Controller
 {
     /**
      * Logger.
@@ -45,18 +45,11 @@ class BillingController extends AbstractController
         $this->paystack_secret = getenv('PAYSTACK_SECRET');
     }
 
-    /**
-     * @Route("/admin/subscribe", name="subscribe")
-     *
-     * @return void
-     *
-     * @author
-     **/
+    #[Route("/admin/subscribe", name: "subscribe")]
     public function index(): Response
     {
-        $user = $this->getuser();
-        $em = $this->getDoctrine()->getManager();
-        $subscription = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
+        $user = $this->getUser();
+        $subscription = $this->em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
         $now = new \DateTime('now');
         if ($subscription->getStatus()) {
             $package = 'All-in-One';
@@ -71,9 +64,7 @@ class BillingController extends AbstractController
         return $this->render('Default/subscribe.html.twig', ['title' => 'Subscribe', 'subscription' => $package, 'expiry' => $expiry]);
     }
 
-    /**
-     * @Route("/admin/pay", name="pay")
-     */
+    #[Route("/admin/pay", name: "pay")]
     public function pay(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $paystack = new Paystack($this->paystack_secret);
@@ -110,9 +101,7 @@ class BillingController extends AbstractController
         return $this->redirect($url);
     }
 
-    /**
-     * @Route("/payment/charge/handle", name="paystackWebhook")
-     **/
+    #[Route("/payment/charge/handle", name: "paystackWebhook")]
     public function handleHook(): Response
     {
         // $signature = $request->headers->get('HTTP_X_PAYSTACK_SIGNATURE');
@@ -173,22 +162,21 @@ class BillingController extends AbstractController
     /**
      * Enable subscription.
      *
-     * @param array $data
+     * @param $data
      *
      * @return bool
      **/
     public function enableSub($data)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => $data->customer->email]);
-        $userSub = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $data->customer->email]);
+        $userSub = $this->em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
 
         if ($userSub) {
             $userSub->setStatus(true);
             $userSub->setRenew(true);
 
-            $em->persist($userSub);
-            $em->flush();
+            $this->em->persist($userSub);
+            $this->em->flush();
         }
 
         return true;
@@ -197,17 +185,16 @@ class BillingController extends AbstractController
     /**
      * Save Subscription Details.
      *
-     * @param array $data
+     * @param $data
      **/
     public function subscription($data)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => $data->customer->email]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $data->customer->email]);
 
         // Check if user has an expired/cancelled subscription
         // else save a new subscription
         if ($user) {
-            $userSub = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
+            $userSub = $this->em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
             $sub = $userSub ?: new Subscription();
             $sub->setEmailToken($data->email_token);
             $sub->setCode($data->subscription_code);
@@ -218,8 +205,8 @@ class BillingController extends AbstractController
             $sub->setStatus(true);
             $sub->setRenew(true);
 
-            $em->persist($sub);
-            $em->flush();
+            $this->em->persist($sub);
+            $this->em->flush();
 
             return $sub;
         }
@@ -234,7 +221,6 @@ class BillingController extends AbstractController
      **/
     public function subscribe($user, $auth, $duration = 1)
     {
-        $em = $this->getDoctrine()->getManager();
 
         // Get the date the user registered and set the subscription start date
         // to be 2 weeks from that date (so the user can still enjoy their free trial)
@@ -253,8 +239,8 @@ class BillingController extends AbstractController
         if (!$user->getPaystackCode()) {
             if ($result = $this->helper->createCustomer($user)) {
                 $user->setPaystackCode($result['code']);
-                $em->persist($user);
-                $em->flush();
+                $this->em->persist($user);
+                $this->em->flush();
             }
         }
 
@@ -271,14 +257,13 @@ class BillingController extends AbstractController
      **/
     public function disableSub($evtData)
     {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(Users::class)->findOneBy(['email' => $evtData->customer->email]);
-        $subscription = $em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
+        $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $evtData->customer->email]);
+        $subscription = $this->em->getRepository(Subscription::class)->findOneBy(['user' => $user]);
         // $now = new
         if ($subscription) {
             $subscription->setRenew(false);
-            $em->persist($subscription);
-            $em->flush();
+            $this->em->persist($subscription);
+            $this->em->flush();
 
             return true;
         }
@@ -293,9 +278,7 @@ class BillingController extends AbstractController
         // TODO: Handle failed charge
     }
 
-    /**
-     * @Route("/payment/paystack/callback", name="paystackCallback")
-     **/
+    #[Route("/payment/paystack/callback", name: "paystackCallback")]
     public function paymentCallback(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $reference = $request->query->get('reference');
@@ -307,13 +290,11 @@ class BillingController extends AbstractController
             return $this->redirectToRoute('payment', ['status' => false]);
         }
 
-        $em = $this->getDoctrine()->getManager();
-
         // Check if transaction already exists with same reference
-        if (!$em->getRepository(Transaction::class)->findOneBy(['reference' => $reference])) {
+        if (!$this->em->getRepository(Transaction::class)->findOneBy(['reference' => $reference])) {
             $now = new \DateTime('now');
 
-            $user = $em->getRepository(Users::class)->findOneBy(['email' => $tranx->data->customer->email]);
+            $user = $this->em->getRepository(Users::class)->findOneBy(['email' => $tranx->data->customer->email]);
             $transaction = new Transaction();
             $transaction->setCreated($now);
             $transaction->setAmount($tranx->data->amount);
@@ -321,8 +302,8 @@ class BillingController extends AbstractController
             $transaction->setUserId($user->getId());
             $transaction->setLastFour($tranx->data->authorization->last4);
             $transaction->setPaystackAuth($tranx->data->authorization->authorization_code);
-            $em->persist($transaction);
-            $em->flush();
+            $this->em->persist($transaction);
+            $this->em->flush();
         }
 
         $this->addFlash(
@@ -333,12 +314,7 @@ class BillingController extends AbstractController
         return $this->redirectToRoute('admin');
     }
 
-    /**
-     * @Route("/payment/complete/{success}", name="payment")
-     * Complete payment
-     *
-     * @param string $status status of the transaction
-     **/
+    #[Route("/payment/complete/{success}", name: "payment")]
     public function payment($status): Response
     {
         $message = $status ? 'Payment Successful' : 'Payment failed';
